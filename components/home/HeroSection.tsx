@@ -10,13 +10,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const popularDestinations = [
-	'Maldives',
-	'Bali, Indonesia',
+	'Australia',
+	'Malaysia',
 	'Thailand',
 	'Japan',
-	'New Zealand',
+	'Canada',
 	'Greece',
-	'Iceland',
+	'United State',
 	'Morocco',
 	'India',
 	'Pakistan',
