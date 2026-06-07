@@ -4,7 +4,7 @@ import { PageBanner } from '@/components/common/PageBanner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { VisaCountry } from '@/data/countries';
-import { Loader, Search } from 'lucide-react';
+import { Loader, Search, SearchX } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -76,28 +76,45 @@ const Visa = () => {
 						</div>
 					</div>
 
-					<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
-						{result?.map((country) => (
-							<Card
-								key={country.slug}
-								className='border-0 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer group overflow-hidden'
-								onClick={() => router.push(`/visa/${country.slug}`)}
-							>
-								<CardContent className='p-4 text-center h-full flex flex-col items-center justify-center'>
-									<div className='text-5xl mb-3'>{country.flag}</div>
-									<h3 className='font-display text-base font-semibold text-foreground group-hover:text-primary transition-colors mb-2'>
-										{country.name}
-									</h3>
-									<p className='font-body text-xs text-muted-foreground mb-2'>
-										{country.type}
-									</p>
-									<p className='font-body text-xs text-primary font-medium'>
-										{country.processing}
-									</p>
-								</CardContent>
-							</Card>
-						))}
-					</div>
+					{result?.length ? (
+						<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+							{result?.map((country) => (
+								<Card
+									key={country.slug}
+									className='border-0 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer group overflow-hidden'
+									onClick={() => router.push(`/visa/${country.slug}`)}
+								>
+									<CardContent className='p-4 text-center h-full flex flex-col items-center justify-center'>
+										<div className='text-5xl mb-3'>{country.flag}</div>
+										<h3 className='font-display text-base font-semibold text-foreground group-hover:text-primary transition-colors mb-2'>
+											{country.name}
+										</h3>
+										<p className='font-body text-xs text-muted-foreground mb-2'>
+											{country.type}
+										</p>
+										<p className='font-body text-xs text-primary font-medium'>
+											{country.processing}
+										</p>
+									</CardContent>
+								</Card>
+							))}
+						</div>
+					) : (
+						<div className='flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white px-8 py-20 text-center shadow-sm'>
+							<div className='mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-orange-100'>
+								<SearchX className='h-10 w-10 text-primary' />
+							</div>
+
+							<h3 className='text-2xl font-bold text-slate-900'>
+								No Destinations Found
+							</h3>
+
+							<p className='mt-3 max-w-md text-slate-500'>
+								We couldn't find any visa destinations matching your search. Try
+								adjusting your keywords or browse all available countries.
+							</p>
+						</div>
+					)}
 				</div>
 			</section>
 		);
