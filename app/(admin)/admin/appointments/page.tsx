@@ -1,7 +1,6 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,7 +14,6 @@ import {
 	Sheet,
 	SheetContent,
 	SheetDescription,
-	SheetFooter,
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
@@ -23,7 +21,6 @@ import { format } from 'date-fns';
 import {
 	Calendar,
 	Clock,
-	Eye,
 	Loader,
 	Mail,
 	Phone,
@@ -232,7 +229,8 @@ export default function AppointmentsAdminPage() {
 					{filteredAppointments.map((apt) => (
 						<Card
 							key={apt._id}
-							className='border-0 shadow-soft hover:shadow-md transition-shadow'
+							className='border-[1px] border-white  hover:border-primary/20 hover:duration-300 shadow-soft hover:shadow-md cursor-pointer transition-shadow'
+							onClick={() => viewAppointment(apt)}
 						>
 							<CardContent className='p-5'>
 								<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
@@ -276,13 +274,13 @@ export default function AppointmentsAdminPage() {
 												<SelectItem value='cancelled'>Cancelled</SelectItem>
 											</SelectContent>
 										</Select>
-										<Button
+										{/* <Button
 											size='sm'
 											variant='ghost'
 											onClick={() => viewAppointment(apt)}
 										>
-											<Eye className='w-4 h-4' />
-										</Button>
+											<Eye className='w-4 h-4' /> View
+										</Button> */}
 									</div>
 								</div>
 							</CardContent>
@@ -293,7 +291,7 @@ export default function AppointmentsAdminPage() {
 
 			{/* Details Drawer */}
 			<Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-				<SheetContent className='w-full sm:max-w-md'>
+				<SheetContent className='w-full sm:max-w-lg'>
 					<SheetHeader>
 						<SheetTitle>Appointment Details</SheetTitle>
 						<SheetDescription>
@@ -302,13 +300,13 @@ export default function AppointmentsAdminPage() {
 					</SheetHeader>
 
 					{selectedAppointment && (
-						<div className='space-y-6 py-6'>
+						<div className='space-y-6 p-6'>
 							<div className='flex items-center gap-4'>
 								<div className='w-16 h-16 rounded-xl bg-cyan-100 dark:bg-cyan-950/30 flex items-center justify-center'>
 									<User className='w-8 h-8 text-cyan-500' />
 								</div>
 								<div>
-									<h3 className='font-semibold text-lg text-foreground'>
+									<h3 className='font-semibold text-lg text-foreground capitalize'>
 										{selectedAppointment.fullName}
 									</h3>
 									<Badge
@@ -344,7 +342,7 @@ export default function AppointmentsAdminPage() {
 									<Calendar className='w-5 h-5 text-muted-foreground' />
 									<div>
 										<p className='text-xs text-muted-foreground'>Service</p>
-										<p className='font-medium text-foreground'>
+										<p className='font-medium text-foreground capitalize'>
 											{selectedAppointment.service}
 										</p>
 									</div>
@@ -401,20 +399,6 @@ export default function AppointmentsAdminPage() {
 							</div>
 						</div>
 					)}
-
-					<SheetFooter className='border-t border-border pt-4'>
-						<Button variant='outline' onClick={() => setDrawerOpen(false)}>
-							Close
-						</Button>
-						{selectedAppointment && (
-							<Button
-								variant='destructive'
-								onClick={() => handleDelete(selectedAppointment._id)}
-							>
-								Delete
-							</Button>
-						)}
-					</SheetFooter>
 				</SheetContent>
 			</Sheet>
 		</div>

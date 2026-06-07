@@ -200,9 +200,7 @@ export default function AdminLayout({
 			<main className='lg:ml-64 min-h-screen pt-16 lg:pt-0'>
 				<AdminNavbar />
 
-				<div className='p-6 lg:p-8'>
-					<br /> <br /> {children}
-				</div>
+				<div className='p-6 lg:p-8 mt-5 lg:mt-20'>{children}</div>
 			</main>
 		</div>
 	);

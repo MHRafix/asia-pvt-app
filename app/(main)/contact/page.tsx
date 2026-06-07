@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import * as yup from 'yup';
 
 const schema = yup.object({
@@ -41,40 +41,45 @@ const Contact = () => {
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({ resolver: yupResolver(schema) });
 
-	const onSubmit = (data: FormData) => {
-		toast({
-			title: 'Message Sent!',
-			description: `Thank you ${data.firstName}, we'll get back to you at ${data.email} soon.`,
-		});
-		reset();
-	};
+	const onSubmit = async (data: FormData) => {
+		// setSubmitting(true);
+		try {
+			const url = '/api/contacts';
+			const method = 'POST';
 
-	const contactInfo = [
-		{
-			icon: MapPin,
-			color: 'bg-primary/10 text-primary',
-			title: 'Address',
-			value: '123 Travel Street, Adventure City, WL 12345',
-		},
-		{
-			icon: Phone,
-			color: 'bg-ocean/10 text-ocean',
-			title: 'Phone',
-			value: '+1 (555) 123-4567',
-		},
-		{
-			icon: Mail,
-			color: 'bg-coral/10 text-coral',
-			title: 'Email',
-			value: 'hello@wanderlust.travel',
-		},
-		{
-			icon: Clock,
-			color: 'bg-sunset/20 text-foreground',
-			title: 'Business Hours',
-			value: 'Mon - Fri: 9:00 AM - 6:00 PM\nSat: 10:00 AM - 4:00 PM',
-		},
-	];
+			const response = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+
+			const result = await response.json();
+			if (result.success) {
+				toast.success(SplitButtons, {
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					ariaLabel: 'Message sent',
+					closeOnClick: true,
+				});
+				reset();
+			} else {
+				toast.error('Failed to sent message', {
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					closeOnClick: true,
+				});
+			}
+		} catch (error) {
+			toast.error('Somehting wrong in system', {
+				closeButton: true,
+				position: 'top-left',
+				className: '!px-4 !py-0 !w-[400px]',
+				closeOnClick: true,
+			});
+		}
+	};
 
 	return (
 		<div className='min-h-screen'>
@@ -226,3 +231,39 @@ const Contact = () => {
 };
 
 export default Contact;
+function SplitButtons() {
+	return (
+		<div className='w-full'>
+			<div className='flex flex-col p-4'>
+				<h3 className='text-zinc-800 text-xl font-semibold'>Message sent</h3>
+				<p className='text-lg'>Your message has been sent.</p>
+			</div>
+		</div>
+	);
+}
+const contactInfo = [
+	{
+		icon: MapPin,
+		color: 'bg-primary/10 text-primary',
+		title: 'Address',
+		value: 'Shop 3A-043, Level 3, Jamuna Future Park, Dhaka - 1229.',
+	},
+	{
+		icon: Phone,
+		color: 'bg-ocean/10 text-ocean',
+		title: 'Phone',
+		value: '+1 (555) 123-4567',
+	},
+	{
+		icon: Mail,
+		color: 'bg-coral/10 text-coral',
+		title: 'Email',
+		value: 'asiatours2018@gmail.com',
+	},
+	{
+		icon: Clock,
+		color: 'bg-sunset/20 text-foreground',
+		title: 'Business Hours',
+		value: 'Sat - Thu: 9:00 AM - 8:00 PM',
+	},
+];

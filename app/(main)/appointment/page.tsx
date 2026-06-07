@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { packages } from '@/data/packages';
 import { services } from '@/data/services';
-import { toast } from '@/hooks/use-toast';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ArrowRight, Calendar, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 import * as yup from 'yup';
 
@@ -61,28 +62,46 @@ const AppointmentPage = ({ searchParams }: any) => {
 		},
 	});
 
-	const onSubmit = (data: FormData) => {
-		toast({
-			title: 'Appointment Booked!',
-			description: `We'll confirm your ${data.service} appointment at ${data.email}.`,
-		});
-		setSubmitted(true);
-	};
+	const onSubmit = async (data: FormData) => {
+		// setSubmitting(true);
+		try {
+			const url = '/api/appointments';
+			const method = 'POST';
 
-	const timeSlots = [
-		'09:00 AM',
-		'09:30 AM',
-		'10:00 AM',
-		'10:30 AM',
-		'11:00 AM',
-		'11:30 AM',
-		'02:00 PM',
-		'02:30 PM',
-		'03:00 PM',
-		'03:30 PM',
-		'04:00 PM',
-		'04:30 PM',
-	];
+			const response = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+
+			const result = await response.json();
+			if (result.success) {
+				toast.success(SplitButtons, {
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					ariaLabel: 'Appointment booked',
+					closeOnClick: true,
+				});
+				reset();
+				setSubmitted(true);
+			} else {
+				toast.error('Failed to book appointment', {
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					closeOnClick: true,
+				});
+			}
+		} catch (error) {
+			toast.error('Somehting wrong in system', {
+				closeButton: true,
+				position: 'top-left',
+				className: '!px-4 !py-0 !w-[400px]',
+				closeOnClick: true,
+			});
+		}
+	};
 
 	return (
 		<div className='min-h-screen'>
@@ -342,3 +361,31 @@ const AppointmentPage = ({ searchParams }: any) => {
 };
 
 export default AppointmentPage;
+
+function SplitButtons() {
+	return (
+		<div className='w-full'>
+			<div className='flex flex-col p-4'>
+				<h3 className='text-zinc-800 text-xl font-semibold'>
+					Appointment booked
+				</h3>
+				<p className='text-lg'>Your appointment has been booked.</p>
+			</div>
+		</div>
+	);
+}
+
+const timeSlots = [
+	'09:00 AM',
+	'09:30 AM',
+	'10:00 AM',
+	'10:30 AM',
+	'11:00 AM',
+	'11:30 AM',
+	'02:00 PM',
+	'02:30 PM',
+	'03:00 PM',
+	'03:30 PM',
+	'04:00 PM',
+	'04:30 PM',
+];
