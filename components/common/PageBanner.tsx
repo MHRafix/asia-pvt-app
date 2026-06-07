@@ -12,7 +12,7 @@ export function PageBanner({
 	backgroundImage = 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(147, 51, 234, 0.9) 100%)',
 }: PageBannerProps) {
 	return (
-		<div 
+		<div
 			className='relative py-32 md:py-40 overflow-hidden'
 			style={{
 				backgroundImage: backgroundImage,
@@ -22,7 +22,7 @@ export function PageBanner({
 		>
 			{/* Overlay */}
 			<div className='absolute inset-0 bg-black/30' />
-			
+
 			{/* Pattern overlay */}
 			<div className='absolute inset-0 opacity-10'>
 				<div className='absolute top-0 left-0 w-96 h-96 rounded-full bg-primary-foreground blur-3xl' />

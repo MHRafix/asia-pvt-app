@@ -114,8 +114,7 @@ export function Footer() {
 							<li className='flex items-start gap-3'>
 								<MapPin className='w-5 h-5 text-primary mt-0.5 flex-shrink-0' />
 								<span className='text-primary-foreground/70 font-body text-sm'>
-									Jamuna Future Park Level #3, Shop #3A-043 KA-244, Kuril
-									Pragati Sharani Bashundhara R/A, Dhaka-1229, Bangladesh
+									Shop 3A-043, Level 3, Jamuna Future Park, Dhaka - 1229
 								</span>
 							</li>
 							<li className='flex items-center gap-3'>

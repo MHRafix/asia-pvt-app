@@ -32,14 +32,12 @@ const Blog = () => {
 
 	return (
 		<div className='min-h-screen'>
-			<div className='pt-20'>
-				<PageBanner
-					title='Travel Blog'
-					subtitle='Stories, tips, and inspiration for your next adventure'
-					gradient='forest'
-				/>
-				<BlogSection blogPosts={posts} loading={loading} />
-			</div>
+			<PageBanner
+				title='Travel Blog'
+				subtitle='Stories, tips, and inspiration for your next adventure'
+				gradient='forest'
+			/>
+			<BlogSection blogPosts={posts} loading={loading} />
 		</div>
 	);
 };

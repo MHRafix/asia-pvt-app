@@ -33,20 +33,18 @@ const Packages = () => {
 
 	return (
 		<div className='min-h-screen'>
-			<div className='pt-20'>
-				<PageBanner
-					title='Travel Packages'
-					subtitle='Explore our curated collection of travel experiences designed to create unforgettable memories'
-				/>
+			<PageBanner
+				title='Travel Packages'
+				subtitle='Explore our curated collection of travel experiences designed to create unforgettable memories'
+			/>
 
-				{loading ? (
-					<div className='flex items-center justify-center py-12'>
-						<Loader className='w-8 h-8 animate-spin text-primary' />
-					</div>
-				) : (
-					<PackagesSection packages={packages} />
-				)}
-			</div>
+			{loading ? (
+				<div className='flex items-center justify-center py-12'>
+					<Loader className='w-8 h-8 animate-spin text-primary' />
+				</div>
+			) : (
+				<PackagesSection packages={packages} />
+			)}
 		</div>
 	);
 };
