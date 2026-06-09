@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 import { BlogPost } from '@/lib/types';
 import { ArrowRight, Calendar, Loader, User } from 'lucide-react';
 import Link from 'next/link';
+import { BlogCardSkeleton } from '../common/BlogCardSkeleton';
 
 export function BlogSection({
 	blogPosts,
@@ -12,13 +12,6 @@ export function BlogSection({
 	blogPosts: BlogPost[];
 	loading: boolean;
 }) {
-	if (loading) {
-		return (
-			<div className='flex items-center justify-center py-12'>
-				<Loader className='w-8 h-8 animate-spin text-primary' />
-			</div>
-		);
-	}
 	return (
 		<section className='py-24 bg-muted'>
 			<div className='container mx-auto px-4'>
@@ -35,12 +28,6 @@ export function BlogSection({
 							highlights
 						</p>
 					</div>
-					<Button variant='outline' size='lg' asChild>
-						<Link href='/blog'>
-							View All Posts
-							<ArrowRight className='w-4 h-4' />
-						</Link>
-					</Button>
 				</div>
 
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
@@ -95,6 +82,14 @@ export function BlogSection({
 							</Card>
 						</article>
 					))}
+
+					{loading && (
+						<>
+							{new Array(6).fill(6).map((_, idx) => (
+								<BlogCardSkeleton key={idx} />
+							))}
+						</>
+					)}
 				</div>
 			</div>
 		</section>

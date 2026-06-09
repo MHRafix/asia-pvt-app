@@ -1,10 +1,11 @@
 'use client';
 
 import { PageBanner } from '@/components/common/PageBanner';
+import { VisaCountryCardSkeleton } from '@/components/common/VisaCountryCardSkeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { VisaCountry } from '@/data/countries';
-import { Loader, Search, SearchX } from 'lucide-react';
+import { Search, SearchX } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -74,8 +75,10 @@ const Visa = () => {
 						</div>
 					</div>
 					{loading ? (
-						<div className='flex items-center justify-center py-12'>
-							<Loader className='w-8 h-8 animate-spin text-primary' />
+						<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+							{new Array(25).fill(25).map((_, idx) => (
+								<VisaCountryCardSkeleton key={idx} />
+							))}
 						</div>
 					) : (
 						<>

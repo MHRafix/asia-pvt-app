@@ -3,8 +3,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TravelPackage } from '@/data/packages';
 import { ArrowRight, Clock, Star, Users } from 'lucide-react';
 import Link from 'next/link';
+import { PackageCardSkeleton } from '../common/PackagesCardSkeleton';
 
-export function PackagesSection({ packages }: { packages: TravelPackage[] }) {
+export function PackagesSection({
+	packages,
+	loading,
+	isShowActionBtn = true,
+}: {
+	packages: TravelPackage[];
+	loading: boolean;
+	isShowActionBtn?: boolean;
+}) {
 	return (
 		<section className='py-24 bg-background'>
 			<div className='container mx-auto px-4'>
@@ -23,7 +32,7 @@ export function PackagesSection({ packages }: { packages: TravelPackage[] }) {
 
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
 					{packages?.map((pkg, index) => (
-						<div key={pkg.id}>
+						<div key={index}>
 							<Card
 								className='group p-0 overflow-hidden border-0 shadow-card hover:shadow-elevated transition-all duration-300 cursor-pointer'
 								// onClick={() => navigate(`/packages/${pkg.id}`)}
@@ -77,16 +86,25 @@ export function PackagesSection({ packages }: { packages: TravelPackage[] }) {
 							</Card>
 						</div>
 					))}
+					{loading && (
+						<>
+							{new Array(8).fill(8).map((_, idx) => (
+								<PackageCardSkeleton key={idx} />
+							))}
+						</>
+					)}
 				</div>
 
-				<div className='text-center mt-12'>
-					<Button variant='outline' size='lg' asChild>
-						<Link href='/packages'>
-							View All Packages
-							<ArrowRight className='w-4 h-4' />
-						</Link>
-					</Button>
-				</div>
+				{!loading && isShowActionBtn && (
+					<div className='text-center mt-12'>
+						<Button variant='outline' size='lg' asChild>
+							<Link href='/packages'>
+								View All Packages
+								<ArrowRight className='w-4 h-4' />
+							</Link>
+						</Button>
+					</div>
+				)}
 			</div>
 		</section>
 	);

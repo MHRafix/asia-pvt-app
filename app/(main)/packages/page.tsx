@@ -3,7 +3,6 @@
 import { PageBanner } from '@/components/common/PageBanner';
 import { PackagesSection } from '@/components/home/PackagesSection';
 import { TravelPackage } from '@/data/packages';
-import { Loader } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -38,13 +37,11 @@ const Packages = () => {
 				subtitle='Explore our curated collection of travel experiences designed to create unforgettable memories'
 			/>
 
-			{loading ? (
-				<div className='flex items-center justify-center py-12'>
-					<Loader className='w-8 h-8 animate-spin text-primary' />
-				</div>
-			) : (
-				<PackagesSection packages={packages} />
-			)}
+			<PackagesSection
+				packages={packages}
+				loading={loading}
+				isShowActionBtn={false}
+			/>
 		</div>
 	);
 };

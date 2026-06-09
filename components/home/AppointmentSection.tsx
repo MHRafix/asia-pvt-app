@@ -14,8 +14,15 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ServiceCardSkeleton } from '../common/ServiceCardSkeleton';
 
-export function AppointmentSection({ services }: { services: Service[] }) {
+export function AppointmentSection({
+	services,
+	loading,
+}: {
+	services: Service[];
+	loading: boolean;
+}) {
 	const router = useRouter();
 
 	const serviceIcons = [
@@ -43,10 +50,18 @@ export function AppointmentSection({ services }: { services: Service[] }) {
 				</div>
 
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12'>
+					{loading && (
+						<>
+							{new Array(6).fill(6).map((_, idx) => (
+								<ServiceCardSkeleton key={idx} />
+							))}
+						</>
+					)}
+
 					{services?.map((service, index) => (
 						<div key={service?.slug}>
 							<Card
-								className='border-0 shadow-soft hover:shadow-card transition-all duration-300 group cursor-pointer h-full'
+								className='border-0 shadow-soft hover:shadow-card transition-all duration-300 p-0 group cursor-pointer h-full'
 								onClick={() => router.push(`/services/${service?.slug}`)}
 							>
 								<CardContent className='p-6'>
@@ -71,14 +86,16 @@ export function AppointmentSection({ services }: { services: Service[] }) {
 					))}
 				</div>
 
-				<div className='text-center'>
-					<Button variant='coral' size='xl' asChild>
-						<Link href='/appointment'>
-							<Calendar className='w-5 h-5' />
-							Schedule Your Appointment
-						</Link>
-					</Button>
-				</div>
+				{!loading && (
+					<div className='text-center'>
+						<Button variant='coral' size='xl' asChild>
+							<Link href='/appointment'>
+								<Calendar className='w-5 h-5' />
+								Schedule Your Appointment
+							</Link>
+						</Button>
+					</div>
+				)}
 			</div>
 		</section>
 	);

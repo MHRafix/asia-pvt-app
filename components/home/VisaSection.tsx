@@ -6,6 +6,7 @@ import { VisaCountry } from '@/data/countries';
 import { ArrowRight, Clock, FileCheck, Globe, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { VisaCountryCardSkeleton } from '../common/VisaCountryCardSkeleton';
 
 const features = [
 	{
@@ -26,7 +27,13 @@ const features = [
 	},
 ];
 
-export function VisaSection({ countries }: { countries: VisaCountry[] }) {
+export function VisaSection({
+	countries,
+	loading,
+}: {
+	countries: VisaCountry[];
+	loading: boolean;
+}) {
 	const router = useRouter();
 
 	return (
@@ -74,6 +81,14 @@ export function VisaSection({ countries }: { countries: VisaCountry[] }) {
 
 					<div>
 						<div className='grid grid-cols-2 gap-4'>
+							{loading && (
+								<>
+									{new Array(6).fill(6).map((_, idx) => (
+										<VisaCountryCardSkeleton key={idx} />
+									))}
+								</>
+							)}
+
 							{countries.slice(0, 6).map((country) => (
 								<Card
 									key={country.slug}

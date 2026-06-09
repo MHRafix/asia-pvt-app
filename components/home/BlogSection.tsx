@@ -3,8 +3,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BlogPost } from '@/lib/types';
 import { ArrowRight, Calendar, User } from 'lucide-react';
 import Link from 'next/link';
+import { BlogCardSkeleton } from '../common/BlogCardSkeleton';
 
-export function BlogSection({ blogPosts }: { blogPosts: BlogPost[] }) {
+export function BlogSection({
+	blogPosts,
+	loading,
+}: {
+	blogPosts: BlogPost[];
+	loading: boolean;
+}) {
 	return (
 		<section className='py-24 bg-muted'>
 			<div className='container mx-auto px-4'>
@@ -81,6 +88,13 @@ export function BlogSection({ blogPosts }: { blogPosts: BlogPost[] }) {
 							</Card>
 						</article>
 					))}
+					{loading && (
+						<>
+							{new Array(3).fill(3).map((_, idx) => (
+								<BlogCardSkeleton key={idx} />
+							))}
+						</>
+					)}
 				</div>
 			</div>
 		</section>
