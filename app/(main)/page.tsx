@@ -13,42 +13,15 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const Index = () => {
-	const [packages, setPackages] = useState<TravelPackage[]>([]);
 	const [loadingPackages, setLoadingPackages] = useState(false);
 	const [loadingCountries, setLoadingCountries] = useState(false);
-
 	const [loadingBlog, setLoadingBlog] = useState(false);
-
 	const [loadingServices, setLoadingServices] = useState(false);
 
-	const [posts, setPosts] = useState<BlogPost[]>([]);
-
+	const [packages, setPackages] = useState<TravelPackage[]>([]);
 	const [services, setServices] = useState<Service[]>([]);
-
 	const [countries, setCountries] = useState<VisaCountry[]>([]);
-
-	useEffect(() => {
-		fetchPackages();
-		fetchCountries();
-		fetchServices();
-		fetchPosts();
-	}, []);
-
-	const fetchCountries = async () => {
-		try {
-			setLoadingCountries(true);
-			const response = await fetch('/api/visa');
-			const data = await response.json();
-			if (data.success) {
-				setCountries(data.data);
-			}
-		} catch (error) {
-			console.error('Error fetching countries:', error);
-			toast.error('Failed to fetch visa countries');
-		} finally {
-			setLoadingCountries(false);
-		}
-	};
+	const [posts, setPosts] = useState<BlogPost[]>([]);
 
 	const fetchPackages = async () => {
 		try {
@@ -66,19 +39,19 @@ const Index = () => {
 		}
 	};
 
-	const fetchPosts = async () => {
+	const fetchCountries = async () => {
 		try {
-			setLoadingBlog(true);
-			const response = await fetch('/api/blog');
+			setLoadingCountries(true);
+			const response = await fetch('/api/visa');
 			const data = await response.json();
 			if (data.success) {
-				setPosts(data.data);
+				setCountries(data.data);
 			}
 		} catch (error) {
-			console.error('Error fetching posts:', error);
-			toast.error('Failed to fetch blog posts');
+			console.error('Error fetching countries:', error);
+			toast.error('Failed to fetch visa countries');
 		} finally {
-			setLoadingBlog(false);
+			setLoadingCountries(false);
 		}
 	};
 
@@ -98,6 +71,28 @@ const Index = () => {
 		}
 	};
 
+	const fetchPosts = async () => {
+		try {
+			setLoadingBlog(true);
+			const response = await fetch('/api/blog');
+			const data = await response.json();
+			if (data.success) {
+				setPosts(data.data);
+			}
+		} catch (error) {
+			console.error('Error fetching posts:', error);
+			toast.error('Failed to fetch blog posts');
+		} finally {
+			setLoadingBlog(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchPackages();
+		fetchCountries();
+		fetchServices();
+		fetchPosts();
+	}, []);
 	return (
 		<div className='min-h-screen'>
 			<HeroSection />
