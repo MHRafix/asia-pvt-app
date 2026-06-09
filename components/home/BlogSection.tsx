@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogPost } from '@/lib/types';
+import { format } from 'date-fns';
 import { ArrowRight, Calendar, User } from 'lucide-react';
 import Link from 'next/link';
 import { BlogCardSkeleton } from '../common/BlogCardSkeleton';
@@ -64,8 +65,8 @@ export function BlogSection({
 										</div>
 										<div className='flex items-center gap-1'>
 											<Calendar className='w-4 h-4' />
-											<span className='font-body text-sm'>
-												{new Date(post?.createdAt!)?.getDate()}
+											<span className='font-body text-black/80 text-sm'>
+												{format(post?.createdAt!, 'dd MMM yyyy')}
 											</span>
 										</div>
 									</div>
