@@ -31,9 +31,9 @@ export function BlogSection({ blogPosts }: { blogPosts: BlogPost[] }) {
 
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
 					{blogPosts.slice(0, 3).map((post, index) => (
-						<article key={post.id}>
-							<Card className='border-0 shadow-card hover:shadow-elevated transition-all p-0 duration-300 overflow-hidden group'>
-								<Link href={`/blog/${post.id}`}>
+						<article key={index}>
+							<Card className='border-0 p-0 shadow-card hover:shadow-elevated transition-all duration-300 overflow-hidden group'>
+								<Link href={`/blog/${post._id}`}>
 									<div className='relative h-56 overflow-hidden'>
 										<img
 											src={post.image}
@@ -51,14 +51,18 @@ export function BlogSection({ blogPosts }: { blogPosts: BlogPost[] }) {
 									<div className='flex items-center gap-4 text-muted-foreground mb-4'>
 										<div className='flex items-center gap-1'>
 											<User className='w-4 h-4' />
-											<span className='font-body text-sm'>{post.author}</span>
+											<span className='font-body text-sm'>
+												{post?.author?.name}
+											</span>
 										</div>
 										<div className='flex items-center gap-1'>
 											<Calendar className='w-4 h-4' />
-											<span className='font-body text-sm'>{post.date}</span>
+											<span className='font-body text-sm'>
+												{new Date(post?.createdAt!)?.getDate()}
+											</span>
 										</div>
 									</div>
-									<Link href={`/blog/${post.id}`}>
+									<Link href={`/blog/${post._id}`}>
 										<h3 className='font-display text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors'>
 											{post.title}
 										</h3>
@@ -67,7 +71,7 @@ export function BlogSection({ blogPosts }: { blogPosts: BlogPost[] }) {
 										{post.excerpt}
 									</p>
 									<Link
-										href={`/blog/${post.id}`}
+										href={`/blog/${post._id}`}
 										className='inline-flex items-center gap-2 font-body text-sm font-medium text-primary hover:gap-3 transition-all'
 									>
 										Read More

@@ -2,17 +2,70 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { blogPosts } from '@/data/blog';
-import { ArrowLeft, Calendar, Clock, Tag, User } from 'lucide-react';
+import { BlogPost as IBlog } from '@/data/blog';
+import { ArrowLeft, Calendar, Clock, Loader, Tag, User } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const BlogPost = () => {
-	const { slug } = useParams<{ slug: string }>();
+	const [post, setPost] = useState<IBlog>();
+	const [loading, setLoading] = useState(true);
 
-	console.log(slug);
-	const post = blogPosts.find((p) => p.id === slug);
-	const relatedPosts = blogPosts.filter((p) => p.id !== slug).slice(0, 2);
+	const { _id } = useParams<{ _id: string }>();
+
+	useEffect(() => {
+		fetchPost();
+	}, []);
+
+	const fetchPost = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch(`/api/blog/${_id}`);
+			const data = await response.json();
+			if (data.success) {
+				setPost(data.data);
+			}
+		} catch (error) {
+			console.error('Error fetching blog post:', error);
+			toast.error('Failed to fetch blog post');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const [posts, setPosts] = useState<IBlog[]>([]);
+
+	useEffect(() => {
+		fetchPosts();
+	}, []);
+
+	const fetchPosts = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch('/api/blog');
+			const data = await response.json();
+			if (data.success) {
+				setPosts(data.data);
+			}
+		} catch (error) {
+			console.error('Error fetching posts:', error);
+			toast.error('Failed to fetch blog posts');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const relatedPosts = posts.filter((p) => p._id !== _id).slice(0, 2);
+
+	if (loading) {
+		return (
+			<div className='flex items-center justify-center py-12'>
+				<Loader className='w-8 h-8 animate-spin text-primary' />
+			</div>
+		);
+	}
 
 	if (!post) {
 		return (
@@ -57,11 +110,11 @@ const BlogPost = () => {
 					<div className='flex flex-wrap items-center gap-6 text-primary-foreground/80'>
 						<div className='flex items-center gap-2'>
 							<User className='w-4 h-4' />
-							<span className='font-body text-sm'>{post.author}</span>
+							<span className='font-body text-sm'>{post.author?.name}</span>
 						</div>
 						<div className='flex items-center gap-2'>
 							<Calendar className='w-4 h-4' />
-							<span className='font-body text-sm'>{post.date}</span>
+							{/* <span className='font-body text-sm'>{post}</span> */}
 						</div>
 						<div className='flex items-center gap-2'>
 							<Clock className='w-4 h-4' />
@@ -160,7 +213,7 @@ const BlogPost = () => {
 									</span>
 								</div>
 								<h4 className='font-display text-lg font-semibold text-foreground'>
-									{post.author}
+									{post.author?.name}
 								</h4>
 								<p className='font-body text-sm text-muted-foreground'>
 									Travel Writer
@@ -176,10 +229,10 @@ const BlogPost = () => {
 							<div className='space-y-4'>
 								{relatedPosts.map((rp) => (
 									<Card
-										key={rp.id}
+										key={rp._id}
 										className='border-0 p-0 shadow-soft hover:shadow-card transition-all overflow-hidden'
 									>
-										<Link href={`/blog/${rp.id}`}>
+										<Link href={`/blog/${rp._id}`}>
 											<div className='flex'>
 												<img
 													src={rp.image}

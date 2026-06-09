@@ -9,7 +9,10 @@ export async function GET(
 	try {
 		await connectDB();
 		const { id } = await params;
-		const post = await BlogPost.findById(id);
+		const post = await BlogPost.findById(id).populate(
+			'author',
+			'name email avatar',
+		);
 
 		if (!post) {
 			return NextResponse.json(
