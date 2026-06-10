@@ -15,16 +15,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import type { Service } from '@/lib/types';
-import {
-	Clock,
-	Edit2,
-	Loader,
-	Plus,
-	Search,
-	Trash2,
-	Wrench,
-	X,
-} from 'lucide-react';
+import { Edit2, Loader, Plus, Search, Trash2, Wrench, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -32,7 +23,6 @@ const initialFormData = {
 	slug: '',
 	title: '',
 	description: '',
-	duration: '',
 	longDescription: '',
 	features: [''],
 	process: [{ step: 1, title: '', description: '' }],
@@ -76,7 +66,9 @@ export default function ServicesAdminPage() {
 
 		setSubmitting(true);
 		try {
-			const url = editingId ? `/api/services/${editingId}` : '/api/services';
+			const url = editingId
+				? `/api/services/single/${editingId}`
+				: '/api/services';
 			const method = editingId ? 'PUT' : 'POST';
 
 			const cleanedData = {
@@ -113,7 +105,9 @@ export default function ServicesAdminPage() {
 	const handleDelete = async (id: string) => {
 		if (!confirm('Are you sure you want to delete this service?')) return;
 		try {
-			const response = await fetch(`/api/services/${id}`, { method: 'DELETE' });
+			const response = await fetch(`/api/services/single/${id}`, {
+				method: 'DELETE',
+			});
 			const data = await response.json();
 			if (data.success) {
 				toast.success('Service deleted!');
@@ -131,7 +125,6 @@ export default function ServicesAdminPage() {
 			slug: service.slug,
 			title: service.title,
 			description: service.description,
-			duration: service.duration,
 			longDescription: service.longDescription,
 			features: service.features.length > 0 ? service.features : [''],
 			process:
@@ -271,10 +264,6 @@ export default function ServicesAdminPage() {
 												{service.description}
 											</p>
 											<div className='flex items-center gap-2 mt-2'>
-												<Badge variant='secondary' className='gap-1'>
-													<Clock className='w-3 h-3' />
-													{service.duration}
-												</Badge>
 												<Badge variant='outline'>
 													{service.features.length} features
 												</Badge>
@@ -323,31 +312,24 @@ export default function ServicesAdminPage() {
 								<h4 className='font-medium text-sm text-muted-foreground'>
 									Basic Information
 								</h4>
-								<div className='grid grid-cols-2 gap-3'>
-									<Input
-										placeholder='Slug *'
-										value={formData.slug}
-										onChange={(e) =>
-											setFormData({ ...formData, slug: e.target.value })
-										}
-										required
-									/>
-									<Input
-										placeholder='Title *'
-										value={formData.title}
-										onChange={(e) =>
-											setFormData({ ...formData, title: e.target.value })
-										}
-										required
-									/>
-								</div>
 								<Input
-									placeholder='Duration (e.g., 30 min)'
-									value={formData.duration}
+									placeholder='Title *'
+									value={formData.title}
 									onChange={(e) =>
-										setFormData({ ...formData, duration: e.target.value })
+										setFormData({
+											...formData,
+											title: e.target.value,
+											slug: e.target.value
+												.toLowerCase()
+												.trim()
+												.replace(/[^\w\s-]/g, '')
+												.replace(/\s+/g, '-')
+												.replace(/--+/g, '-'),
+										})
 									}
+									required
 								/>
+
 								<Textarea
 									placeholder='Short description *'
 									value={formData.description}
