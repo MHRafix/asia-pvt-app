@@ -1,18 +1,26 @@
 import { connectDB } from '@/lib/db/connection';
 import { BlogPost } from '@/lib/models/BlogPost';
+import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
+	const models = mongoose.modelNames();
 	try {
 		await connectDB();
+
 		const posts = await BlogPost.find()
-			.populate('author', 'name email avatar')
-			.sort({ createdAt: -1 });
+			.populate({
+				path: 'author',
+				select: 'name email avatar',
+				strictPopulate: false,
+			})
+			.sort({ createdAt: -1 })
+			.lean();
 		return NextResponse.json({ success: true, data: posts });
 	} catch (error) {
 		console.error('[v0] Error fetching blog posts:', error);
 		return NextResponse.json(
-			{ success: false, message: 'Failed to fetch blog posts' },
+			{ success: false, message: error, models },
 			{ status: 500 },
 		);
 	}
