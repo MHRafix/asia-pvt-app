@@ -2,6 +2,7 @@ import { connectDB } from '@/lib/db/connection';
 import { BlogPost } from '@/lib/models/BlogPost';
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
+import { User } from '../../../lib/models/User';
 
 export async function GET() {
 	const models = mongoose.modelNames();
