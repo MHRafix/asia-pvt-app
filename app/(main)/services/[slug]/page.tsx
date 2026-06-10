@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { services } from '@/data/services';
-import { toast } from '@/hooks/use-toast';
+import { IService } from '@/lib/models/Service';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ArrowLeft, ArrowRight, Check, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Clock, Loader } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as yup from 'yup';
 
 const schema = yup.object({
@@ -35,7 +36,28 @@ type FormData = yup.InferType<typeof schema>;
 const ServiceDetail = () => {
 	const { slug } = useParams<{ slug: string }>();
 	const router = useRouter();
-	const service = services.find((s) => s.slug === slug);
+	const [service, setService] = useState<IService>();
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		fetchService();
+	}, []);
+
+	const fetchService = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch(`/api/services/${slug}`);
+			const data = await response.json();
+			if (data.success) {
+				setService(data.data);
+			}
+		} catch (error) {
+			console.error('Error fetching countries:', error);
+			toast.error('Failed to fetch visa countries');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const {
 		register,
@@ -47,12 +69,19 @@ const ServiceDetail = () => {
 	});
 
 	const onSubmit = (data: FormData) => {
-		toast({
-			title: 'Appointment Requested!',
+		toast.success('Appointment Requested!', {
 			description: `We'll contact you at ${data.email} to confirm your ${service?.title} appointment.`,
 		});
 		reset();
 	};
+
+	if (loading) {
+		return (
+			<div className='flex items-center justify-center min-h-screen'>
+				<Loader className='w-8 h-8 animate-spin text-primary' />
+			</div>
+		);
+	}
 
 	if (!service) {
 		return (
@@ -68,9 +97,6 @@ const ServiceDetail = () => {
 			</div>
 		);
 	}
-
-	const ServiceIcon = service.icon;
-
 	return (
 		<div className='min-h-screen'>
 			<PageBanner title={service.title} subtitle={service.description} />
@@ -90,9 +116,9 @@ const ServiceDetail = () => {
 						{/* Main Content */}
 						<div className='lg:col-span-2 space-y-12'>
 							<div className='flex items-start gap-6'>
-								<div className='w-16 h-16 rounded-2xl bg-primary flex items-center justify-center flex-shrink-0'>
+								{/* <div className='w-16 h-16 rounded-2xl bg-primary flex items-center justify-center flex-shrink-0'>
 									<ServiceIcon className='w-8 h-8 text-primary-foreground' />
-								</div>
+								</div> */}
 								<div>
 									<div className='flex items-center gap-3 mb-3'>
 										<Clock className='w-4 h-4 text-muted-foreground' />

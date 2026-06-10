@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
 	Sheet,
@@ -313,7 +314,19 @@ export default function BlogAdminPage() {
 
 								<div className='grid grid-cols-2 gap-3'>
 									<div>
-										<Input placeholder='Title *' {...register('title')} />
+										<Label
+											htmlFor='title'
+											className='mb-2 block text-sm font-medium text-foreground'
+										>
+											Title *
+										</Label>
+
+										<Input
+											id='title'
+											placeholder='Enter blog title'
+											{...register('title')}
+										/>
+
 										{errors.title && (
 											<p className='text-red-500 text-xs mt-1'>
 												{errors.title.message}
@@ -322,7 +335,19 @@ export default function BlogAdminPage() {
 									</div>
 
 									<div>
-										<Input placeholder='Category *' {...register('category')} />
+										<Label
+											htmlFor='category'
+											className='mb-2 block text-sm font-medium text-foreground'
+										>
+											Category *
+										</Label>
+
+										<Input
+											id='category'
+											placeholder='Enter category'
+											{...register('category')}
+										/>
+
 										{errors.category && (
 											<p className='text-red-500 text-xs mt-1'>
 												{errors.category.message}
@@ -332,11 +357,20 @@ export default function BlogAdminPage() {
 								</div>
 
 								<div>
+									<Label
+										htmlFor='excerpt'
+										className='mb-2 block text-sm font-medium text-foreground'
+									>
+										Short Description *
+									</Label>
+
 									<Textarea
-										placeholder='Short description *'
+										id='excerpt'
+										placeholder='Write a short description'
 										rows={2}
 										{...register('excerpt')}
 									/>
+
 									{errors.excerpt && (
 										<p className='text-red-500 text-xs mt-1'>
 											{errors.excerpt.message}
@@ -345,7 +379,19 @@ export default function BlogAdminPage() {
 								</div>
 
 								<div>
-									<Input placeholder='Image URL' {...register('image')} />
+									<Label
+										htmlFor='image'
+										className='mb-2 block text-sm font-medium text-foreground'
+									>
+										Image URL *
+									</Label>
+
+									<Input
+										id='image'
+										placeholder='https://example.com/image.jpg'
+										{...register('image')}
+									/>
+
 									{errors.image && (
 										<p className='text-red-500 text-xs mt-1'>
 											{errors.image.message}
@@ -361,9 +407,17 @@ export default function BlogAdminPage() {
 								</h4>
 
 								<div>
+									<Label
+										htmlFor='content'
+										className='mb-2 block text-sm font-medium text-foreground'
+									>
+										Content *
+									</Label>
+
 									<Textarea
+										id='content'
 										rows={10}
-										placeholder='Full content (supports markdown) *'
+										placeholder='Write your blog content here...'
 										{...register('content')}
 									/>
 
@@ -395,7 +449,18 @@ export default function BlogAdminPage() {
 								{fields.map((field, index) => (
 									<div key={field.id} className='flex gap-2'>
 										<div className='flex-1'>
-											<Input placeholder='Tag' {...register(`tags.${index}`)} />
+											<Label
+												htmlFor={`tag-${index}`}
+												className='mb-2 block text-sm font-medium text-foreground'
+											>
+												Tag {index + 1}
+											</Label>
+
+											<Input
+												id={`tag-${index}`}
+												placeholder='Enter tag'
+												{...register(`tags.${index}`)}
+											/>
 
 											{errors.tags?.[index] && (
 												<p className='text-red-500 text-xs mt-1'>
@@ -408,6 +473,7 @@ export default function BlogAdminPage() {
 											type='button'
 											variant='ghost'
 											size='icon'
+											className='mt-7'
 											onClick={() => remove(index)}
 										>
 											<X className='w-4 h-4' />
@@ -457,9 +523,10 @@ export const blogSchema = yup.object({
 
 	image: yup
 		.string()
-		// .url('Please enter a valid URL')
-		.notRequired()
-		.transform((value) => (value === '' ? undefined : value)),
+		.url('Please enter a valid URL')
+		.required()
+		.transform((value) => (value === '' ? undefined : value))
+		.label('Image'),
 
 	tags: yup
 		.array()

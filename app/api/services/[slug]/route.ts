@@ -4,13 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
+	{ params }: { params: Promise<{ slug: string }> },
 ) {
 	try {
 		await connectDB();
-		const { id } = await params;
+		const { slug } = await params;
 
-		const service = await Service.findById(id);
+		const service = await Service.findOne({ slug });
 
 		if (!service) {
 			return NextResponse.json(
