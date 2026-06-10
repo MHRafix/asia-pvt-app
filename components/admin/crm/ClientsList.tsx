@@ -1,31 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -36,18 +10,44 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-	Search,
-	Plus,
-	MoreHorizontal,
-	Eye,
-	Edit,
-	Trash2,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import {
 	ArrowLeft,
 	ChevronLeft,
 	ChevronRight,
+	Edit,
+	Eye,
+	MoreHorizontal,
+	Plus,
+	Search,
+	Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import ClientFormDialog from './ClientFormDialog';
 
@@ -158,7 +158,7 @@ export default function ClientsList() {
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'USD',
+			currency: 'BDT',
 		}).format(amount);
 	};
 
@@ -339,7 +339,7 @@ export default function ClientsList() {
 										Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
 										{Math.min(
 											pagination.page * pagination.limit,
-											pagination.total
+											pagination.total,
 										)}{' '}
 										of {pagination.total} clients
 									</p>

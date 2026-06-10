@@ -3,7 +3,7 @@
 import { PageBanner } from '@/components/common/PageBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { VisaCountry } from '@/data/countries';
+import { VisaCountry as IVisaCountry } from '@/data/countries';
 import {
 	ArrowLeft,
 	ArrowRight,
@@ -21,7 +21,7 @@ const VisaCountry = () => {
 	const { slug } = useParams<{ slug: string }>();
 	const router = useRouter();
 
-	const [country, setCountry] = useState<VisaCountry>();
+	const [country, setCountry] = useState<IVisaCountry>();
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {

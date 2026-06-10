@@ -1,31 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+	Activity,
 	ArrowLeft,
-	Edit,
-	Mail,
-	Phone,
-	MapPin,
 	Building,
 	Calendar,
-	DollarSign,
+	Edit,
+	Mail,
+	MapPin,
 	Package,
-	Wrench,
+	Phone,
 	Plus,
-	FileText,
-	Activity,
+	Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import ActivityFormDialog from './ActivityFormDialog';
 import ClientFormDialog from './ClientFormDialog';
 import TransactionFormDialog from './TransactionFormDialog';
-import ActivityFormDialog from './ActivityFormDialog';
 
 interface Client {
 	_id: string;
@@ -140,7 +138,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'USD',
+			currency: 'bdt',
 		}).format(amount);
 	};
 
@@ -208,8 +206,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 				<Card className='border-0 shadow-soft'>
 					<CardContent className='p-4'>
 						<div className='flex items-center gap-3'>
-							<div className='w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center'>
-								<DollarSign className='w-5 h-5 text-amber-600' />
+							<div className='w-10 h-10 text-xl rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center'>
+								৳
 							</div>
 							<div>
 								<p className='text-sm text-muted-foreground'>Balance Due</p>
@@ -224,8 +222,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 				<Card className='border-0 shadow-soft'>
 					<CardContent className='p-4'>
 						<div className='flex items-center gap-3'>
-							<div className='w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center'>
-								<DollarSign className='w-5 h-5 text-green-600' />
+							<div className='w-10 h-10 text-xl rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center'>
+								৳
 							</div>
 							<div>
 								<p className='text-sm text-muted-foreground'>Total Spent</p>
@@ -329,7 +327,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 								{client.source && (
 									<div className='mt-4 pt-4 border-t border-border'>
 										<p className='text-sm text-muted-foreground'>
-											<span className='font-medium'>Source:</span> {client.source}
+											<span className='font-medium'>Source:</span>{' '}
+											{client.source}
 										</p>
 									</div>
 								)}
@@ -363,11 +362,15 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 											className='flex items-center justify-between p-3 rounded-lg bg-muted/50'
 										>
 											<div className='flex items-center gap-3'>
-												<Badge className={getTransactionColor(transaction.type)}>
+												<Badge
+													className={getTransactionColor(transaction.type)}
+												>
 													{transaction.type}
 												</Badge>
 												<div>
-													<p className='font-medium'>{transaction.description}</p>
+													<p className='font-medium'>
+														{transaction.description}
+													</p>
 													<p className='text-sm text-muted-foreground'>
 														{formatDate(transaction.createdAt)}
 													</p>
@@ -379,8 +382,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 														transaction.type === 'payment'
 															? 'text-green-600'
 															: transaction.type === 'refund'
-															? 'text-red-600'
-															: 'text-foreground'
+																? 'text-red-600'
+																: 'text-foreground'
 													}`}
 												>
 													{transaction.type === 'payment' ? '-' : '+'}
@@ -392,8 +395,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 														transaction.status === 'completed'
 															? 'border-green-500 text-green-600'
 															: transaction.status === 'cancelled'
-															? 'border-red-500 text-red-600'
-															: 'border-amber-500 text-amber-600'
+																? 'border-red-500 text-red-600'
+																: 'border-amber-500 text-amber-600'
 													}
 												>
 													{transaction.status}
@@ -433,11 +436,15 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 											className='flex items-center justify-between p-3 rounded-lg bg-muted/50'
 										>
 											<div className='flex items-center gap-3'>
-												<Badge className={getTransactionColor(transaction.type)}>
+												<Badge
+													className={getTransactionColor(transaction.type)}
+												>
 													{transaction.type}
 												</Badge>
 												<div>
-													<p className='font-medium'>{transaction.description}</p>
+													<p className='font-medium'>
+														{transaction.description}
+													</p>
 													<p className='text-sm text-muted-foreground'>
 														{formatDate(transaction.createdAt)}
 													</p>
@@ -449,8 +456,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 														transaction.type === 'payment'
 															? 'text-green-600'
 															: transaction.type === 'refund'
-															? 'text-red-600'
-															: 'text-foreground'
+																? 'text-red-600'
+																: 'text-foreground'
 													}`}
 												>
 													{transaction.type === 'payment' ? '-' : '+'}
@@ -462,8 +469,8 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 														transaction.status === 'completed'
 															? 'border-green-500 text-green-600'
 															: transaction.status === 'cancelled'
-															? 'border-red-500 text-red-600'
-															: 'border-amber-500 text-amber-600'
+																? 'border-red-500 text-red-600'
+																: 'border-amber-500 text-amber-600'
 													}
 												>
 													{transaction.status}

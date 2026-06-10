@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
 	try {
 		await connectDB();
-		const posts = await BlogPost.find().sort({ createdAt: -1 });
-		// .populate('author', 'name email avatar')
+		const posts = await BlogPost.find()
+			.populate('author', 'name email avatar')
+			.sort({ createdAt: -1 });
 		return NextResponse.json({ success: true, data: posts });
 	} catch (error) {
 		console.error('[v0] Error fetching blog posts:', error);

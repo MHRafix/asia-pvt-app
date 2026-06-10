@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -11,19 +11,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import {
-	Users,
-	DollarSign,
-	TrendingUp,
-	UserPlus,
-	Search,
-	Plus,
-	Eye,
-	Crown,
-	Activity,
-} from 'lucide-react';
+import { Activity, Crown, Eye, Plus, Search, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import ClientFormDialog from './ClientFormDialog';
 
@@ -106,7 +96,7 @@ export default function CRMDashboard() {
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'USD',
+			currency: 'BDT',
 		}).format(amount);
 	};
 
@@ -201,8 +191,8 @@ export default function CRMDashboard() {
 									{formatCurrency(stats.totalRevenue)}
 								</p>
 							</div>
-							<div className='w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center'>
-								<DollarSign className='w-6 h-6 text-emerald-600' />
+							<div className='w-12 h-12 text-xl rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center'>
+								৳
 							</div>
 						</div>
 					</CardContent>
@@ -279,8 +269,12 @@ export default function CRMDashboard() {
 											</span>
 										</div>
 										<div>
-											<p className='font-medium text-foreground'>{client.name}</p>
-											<p className='text-sm text-muted-foreground'>{client.email}</p>
+											<p className='font-medium text-foreground'>
+												{client.name}
+											</p>
+											<p className='text-sm text-muted-foreground'>
+												{client.email}
+											</p>
 										</div>
 									</div>
 									<div className='flex items-center gap-4'>
@@ -288,7 +282,9 @@ export default function CRMDashboard() {
 											<p className='text-sm font-medium text-foreground'>
 												{formatCurrency(client.totalSpent)}
 											</p>
-											<p className='text-xs text-muted-foreground'>Total Spent</p>
+											<p className='text-xs text-muted-foreground'>
+												Total Spent
+											</p>
 										</div>
 										<Badge className={getStatusColor(client.status)}>
 											{client.status}

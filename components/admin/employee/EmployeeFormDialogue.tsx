@@ -202,7 +202,7 @@ export default function EmployeeFormDialog({
 									<FormItem>
 										<FormLabel>Phone *</FormLabel>
 										<FormControl>
-											<Input placeholder='+1 234 567 8900' {...field} />
+											<Input placeholder='+880 ••••••••••' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -287,7 +287,7 @@ export default function EmployeeFormDialog({
 								name='salary'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Salary</FormLabel>
+										<FormLabel>Salary (BDT)</FormLabel>
 										<FormControl>
 											<Input
 												type='number'
@@ -329,7 +329,7 @@ export default function EmployeeFormDialog({
 									<FormItem>
 										<FormLabel>Emergency Contact</FormLabel>
 										<FormControl>
-											<Input placeholder='+1 234 567 8900' {...field} />
+											<Input placeholder='+880 ••••••••••' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

@@ -217,7 +217,7 @@ const PackageDetail = () => {
 										Starting from
 									</span>
 									<p className='font-display text-4xl font-bold text-foreground'>
-										${pkg.price.toLocaleString()}
+										{pkg.price.toLocaleString()} BDT
 									</p>
 									<span className='font-body text-sm text-muted-foreground'>
 										per person

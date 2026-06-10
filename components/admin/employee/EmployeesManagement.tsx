@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import {
 	Calendar,
-	DollarSign,
 	Edit2,
 	Loader,
 	Mail,
@@ -166,7 +165,7 @@ export default function EmployeesManagement() {
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'USD',
+			currency: 'BDT',
 			maximumFractionDigits: 0,
 		}).format(amount);
 	};
@@ -381,7 +380,6 @@ export default function EmployeesManagement() {
 													</span>
 													{employee.salary && (
 														<span className='flex items-center gap-1'>
-															<DollarSign className='w-3.5 h-3.5' />
 															{formatCurrency(employee.salary)}
 														</span>
 													)}
