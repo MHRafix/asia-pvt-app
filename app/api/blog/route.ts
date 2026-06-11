@@ -8,6 +8,7 @@ export async function GET() {
 	const models = mongoose.modelNames();
 	try {
 		await connectDB();
+		console.log(User.name);
 
 		const posts = await BlogPost.find()
 			.populate({
