@@ -1,5 +1,7 @@
 import { connectDB } from '@/lib/db/connection';
+import { sendMail } from '@/lib/mail-service/mail';
 import { Appointment } from '@/lib/models/Appointment';
+import { format } from 'date-fns';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -44,6 +46,41 @@ export async function PUT(
 			new: true,
 			runValidators: true,
 		});
+
+		await sendMail(
+			updatedAppointment?.email!,
+			'Your appointment booking status update',
+			`<div>
+		
+			<div>
+		<h1 style="
+			margin:0;
+			font-size:30px;
+			color:#111827;
+			font-weight:700;
+		">
+			Appointment Booked
+		</h1>
+		
+		<p style="
+			margin:15px 0 0;
+			color:#6b7280;
+			font-size:16px;
+			line-height:1.8;
+		">
+			Hey <strong>${updatedAppointment?.fullName!}</strong>,
+			<br><br>
+			Your appointment is <strong style="color: red;">${body?.status}</strong>. Appointment date: ${format(updatedAppointment?.preferredDate!, 'MMM d, yyyy')} and time slot: ${updatedAppointment?.preferredTime!}.
+		</p>
+		
+		<p style="color: blue;">Thank You</p>
+		<strong style="color: #ccc;">Team Asia Tours</strong>
+		
+			</div>
+		
+		</div>
+		`,
+		);
 
 		if (!updatedAppointment) {
 			return NextResponse.json(

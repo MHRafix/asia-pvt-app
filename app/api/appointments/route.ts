@@ -36,8 +36,6 @@ export async function POST(request: NextRequest) {
 			`<div>
 
   <div>
- 
-
 <h1 style="
   margin:0;
   font-size:30px;

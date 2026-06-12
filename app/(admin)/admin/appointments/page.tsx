@@ -47,8 +47,9 @@ const statusColors: Record<string, string> = {
 	pending:
 		'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500',
 	confirmed:
-		'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500',
-	completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500',
+		'bg-blue-100 text-blue-800 dark:bg-green-900/30 dark:text-green-500',
+	completed:
+		'bg-green-100 text-green-800 dark:bg-blue-900/30 dark:text-blue-500',
 	cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500',
 };
 
@@ -161,23 +162,23 @@ export default function AppointmentsAdminPage() {
 					{
 						label: 'Pending',
 						value: stats.pending,
-						color: 'bg-yellow-100 dark:bg-yellow-950/30',
+						color: 'bg-accent dark:bg-yellow-950/30 text-foreground',
 					},
 					{
 						label: 'Confirmed',
 						value: stats.confirmed,
-						color: 'bg-green-100 dark:bg-green-950/30',
+						color: 'bg-blue-500 dark:bg-blue-950/30 text-white',
 					},
 					{
 						label: 'Completed',
 						value: stats.completed,
-						color: 'bg-blue-100 dark:bg-blue-950/30',
+						color: 'bg-green-400 dark:bg-green-950/30 text-foreground',
 					},
 				].map((stat) => (
 					<Card key={stat.label} className='border-0 shadow-soft p-0'>
 						<CardContent className={`p-4 ${stat.color} rounded-xl`}>
-							<p className='text-2xl font-bold text-foreground'>{stat.value}</p>
-							<p className='text-sm text-muted-foreground'>{stat.label}</p>
+							<p className='text-2xl font-bold'>{stat.value}</p>
+							<p className='text-sm'>{stat.label}</p>
 						</CardContent>
 					</Card>
 				))}
@@ -229,7 +230,24 @@ export default function AppointmentsAdminPage() {
 					{filteredAppointments.map((apt) => (
 						<Card
 							key={apt._id}
-							className='border-[1px] border-white  hover:border-primary/20 hover:duration-300 shadow-soft hover:shadow-md cursor-pointer transition-shadow'
+							className={`
+  border-[1px] border-white
+  hover:border-primary/20
+  hover:duration-300
+  shadow-soft
+  hover:shadow-md
+  cursor-pointer
+  transition-shadow
+  ${
+		apt?.status === 'pending'
+			? 'bg-accent/70'
+			: apt?.status === 'confirmed'
+				? 'bg-blue-400/70'
+				: apt?.status === 'completed'
+					? 'bg-green-400/70'
+					: 'bg-red-400/70'
+	}
+`}
 							onClick={() => viewAppointment(apt)}
 						>
 							<CardContent className='p-5'>

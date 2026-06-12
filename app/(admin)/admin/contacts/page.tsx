@@ -1,5 +1,6 @@
 'use client';
 
+import { SplitButtons } from '@/components/common/ToastMessage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +19,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import {
 	Loader,
@@ -29,7 +31,7 @@ import {
 	User,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface Contact {
 	_id: string;
@@ -56,6 +58,7 @@ export default function ContactsAdminPage() {
 	const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [filterStatus, setFilterStatus] = useState<string>('all');
+	const [replyText, setReplyText] = useState('');
 
 	useEffect(() => {
 		fetchContacts();
@@ -143,6 +146,50 @@ export default function ContactsAdminPage() {
 		new: contacts.filter((c) => c.status === 'new').length,
 		replied: contacts.filter((c) => c.status === 'replied').length,
 		archived: contacts.filter((c) => c.status === 'archived').length,
+	};
+
+	const sendReply = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch(`/api/contacts/send-message-reply`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: selectedContact?.email, replyText }),
+			});
+
+			const data = await response.json();
+			if (data.success) {
+				handleStatusChange(selectedContact?._id!, 'replied');
+				fetchContacts();
+
+				toast.success(<SplitButtons title='Reply has been sent.' />, {
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					ariaLabel: 'Reply sent',
+					closeOnClick: true,
+				});
+
+				setLoading(false);
+				setDrawerOpen(false);
+			}
+		} catch (error: any) {
+			setDrawerOpen(false);
+			toast.error(
+				<SplitButtons
+					title='Failed to update status'
+					message={error?.message}
+				/>,
+				{
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[400px]',
+					ariaLabel: 'Reply sent failed',
+					closeOnClick: true,
+				},
+			);
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -300,7 +347,7 @@ export default function ContactsAdminPage() {
 
 			{/* Details Drawer */}
 			<Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-				<SheetContent className='w-full sm:max-w-md'>
+				<SheetContent className='w-full sm:max-w-xl overflow-y-auto'>
 					<SheetHeader>
 						<SheetTitle>Message Details</SheetTitle>
 						<SheetDescription>
@@ -330,7 +377,7 @@ export default function ContactsAdminPage() {
 								<div className='flex items-center gap-3 p-3 rounded-lg bg-muted/50'>
 									<Mail className='w-5 h-5 text-muted-foreground' />
 									<div>
-										<p className='text-xs text-muted-foreground'>Email</p>
+										<p className='text-md text-muted-foreground'>Email</p>
 										<a
 											href={`mailto:${selectedContact.email}`}
 											className='font-medium text-primary hover:underline'
@@ -343,7 +390,7 @@ export default function ContactsAdminPage() {
 								<div className='flex items-center gap-3 p-3 rounded-lg bg-muted/50'>
 									<Phone className='w-5 h-5 text-muted-foreground' />
 									<div>
-										<p className='text-xs text-muted-foreground'>Phone</p>
+										<p className='text-md text-muted-foreground'>Phone</p>
 										<a
 											href={`tel:${selectedContact.phone}`}
 											className='font-medium text-primary hover:underline'
@@ -354,14 +401,14 @@ export default function ContactsAdminPage() {
 								</div>
 
 								<div className='p-3 rounded-lg bg-muted/50'>
-									<p className='text-xs text-muted-foreground mb-2'>Message</p>
+									<p className='text-md text-muted-foreground mb-2'>Message</p>
 									<p className='text-foreground whitespace-pre-wrap'>
 										{selectedContact.message}
 									</p>
 								</div>
 
 								<div className='p-3 rounded-lg bg-muted/50'>
-									<p className='text-xs text-muted-foreground mb-1'>Received</p>
+									<p className='text-md text-muted-foreground mb-1'>Received</p>
 									<p className='font-medium text-foreground'>
 										{format(
 											new Date(selectedContact.createdAt),
@@ -371,7 +418,7 @@ export default function ContactsAdminPage() {
 								</div>
 
 								<div className='p-3 rounded-lg bg-muted/50'>
-									<p className='text-xs text-muted-foreground'>Update Status</p>
+									<p className='text-md text-muted-foreground'>Update Status</p>
 									<Select
 										value={selectedContact.status}
 										onValueChange={(value) =>
@@ -390,15 +437,25 @@ export default function ContactsAdminPage() {
 								</div>
 							</div>
 
-							<div className='flex gap-3'>
+							<div className='grid gap-y-5 bg-primary/10 p-5 rounded-md'>
+								<h3 className='text-lg font-medium -mb-2'>Reply to client:</h3>
+								<Textarea
+									placeholder='Type reply message here'
+									className='border border-primary min-h-[120px]'
+									rows={6}
+									onChange={(e) => setReplyText(e?.target?.value)}
+								/>
 								<Button
+									disabled={loading || !replyText}
 									className='flex-1 gap-2'
-									onClick={() =>
-										window.open(`mailto:${selectedContact.email}`, '_blank')
-									}
+									onClick={() => sendReply()}
 								>
-									<Mail className='w-4 h-4' />
-									Reply via Email
+									{loading ? (
+										<Loader className='animate-spin w-6 h-6' />
+									) : (
+										<Mail className='w-4 h-4' />
+									)}
+									Send Reply
 								</Button>
 							</div>
 						</div>
