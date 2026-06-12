@@ -1,5 +1,5 @@
 export interface TravelPackage {
-	id: string;
+	_id: string;
 	title: string;
 	location: string;
 	image: any;
@@ -17,7 +17,7 @@ export interface TravelPackage {
 
 export const packages: TravelPackage[] = [
 	{
-		id: 'santorini-dreams',
+		_id: 'santorini-dreams',
 		title: 'Santorini Dreams',
 		location: 'Greece',
 		image: '/destinations/destination-dubai.jpg',
@@ -94,7 +94,7 @@ export const packages: TravelPackage[] = [
 		],
 	},
 	{
-		id: 'cherry-blossom-tour',
+		_id: 'cherry-blossom-tour',
 		title: 'Cherry Blossom Tour',
 		location: 'Japan',
 		image: '/destinations/destination-greece.jpg',
@@ -185,7 +185,7 @@ export const packages: TravelPackage[] = [
 		],
 	},
 	{
-		id: 'machu-picchu-adventure',
+		_id: 'machu-picchu-adventure',
 		title: 'Machu Picchu Adventure',
 		location: 'Peru',
 		image: '/destinations/destination-japan.jpg',
@@ -262,7 +262,7 @@ export const packages: TravelPackage[] = [
 		],
 	},
 	{
-		id: 'dubai-luxury-escape',
+		_id: 'dubai-luxury-escape',
 		title: 'Dubai Luxury Escape',
 		location: 'UAE',
 		image: '/destinations/destination-peru.jpg',
@@ -328,7 +328,7 @@ export const packages: TravelPackage[] = [
 ];
 
 export const destinations = packages.map((p) => ({
-	id: p.id,
+	id: p._id,
 	label: `${p.title} — ${p.location}`,
 	location: p.location,
 }));

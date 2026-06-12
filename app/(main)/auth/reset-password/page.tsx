@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import { PageBanner } from '@/components/common/PageBanner';
+import { SplitButtons } from '@/components/common/ToastMessage';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
 	Form,
 	FormControl,
@@ -13,16 +11,21 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { KeyRound, Loader, CheckCircle, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import {
+	resetPasswordSchema,
+	type ResetPasswordFormData,
+} from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validations/auth';
-import toast from 'react-hot-toast';
+import { AlertCircle, CheckCircle, KeyRound, Loader } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 function ResetPasswordContent() {
 	const searchParams = useSearchParams();
-	const router = useRouter();
 	const token = searchParams.get('token');
 
 	const [loading, setLoading] = useState(false);
@@ -74,9 +77,30 @@ function ResetPasswordContent() {
 
 			if (result.success) {
 				setSuccess(true);
-				toast.success('Password reset successfully!');
+				toast.success(
+					<SplitButtons
+						title='Password reset successfully!'
+						message='Please login with new password'
+					/>,
+					{
+						closeButton: true,
+						position: 'top-left',
+						className: '!px-4 !py-0 !w-[450px]',
+						ariaLabel: 'Reset password',
+						closeOnClick: true,
+					},
+				);
 			} else {
-				toast.error(result.error || 'Failed to reset password');
+				toast.error(
+					<SplitButtons title={result.message || 'Failed to reset password'} />,
+					{
+						closeButton: true,
+						position: 'top-left',
+						className: '!px-4 !py-0 !w-[450px]',
+						ariaLabel: 'Reset password',
+						closeOnClick: true,
+					},
+				);
 			}
 		} catch (error) {
 			console.error('Error:', error);
@@ -132,7 +156,7 @@ function ResetPasswordContent() {
 						password.
 					</p>
 				</div>
-				<Link href='/login'>
+				<Link href='/auth/login'>
 					<Button>Sign In</Button>
 				</Link>
 			</div>

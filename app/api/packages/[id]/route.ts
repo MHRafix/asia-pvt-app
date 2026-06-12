@@ -10,7 +10,7 @@ export async function GET(
 		await connectDB();
 		const { id } = await params;
 		console.log(id);
-		const pkg = await Package.findOne({ id });
+		const pkg = await Package.findById({ _id: id });
 
 		if (!pkg) {
 			return NextResponse.json(
@@ -39,7 +39,7 @@ export async function PUT(
 
 		const body = await request.json();
 
-		const updatedPackage = await Package.findByIdAndUpdate(id, body, {
+		const updatedPackage = await Package.findByIdAndUpdate({ _id: id }, body, {
 			new: true,
 			runValidators: true,
 		});
@@ -70,7 +70,7 @@ export async function DELETE(
 
 		const { id } = await params;
 
-		const deletedPackage = await Package.findByIdAndDelete(id);
+		const deletedPackage = await Package.findByIdAndDelete({ _id: id });
 
 		if (!deletedPackage) {
 			return NextResponse.json(

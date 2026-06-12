@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
 	Form,
 	FormControl,
@@ -10,15 +9,17 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { useAuth } from '@/lib/auth/AuthContext';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
+import { toast } from 'react-toastify';
+import { SplitButtons } from '../common/ToastMessage';
 
-export const LoginForm = ({ searchParams }: any) => {
+export const LoginForm = () => {
 	const { login } = useAuth();
 	const [loading, setLoading] = useState(false);
 
@@ -35,10 +36,25 @@ export const LoginForm = ({ searchParams }: any) => {
 
 		try {
 			await login(data.email, data.password);
-			toast.success('Login successful!');
-		} catch (error) {
-			console.error('Login error:', error);
-			toast.error(error instanceof Error ? error.message : 'Login failed');
+
+			toast.success(<SplitButtons title='Login successful!' />, {
+				closeButton: true,
+				position: 'top-left',
+				className: '!px-4 !py-0 !w-[450px]',
+				ariaLabel: 'Login',
+				closeOnClick: true,
+			});
+		} catch (error: any) {
+			toast.success(
+				<SplitButtons title={error?.message || 'Login Failed!'} />,
+				{
+					closeButton: true,
+					position: 'top-left',
+					className: '!px-4 !py-0 !w-[450px]',
+					ariaLabel: 'Login',
+					closeOnClick: true,
+				},
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -104,14 +120,17 @@ export const LoginForm = ({ searchParams }: any) => {
 
 				<div className='text-center space-y-2'>
 					<a
-						href='/forgot-password'
+						href='/auth/forgot-password'
 						className='text-sm text-primary font-medium hover:underline block'
 					>
 						Forgot your password?
 					</a>
 					<p className='text-sm text-muted-foreground'>
 						Don&apos;t have an account?{' '}
-						<a href='/signup' className='text-primary font-medium hover:underline'>
+						<a
+							href='/auth/signup'
+							className='text-primary font-medium hover:underline'
+						>
 							Sign up here
 						</a>
 					</p>

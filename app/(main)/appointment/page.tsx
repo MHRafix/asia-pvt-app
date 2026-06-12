@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { packages } from '@/data/packages';
 import { services } from '@/data/services';
+import { TravelPackage } from '@/lib/types';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ArrowRight, Calendar, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
@@ -34,33 +35,61 @@ const schema = yup.object({
 		.required('Phone number is required')
 		.min(7, 'Phone must be at least 7 digits'),
 	service: yup.string().required('Please select a service'),
-	preferredDate: yup.string().required('Preferred date is required'),
 	preferredTime: yup.string().required('Preferred time is required'),
+	preferredDate: yup.string().required('Preferred date is required'),
 	message: yup.string().trim().max(500, 'Message must be under 500 characters'),
 });
 
 type FormData = yup.InferType<typeof schema>;
 
-const AppointmentPage = ({ searchParams }: any) => {
-	const preselectedPackage = searchParams?.package;
+const AppointmentPage = () => {
+	const [packages, setPackages] = useState<TravelPackage[]>([]);
+	const [loading, setLoading] = useState(true);
+	const searchParams = useSearchParams();
 
-	const pkg = preselectedPackage
-		? packages.find((p) => p.id === preselectedPackage)
-		: null;
-	const [submitted, setSubmitted] = useState(false);
+	const packageId = searchParams.get('package');
 
 	const {
 		register,
 		handleSubmit,
 		reset,
+		setValue,
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({
 		resolver: yupResolver(schema),
-		defaultValues: {
-			service: preselectedPackage ? 'travel-consultation' : '',
-			message: pkg ? `I'm interested in the "${pkg.title}" package.` : '',
-		},
 	});
+
+	const pkg = packageId ? packages.find((p) => p._id === packageId) : null;
+
+	console.log(packageId);
+	const [submitted, setSubmitted] = useState(false);
+
+	useEffect(() => {
+		fetchPackages();
+	}, []);
+
+	const fetchPackages = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch('/api/packages');
+			const data = await response.json();
+			if (data.success) {
+				setPackages(data.data);
+			}
+		} catch (error) {
+			console.error('[v0] Error fetching packages:', error);
+			toast.error('Failed to fetch packages');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (pkg) {
+			setValue('service', 'travel-consultation');
+			setValue('message', `I'm interested in the "${pkg.title}" package.`);
+		}
+	}, [pkg]);
 
 	const onSubmit = async (data: FormData) => {
 		// setSubmitting(true);

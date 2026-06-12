@@ -8,8 +8,6 @@ const mongoose = require('mongoose');
 // Blog Posts Data
 const blogPosts = [
 	{
-		slug: 'hidden-gems-greece',
-		id: 'hidden-gems-greece',
 		title: 'Top 10 Hidden Gems in Greece You Must Visit',
 		excerpt:
 			'Discover off-the-beaten-path destinations that will make your Greek adventure unforgettable.',
@@ -30,16 +28,11 @@ Often called the most beautiful city in Greece, Nafplio was the country's first 
 ## 5. Samothrace
 This remote island in the northern Aegean is a paradise for nature lovers.`,
 		image: '/destinations/destination-dubai.jpg',
-		author: 'Sarah Mitchell',
-		authorAvatar: 'SM',
-		date: 'Jan 15, 2025',
+		author: '69f8c73aaedb2028d0dcd378',
 		category: 'Destinations',
-		readTime: '8 min read',
 		tags: ['Greece', 'Hidden Gems', 'Islands', 'Europe'],
 	},
 	{
-		id: 'cherry-blossom-japan',
-		slug: 'cherry-blossom-japan',
 		title: 'Ultimate Guide to Cherry Blossom Season in Japan',
 		excerpt:
 			'Everything you need to know about experiencing sakura season like a local.',
@@ -56,17 +49,12 @@ Cherry blossoms typically bloom from late March to mid-April, but timing varies 
 ### Kyoto
 - Philosopher's Path: 2km canal path lined with hundreds of cherry trees
 - Maruyama Park: Kyoto's most popular hanami spot`,
+		author: '69f8c73aaedb2028d0dcd378s',
 		image: '/destinations/destination-greece.jpg',
-		author: 'James Chen',
-		authorAvatar: 'JC',
-		date: 'Jan 12, 2025',
 		category: 'Travel Tips',
-		readTime: '10 min read',
 		tags: ['Japan', 'Cherry Blossoms', 'Culture', 'Asia'],
 	},
 	{
-		slug: 'machu-picchu-trek',
-		id: 'machu-picchu-trek',
 		title: 'Preparing for Your Machu Picchu Trek',
 		excerpt:
 			'Essential tips and packing list for conquering the Inca Trail adventure.',
@@ -85,16 +73,11 @@ Start training at least 2-3 months before your trek.
 - Layered clothing for temperature changes
 - Rain jacket and poncho`,
 		image: '/destinations/destination-peru.jpg',
-		author: 'Maria Torres',
-		authorAvatar: 'MT',
-		date: 'Jan 10, 2025',
+		author: '69f8c73aaedb2028d0dcd378s',
 		category: 'Adventure',
-		readTime: '12 min read',
 		tags: ['Peru', 'Trekking', 'Machu Picchu', 'South America'],
 	},
 	{
-		slug: 'luxury-dubai-guide',
-		id: 'luxury-dubai-guide',
 		title: 'The Ultimate Dubai Luxury Travel Guide',
 		excerpt:
 			"Experience the height of opulence with our insider guide to Dubai's finest offerings.",
@@ -111,11 +94,8 @@ Standing at 828 meters, the Burj Khalifa offers views that stretch to the horizo
 ### Desert Safari
 Experience the golden dunes of the Arabian desert with dune bashing in a 4x4.`,
 		image: '/destinations/destination-japan.jpg',
-		author: 'Alex Foster',
-		authorAvatar: 'AF',
-		date: 'Jan 8, 2025',
+		author: '69f8c73aaedb2028d0dcd378',
 		category: 'Luxury',
-		readTime: '9 min read',
 		tags: ['Dubai', 'Luxury', 'UAE', 'Middle East'],
 	},
 ];
@@ -596,7 +576,6 @@ const visaCountries = [
 // Travel Packages Data
 const travelPackages = [
 	{
-		id: 'santorini-dreams',
 		title: 'Santorini Dreams',
 		location: 'Greece',
 		image: '/destinations/destination-dubai.jpg',
@@ -673,7 +652,6 @@ const travelPackages = [
 		],
 	},
 	{
-		id: 'cherry-blossom-tour',
 		title: 'Cherry Blossom Tour',
 		location: 'Japan',
 		image: '/destinations/destination-greece.jpg',
@@ -764,7 +742,6 @@ const travelPackages = [
 		],
 	},
 	{
-		id: 'machu-picchu-adventure',
 		title: 'Machu Picchu Adventure',
 		location: 'Peru',
 		image: '/destinations/destination-japan.jpg',
@@ -841,7 +818,6 @@ const travelPackages = [
 		],
 	},
 	{
-		id: 'dubai-luxury-escape',
 		title: 'Dubai Luxury Escape',
 		location: 'UAE',
 		image: '/destinations/destination-peru.jpg',
@@ -1132,25 +1108,6 @@ const services = [
 	},
 ];
 
-// Define Mongoose Schemas inline for the script
-const BlogPostSchema = new mongoose.Schema(
-	{
-		id: { type: String, required: true, unique: true },
-		title: { type: String, required: true },
-		excerpt: { type: String, required: true },
-		content: { type: String, required: true },
-		image: { type: String, required: true },
-		author: { type: String, required: true },
-		slug: { type: String, unique: true, sparse: true },
-		authorAvatar: { type: String, default: '' },
-		date: { type: String, required: true },
-		category: { type: String, required: true },
-		readTime: { type: String, default: '5 min read' },
-		tags: [{ type: String }],
-	},
-	{ timestamps: true },
-);
-
 const VisaCountrySchema = new mongoose.Schema(
 	{
 		slug: { type: String, required: true, unique: true },
@@ -1167,9 +1124,22 @@ const VisaCountrySchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
+// Define Mongoose Schemas inline for the script
+const BlogPostSchema = new mongoose.Schema(
+	{
+		title: { type: String, required: true },
+		excerpt: { type: String, required: true },
+		content: { type: String, required: true },
+		image: { type: String, required: true },
+		author: { type: String, required: true },
+		category: { type: String, required: true },
+		tags: [{ type: String }],
+	},
+	{ timestamps: true },
+);
+
 const PackageSchema = new mongoose.Schema(
 	{
-		id: { type: String, required: true, unique: true },
 		title: { type: String, required: true },
 		location: { type: String, required: true },
 		image: { type: String, required: true },

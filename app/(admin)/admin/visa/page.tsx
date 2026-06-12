@@ -310,24 +310,23 @@ export default function VisaAdminPage() {
 								<h4 className='font-medium text-sm text-muted-foreground'>
 									Basic Information
 								</h4>
-								<div className='grid grid-cols-2 gap-3'>
-									<Input
-										placeholder='Slug *'
-										value={formData.slug}
-										onChange={(e) =>
-											setFormData({ ...formData, slug: e.target.value })
-										}
-										required
-									/>
-									<Input
-										placeholder='Country Name *'
-										value={formData.name}
-										onChange={(e) =>
-											setFormData({ ...formData, name: e.target.value })
-										}
-										required
-									/>
-								</div>
+								<Input
+									placeholder='Country Name *'
+									value={formData.name}
+									onChange={(e) =>
+										setFormData({
+											...formData,
+											name: e.target.value,
+											slug: e.target.value
+												.toLowerCase()
+												.trim()
+												.replace(/[^\w\s-]/g, '')
+												.replace(/\s+/g, '-')
+												.replace(/--+/g, '-'),
+										})
+									}
+									required
+								/>
 								<div className='grid grid-cols-3 gap-3'>
 									<Input
 										placeholder='Flag (emoji or code)'

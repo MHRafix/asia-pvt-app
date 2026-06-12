@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
+import { sendMail } from '@/lib/mail-service/mail';
 import { User } from '@/lib/models/User';
 import { forgotPasswordSchema } from '@/lib/validations/auth';
 import crypto from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
 
 		// Validate with Zod
 		const validationResult = forgotPasswordSchema.safeParse(body);
+
 		if (!validationResult.success) {
 			return NextResponse.json(
 				{
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -28,11 +30,10 @@ export async function POST(request: NextRequest) {
 		// Find user
 		const user = await User.findOne({ email });
 
-		// Always return success to prevent email enumeration
 		if (!user) {
 			return NextResponse.json({
-				success: true,
-				message: 'If an account exists with this email, you will receive a password reset link.',
+				success: false,
+				message: 'User not exist with this email',
 			});
 		}
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
 		// Build reset URL
 		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-		const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
+		const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
 
 		// In production, you would send an email here
 		// For now, we'll log the reset URL (in production, use a service like Resend, SendGrid, etc.)
@@ -60,16 +61,16 @@ export async function POST(request: NextRequest) {
 
 		// TODO: Send email with reset link
 		// Example with Resend:
-		// await resend.emails.send({
-		//   from: 'noreply@yourdomain.com',
-		//   to: email,
-		//   subject: 'Password Reset Request',
-		//   html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`
-		// });
+		await sendMail(
+			email,
+			'Password Reset Request',
+			`<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+		);
 
 		return NextResponse.json({
 			success: true,
-			message: 'If an account exists with this email, you will receive a password reset link.',
+			message:
+				'If an account exists with this email, you will receive a password reset link.',
 			// Only include resetUrl in development for testing
 			...(process.env.NODE_ENV === 'development' && { resetUrl }),
 		});
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
 		console.error('Error in forgot password:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to process request' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

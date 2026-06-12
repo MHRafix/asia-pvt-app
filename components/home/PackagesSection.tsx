@@ -79,7 +79,7 @@ export function PackagesSection({
 											</p>
 										</div>
 										<Button variant='coral' size='sm' asChild>
-											<Link href={`/packages/${pkg.id}`}>View</Link>
+											<Link href={`/packages/${pkg._id}`}>View</Link>
 										</Button>
 									</div>
 								</CardContent>

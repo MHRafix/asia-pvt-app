@@ -90,7 +90,7 @@ export function Navbar() {
 								<Button
 									variant='ghost'
 									size='sm'
-									onClick={() => router.push('/login')}
+									onClick={() => router.push('/auth/login')}
 								>
 									<User className='w-4 h-4' />
 									Login
@@ -98,7 +98,7 @@ export function Navbar() {
 								<Button
 									variant='coral'
 									size='lg'
-									onClick={() => router.push('/signup')}
+									onClick={() => router.push('/auth/signup')}
 								>
 									Sign Up
 								</Button>
@@ -184,7 +184,7 @@ export function Navbar() {
 										variant='ghost'
 										className='w-full'
 										onClick={() => {
-											router.push('/login');
+											router.push('/auth/login');
 											setIsOpen(false);
 										}}
 									>
@@ -195,7 +195,7 @@ export function Navbar() {
 										variant='coral'
 										className='w-full'
 										onClick={() => {
-											router.push('/signup');
+											router.push('/auth/signup');
 											setIsOpen(false);
 										}}
 									>

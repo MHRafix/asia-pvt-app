@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
 import { User } from '@/lib/models/User';
 import { resetPasswordSchema } from '@/lib/validations/auth';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
 		if (!token) {
 			return NextResponse.json(
 				{ success: false, error: 'Reset token is required' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -46,12 +47,12 @@ export async function POST(request: NextRequest) {
 		if (!user) {
 			return NextResponse.json(
 				{ success: false, error: 'Invalid or expired reset token' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
 		// Update password and clear reset token
-		user.password = validationResult.data.password;
+		user.password = await bcrypt.hash(validationResult.data.password, 10);
 		user.resetPasswordToken = undefined;
 		user.resetPasswordExpires = undefined;
 		await user.save();
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
 		console.error('Error in reset password:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to reset password' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
 		if (!token) {
 			return NextResponse.json(
 				{ success: false, error: 'Reset token is required' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
 		if (!user) {
 			return NextResponse.json(
 				{ success: false, error: 'Invalid or expired reset token' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest) {
 		console.error('Error verifying reset token:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to verify token' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

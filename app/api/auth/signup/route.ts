@@ -1,86 +1,142 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { generateToken } from '@/lib/auth/jwt';
 import { connectDB } from '@/lib/db/connection';
 import { User } from '@/lib/models/User';
-import { generateToken } from '@/lib/auth/jwt';
+import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
-  try {
-    await connectDB();
+export async function POST(req: NextRequest) {
+	try {
+		await connectDB();
 
-    const body = await request.json();
-    const { name, email, phone, password, confirmPassword } = body;
+		const body = await req.json();
 
-    // Validation
-    if (!name || !email || !phone || !password) {
-      return NextResponse.json(
-        { error: 'Please provide all required fields' },
-        { status: 400 }
-      );
-    }
+		const name = body?.name?.trim();
+		const email = body?.email?.trim().toLowerCase();
+		const phone = body?.phone?.trim();
+		const password = body?.password;
+		const confirmPassword = body?.confirmPassword;
 
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        { error: 'Passwords do not match' },
-        { status: 400 }
-      );
-    }
+		// Required fields validation
+		if (!name || !email || !phone || !password || !confirmPassword) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'All fields are required',
+				},
+				{ status: 400 },
+			);
+		}
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
-      );
-    }
+		// Email validation
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Create new user
-    const user = new User({
-      name,
-      email,
-      phone,
-      password,
-      role: 'user',
-    });
+		if (!emailRegex.test(email)) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'Invalid email address',
+				},
+				{ status: 400 },
+			);
+		}
 
-    await user.save();
+		// Password validation
+		if (password.length < 6) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'Password must be at least 6 characters',
+				},
+				{ status: 400 },
+			);
+		}
 
-    // Generate JWT token
-    const token = generateToken({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    });
+		// Confirm password
+		if (password !== confirmPassword) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'Passwords do not match',
+				},
+				{ status: 400 },
+			);
+		}
 
-    // Create response with secure cookie
-    const response = NextResponse.json(
-      {
-        message: 'User registered successfully',
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
-      },
-      { status: 201 }
-    );
+		// Existing user
+		const existingUser = await User.findOne({ email });
 
-    response.cookies.set('authToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/',
-    });
+		if (existingUser) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'Email already registered',
+				},
+				{ status: 409 },
+			);
+		}
 
-    return response;
-  } catch (error: unknown) {
-    console.error('[v0] Signup error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
-  }
+		const hashedPass = await bcrypt.hash(password, 10);
+
+		// Create user
+		const user = await User.create({
+			name,
+			email,
+			phone,
+			password: hashedPass,
+			role: 'user',
+		});
+
+		// JWT Token
+		const token = generateToken({
+			userId: String(user._id),
+			email: user.email,
+			role: user.role,
+		});
+
+		const response = NextResponse.json(
+			{
+				success: true,
+				message: 'User registered successfully',
+				user: {
+					id: String(user._id),
+					name: user.name,
+					email: user.email,
+					phone: user.phone,
+					role: user.role,
+				},
+			},
+			{ status: 201 },
+		);
+
+		response.cookies.set('authToken', token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24 * 7,
+			path: '/',
+		});
+
+		return response;
+	} catch (error: any) {
+		console.error('Signup Error:', error);
+
+		// Mongo duplicate key error
+		if (error?.code === 11000) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: 'Email already exists',
+				},
+				{ status: 409 },
+			);
+		}
+
+		return NextResponse.json(
+			{
+				success: false,
+				message: 'Internal Server Error',
+			},
+			{ status: 500 },
+		);
+	}
 }

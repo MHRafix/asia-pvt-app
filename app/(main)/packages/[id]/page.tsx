@@ -266,7 +266,7 @@ const PackageDetail = () => {
 									className='w-full mb-3'
 									asChild
 								>
-									<Link href={`/appointment?package=${pkg.id}`}>
+									<Link href={`/appointment?package=${pkg._id}`}>
 										<Calendar className='w-5 h-5' />
 										Book This Package
 									</Link>

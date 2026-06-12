@@ -30,7 +30,6 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 const initialFormData = {
-	id: '',
 	title: '',
 	location: '',
 	price: 0,
@@ -77,12 +76,7 @@ export default function PackagesAdminPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (
-			!formData.id ||
-			!formData.title ||
-			!formData.location ||
-			!formData.price
-		) {
+		if (!formData.title || !formData.location || !formData.price) {
 			toast.error('Please fill in all required fields');
 			return;
 		}
@@ -144,7 +138,6 @@ export default function PackagesAdminPage() {
 	const handleEdit = (pkg: TravelPackage) => {
 		setEditingId(pkg._id || null);
 		setFormData({
-			id: pkg.id,
 			title: pkg.title,
 			location: pkg.location,
 			price: pkg.price,
@@ -366,24 +359,15 @@ export default function PackagesAdminPage() {
 								<h4 className='font-medium text-sm text-muted-foreground'>
 									Basic Information
 								</h4>
-								<div className='grid grid-cols-2 gap-3'>
-									<Input
-										placeholder='Package ID *'
-										value={formData.id}
-										onChange={(e) =>
-											setFormData({ ...formData, id: e.target.value })
-										}
-										required
-									/>
-									<Input
-										placeholder='Title *'
-										value={formData.title}
-										onChange={(e) =>
-											setFormData({ ...formData, title: e.target.value })
-										}
-										required
-									/>
-								</div>
+
+								<Input
+									placeholder='Title *'
+									value={formData.title}
+									onChange={(e) =>
+										setFormData({ ...formData, title: e.target.value })
+									}
+									required
+								/>
 								<div className='grid grid-cols-2 gap-3'>
 									<Input
 										placeholder='Location *'

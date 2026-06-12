@@ -1,28 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+	const { pathname } = request.nextUrl;
 
-  // Protected routes that require authentication
-  const protectedRoutes = ['/admin'];
-  
-  // Check if the route is protected
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+	// Protected routes that require authentication
+	const protectedRoutes = ['/admin'];
 
-  if (isProtectedRoute) {
-    const token = request.cookies.get('authToken')?.value;
+	// Check if the route is protected
+	const isProtectedRoute = protectedRoutes.some((route) =>
+		pathname.startsWith(route),
+	);
 
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+	if (isProtectedRoute) {
+		const token = request.cookies.get('authToken')?.value;
 
-    // Token verification happens client-side in the admin page component
-    // This middleware just ensures the token exists
-  }
+		if (!token) {
+			return NextResponse.redirect(new URL('/auth/login', request.url));
+		}
 
-  return NextResponse.next();
+		// Token verification happens client-side in the admin page component
+		// This middleware just ensures the token exists
+	}
+
+	return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+	matcher: ['/admin/:path*'],
 };

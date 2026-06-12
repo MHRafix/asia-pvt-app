@@ -1,6 +1,7 @@
 'use client';
 
 import { PageBanner } from '@/components/common/PageBanner';
+import { SplitButtons } from '@/components/common/ToastMessage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -55,13 +56,19 @@ const Contact = () => {
 
 			const result = await response.json();
 			if (result.success) {
-				toast.success(SplitButtons, {
-					closeButton: true,
-					position: 'top-left',
-					className: '!px-4 !py-0 !w-[400px]',
-					ariaLabel: 'Message sent',
-					closeOnClick: true,
-				});
+				toast.success(
+					<SplitButtons
+						title='Message sent'
+						message='Your message has been sent.'
+					/>,
+					{
+						closeButton: true,
+						position: 'top-left',
+						className: '!px-4 !py-0 !w-[400px]',
+						ariaLabel: 'Message sent',
+						closeOnClick: true,
+					},
+				);
 				reset();
 			} else {
 				toast.error('Failed to sent message', {
@@ -83,7 +90,7 @@ const Contact = () => {
 
 	return (
 		<div className='min-h-screen'>
-			<div className='pt-20'>
+			<div>
 				<PageBanner
 					title='Contact Us'
 					subtitle="Have questions? We'd love to hear from you."
@@ -231,16 +238,7 @@ const Contact = () => {
 };
 
 export default Contact;
-function SplitButtons() {
-	return (
-		<div className='w-full'>
-			<div className='flex flex-col p-4'>
-				<h3 className='text-zinc-800 text-xl font-semibold'>Message sent</h3>
-				<p className='text-lg'>Your message has been sent.</p>
-			</div>
-		</div>
-	);
-}
+
 const contactInfo = [
 	{
 		icon: MapPin,
@@ -252,13 +250,13 @@ const contactInfo = [
 		icon: Phone,
 		color: 'bg-ocean/10 text-ocean',
 		title: 'Phone',
-		value: '+1 (555) 123-4567',
+		value: '+880 1976631563, +880 1976631564',
 	},
 	{
 		icon: Mail,
 		color: 'bg-coral/10 text-coral',
 		title: 'Email',
-		value: 'asiatours2018@gmail.com',
+		value: 'touch.asiatours@gmail.com',
 	},
 	{
 		icon: Clock,

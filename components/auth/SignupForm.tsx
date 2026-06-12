@@ -42,12 +42,12 @@ export const SignupForm = ({ searchParams }: any) => {
 				data.email,
 				data.phone,
 				data.password,
-				data.confirmPassword
+				data.confirmPassword,
 			);
 			toast.success('Account created successfully!');
 		} catch (error) {
 			console.error('Signup error:', error);
-			toast.error(error instanceof Error ? error.message : 'Signup failed');
+			// toast.error(error instanceof Error ? error.message : 'Signup failed');
 		} finally {
 			setLoading(false);
 		}
@@ -170,7 +170,10 @@ export const SignupForm = ({ searchParams }: any) => {
 
 				<p className='text-center text-sm text-muted-foreground'>
 					Already have an account?{' '}
-					<a href='/login' className='text-primary font-medium hover:underline'>
+					<a
+						href='/auth/login'
+						className='text-primary font-medium hover:underline'
+					>
 						Sign in here
 					</a>
 				</p>
