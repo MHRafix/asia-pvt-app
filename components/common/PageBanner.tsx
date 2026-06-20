@@ -15,13 +15,16 @@ export function PageBanner({
 		<div
 			className='relative py-32 md:py-40 overflow-hidden'
 			style={{
-				backgroundImage: backgroundImage,
+				backgroundImage: backgroundImage
+					? `url(${backgroundImage})`
+					: undefined,
 				backgroundSize: 'cover',
 				backgroundPosition: 'center',
+				backgroundRepeat: 'no-repeat',
 			}}
 		>
 			{/* Overlay */}
-			<div className='absolute inset-0 bg-black/30' />
+			<div className='absolute inset-0 bg-black/60' />
 
 			{/* Pattern overlay */}
 			<div className='absolute inset-0 opacity-10'>

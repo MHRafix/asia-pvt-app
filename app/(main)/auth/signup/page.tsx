@@ -8,6 +8,7 @@ const Signup = ({ searchParams }: any) => {
 			<PageBanner
 				title='Create Account'
 				subtitle='Join us and start your adventure'
+				backgroundImage='https://images.unsplash.com/photo-1559706106-821eaef6d7e1?q=80&w=1638&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 			/>
 
 			<section className='py-24 bg-background'>

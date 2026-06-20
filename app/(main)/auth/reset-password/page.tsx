@@ -232,6 +232,7 @@ export default function ResetPasswordPage() {
 				<PageBanner
 					title='Reset Password'
 					subtitle='Create a new password for your account'
+					backgroundImage='https://plus.unsplash.com/premium_photo-1681433422373-41832fc6a4e3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDI0fHx8ZW58MHx8fHx8'
 				/>
 
 				<section className='py-24 bg-background'>

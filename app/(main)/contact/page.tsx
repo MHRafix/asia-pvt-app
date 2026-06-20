@@ -95,6 +95,7 @@ const Contact = () => {
 					title='Contact Us'
 					subtitle="Have questions? We'd love to hear from you."
 					gradient='ocean'
+					backgroundImage='https://images.unsplash.com/photo-1530521954074-e64f6810b32d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 				/>
 
 				<section className='py-24 bg-background'>
