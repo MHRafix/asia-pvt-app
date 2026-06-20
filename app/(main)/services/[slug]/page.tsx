@@ -99,7 +99,11 @@ const ServiceDetail = () => {
 	}
 	return (
 		<div className='min-h-screen'>
-			<PageBanner title={service.title} subtitle={service.description} />
+			<PageBanner
+				title={service.title}
+				subtitle={service.description}
+				backgroundImage='https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+			/>
 
 			<section className='py-16 bg-background'>
 				<div className='container mx-auto px-4'>

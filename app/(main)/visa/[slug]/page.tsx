@@ -207,12 +207,19 @@ const VisaCountry = () => {
 
 					{/* CTA */}
 					<div className='mt-16 text-center'>
-						<Card className='border-0 shadow-elevated bg-primary'>
-							<CardContent className='p-12'>
-								<h3 className='font-display text-2xl font-bold text-primary-foreground mb-4'>
+						<Card
+							className='border-0 shadow-elevated !bg-no-repeat bg-cover bg-center relative overflow-hidden '
+							style={{
+								backgroundImage:
+									"url('https://images.unsplash.com/photo-1590523277635-04317eea7560?q=80&w=1529&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+							}}
+						>
+							<div className='absolute inset-0 bg-black/60 z-0' />
+							<CardContent className='p-12 !z-50'>
+								<h3 className='text-3xl font-bold text-primary-foreground mb-4'>
 									Need Help With Your {country.name} Visa?
 								</h3>
-								<p className='font-body text-primary-foreground/80 mb-8 max-w-xl mx-auto'>
+								<p className='font-medium text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto'>
 									Our visa specialists will handle the entire application
 									process for you.
 								</p>
