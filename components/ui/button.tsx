@@ -27,13 +27,16 @@ const buttonVariants = cva(
 					'bg-ocean text-primary-foreground hover:bg-ocean-light shadow-soft hover:shadow-card',
 				coral:
 					'bg-primary text-primary-foreground hover:bg-primary/70 shadow-soft hover:shadow-card',
+
+				actionIcon:
+					'bg-transparent border-primary/50 border-1 text-black hover:bg-primary/80 hover:text-white',
 			},
 			size: {
 				default: 'h-10 px-4 py-2',
 				sm: 'h-9 rounded-md px-3',
 				lg: 'h-11 rounded-lg px-8',
 				xl: 'h-14 rounded-xl px-10 text-base',
-				icon: 'h-10 w-10',
+				icon: 'h-8 w-8',
 			},
 		},
 		defaultVariants: {
