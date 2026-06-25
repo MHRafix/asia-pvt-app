@@ -70,7 +70,6 @@ export async function POST(request: NextRequest) {
 
 		return response;
 	} catch (error: unknown) {
-		console.error('[v0] Login error:', error);
 		return NextResponse.json(
 			{
 				error: error instanceof Error ? error.message : 'Internal server error',

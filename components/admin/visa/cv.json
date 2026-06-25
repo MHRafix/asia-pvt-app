@@ -1,0 +1,13 @@
+{
+	"requirements": ["aaaaaaaaaaaaaaaaaaaaaaaa", "adddddddddddd"],
+	"documents": ["aaaaaaaaaaaaaaaaa", "addddddddddddddddddd"],
+	"tips": ["addddddddddddd", "addddddddddd"],
+	"fees": [
+		{ "type": "aaaaaaaaaaaaaaaaaaaaaaaa", "amount": "aaaaaaaaaaaaaaaaaaaaaaaa" }
+	],
+	"name": "dca",
+	"flag": "aaaaaaa",
+	"processing": "aaaaaaaaaaaaaaaaaa",
+	"type": "aaaaaaaaaaaaaa",
+	"description": "aaaaaaaaaaaaaaaaaaaaaaa"
+}

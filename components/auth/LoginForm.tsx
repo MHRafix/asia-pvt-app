@@ -45,16 +45,13 @@ export const LoginForm = () => {
 				closeOnClick: true,
 			});
 		} catch (error: any) {
-			toast.success(
-				<SplitButtons title={error?.message || 'Login Failed!'} />,
-				{
-					closeButton: true,
-					position: 'top-left',
-					className: '!px-4 !py-0 !w-[450px]',
-					ariaLabel: 'Login',
-					closeOnClick: true,
-				},
-			);
+			toast.error(<SplitButtons title={error?.message || 'Login Failed!'} />, {
+				closeButton: true,
+				position: 'top-left',
+				className: '!px-4 !py-0 !w-[450px]',
+				ariaLabel: 'Login',
+				closeOnClick: true,
+			});
 		} finally {
 			setLoading(false);
 		}
