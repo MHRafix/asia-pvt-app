@@ -57,7 +57,20 @@ export const VisaForm: React.FC<VisaFormPropsType> = ({
 	});
 
 	useEffect(() => {
-		reset({});
+		if(visaCountry){
+			reset({
+			name: visaCountry?.name,
+			requirements: visaCountry?.requirements?.map((req:any) => ({name: req})),
+			description: visaCountry?.description,
+			fees: visaCountry?.fees,
+			documents: visaCountry?.documents?.map((doc:any) =>({ name: doc})),
+			tips: visaCountry?.tips?.map((doc:any) =>({ name: doc})),
+			type: visaCountry?.type,
+			processing: visaCountry?.processing,
+			flag: visaCountry?.flag
+			
+		});
+		}
 	}, [visaCountry]);
 
 	const requirements = useFieldArray({
