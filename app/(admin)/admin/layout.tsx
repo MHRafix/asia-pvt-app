@@ -1,6 +1,7 @@
 'use client';
 
 import { AdminNavbar } from '@/components/admin/common/AdminNavbar';
+import PlanLimitAlert from '@/components/common/PlanLimitAlert';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { cn } from '@/lib/utils';
@@ -200,7 +201,10 @@ export default function AdminLayout({
 			<main className='lg:ml-64 min-h-screen pt-16 lg:pt-0'>
 				<AdminNavbar />
 
-				<div className='p-6 lg:p-8 mt-5 lg:mt-20'>{children}</div>
+				<div className='p-6 lg:p-8 mt-5 lg:mt-20'>
+					<PlanLimitAlert />
+					{children}
+				</div>
 			</main>
 		</div>
 	);
