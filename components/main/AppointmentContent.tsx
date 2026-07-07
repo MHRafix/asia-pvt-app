@@ -138,7 +138,7 @@ const AppointmentContent = () => {
 	};
 
 	return (
-		<section className='py-16 bg-background w-7xl mx-auto'>
+		<section className='py-16 bg-background max-w-7xl mx-auto'>
 			<div className='container mx-auto px-4'>
 				{submitted ? (
 					<div className='max-w-xl mx-auto text-center py-16'>
