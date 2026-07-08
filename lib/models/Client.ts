@@ -6,8 +6,10 @@ export interface IClient extends Document {
 	phone: string;
 	address?: string;
 	company?: string;
+	profession?: string;
 	notes?: string;
 	status: 'active' | 'inactive' | 'prospect' | 'vip';
+	customStatus?: string[];
 	source?: string;
 	tags: string[];
 	balance: number;
@@ -50,6 +52,10 @@ const ClientSchema = new Schema<IClient>(
 			type: String,
 			trim: true,
 		},
+		profession: {
+			type: String,
+			trim: true,
+		},
 		notes: {
 			type: String,
 		},
@@ -57,6 +63,10 @@ const ClientSchema = new Schema<IClient>(
 			type: String,
 			enum: ['active', 'inactive', 'prospect', 'vip'],
 			default: 'prospect',
+		},
+		customStatus: {
+			type: [String],
+			default: [],
 		},
 		source: {
 			type: String,

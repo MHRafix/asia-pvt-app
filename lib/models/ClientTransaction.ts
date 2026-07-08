@@ -4,12 +4,14 @@ export interface IClientTransaction extends Document {
 	clientId: Types.ObjectId;
 	type: 'service' | 'package' | 'payment' | 'refund' | 'adjustment';
 	serviceId?: Types.ObjectId;
+	dailyServiceId?: Types.ObjectId;
 	packageId?: Types.ObjectId;
 	serviceName?: string;
 	packageName?: string;
 	description: string;
 	amount: number;
-	status: 'pending' | 'completed' | 'cancelled';
+	status: 'pending' | 'completed' | 'cancelled' | 'partial' | 'failed' | 'refunded';
+	paymentMethod?: 'cash' | 'check' | 'bank_transfer' | 'card' | 'other';
 	notes?: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -31,6 +33,10 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 			type: Schema.Types.ObjectId,
 			ref: 'Service',
 		},
+		dailyServiceId: {
+			type: Schema.Types.ObjectId,
+			ref: 'DailyService',
+		},
 		packageId: {
 			type: Schema.Types.ObjectId,
 			ref: 'Package',
@@ -51,8 +57,12 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 		},
 		status: {
 			type: String,
-			enum: ['pending', 'completed', 'cancelled'],
+			enum: ['pending', 'completed', 'cancelled', 'partial', 'failed', 'refunded'],
 			default: 'pending',
+		},
+		paymentMethod: {
+			type: String,
+			enum: ['cash', 'check', 'bank_transfer', 'card', 'other'],
 		},
 		notes: {
 			type: String,
