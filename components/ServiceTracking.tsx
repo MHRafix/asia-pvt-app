@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Loader, Search, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+	formatCurrency,
+	formatDate,
+	getStatusColor,
+	getStatusLabel,
+} from '@/lib/utils/formatting';
+import { AlertCircle, Loader, Search } from 'lucide-react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
 
 interface ServiceData {
 	service: {
@@ -27,7 +32,7 @@ interface ServiceData {
 		assignedEmployeeId?: {
 			_id: string;
 			name: string;
-			email: string;
+			phone: string;
 		};
 		createdDate: string;
 		completedDate?: string;
@@ -61,9 +66,7 @@ export default function ServiceTracking() {
 		setError(null);
 
 		try {
-			const response = await fetch(
-				`/api/crm/service-tracking/search?serviceId=${encodeURIComponent(serviceId)}`
-			);
+			const response = await fetch(`/api/crm/service-tracking/${serviceId}`);
 			const data = await response.json();
 
 			if (data.success) {
@@ -100,13 +103,9 @@ export default function ServiceTracking() {
 						onChange={(e) => setServiceId(e.target.value.toUpperCase())}
 						className='flex-1 text-lg'
 						disabled={isLoading}
-						maxLength={5}
+						// maxLength={5}
 					/>
-					<Button
-						type='submit'
-						disabled={isLoading}
-						className='gap-2'
-					>
+					<Button type='submit' disabled={isLoading} className='gap-2'>
 						{isLoading ? (
 							<>
 								<Loader className='w-4 h-4 animate-spin' />
@@ -153,7 +152,9 @@ export default function ServiceTracking() {
 							</div>
 
 							<div className='md:col-span-2'>
-								<p className='text-sm text-muted-foreground mb-2'>Service Title</p>
+								<p className='text-sm text-muted-foreground mb-2'>
+									Service Title
+								</p>
 								<p className='text-xl font-semibold'>
 									{result.service.serviceTitle}
 								</p>
@@ -172,7 +173,9 @@ export default function ServiceTracking() {
 							</div>
 
 							<div>
-								<p className='text-sm text-muted-foreground mb-1'>Created Date</p>
+								<p className='text-sm text-muted-foreground mb-1'>
+									Created Date
+								</p>
 								<p className='text-sm'>
 									{formatDate(new Date(result.service.createdDate))}
 								</p>
@@ -204,15 +207,21 @@ export default function ServiceTracking() {
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground mb-1'>Email</p>
-									<p className='text-sm'>{result.service.linkedClientId.email}</p>
+									<p className='text-sm'>
+										{result.service.linkedClientId.email}
+									</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground mb-1'>Phone</p>
-									<p className='text-sm'>{result.service.linkedClientId.phone}</p>
+									<p className='text-sm'>
+										{result.service.linkedClientId.phone}
+									</p>
 								</div>
 								{result.service.linkedClientId.company && (
 									<div>
-										<p className='text-sm text-muted-foreground mb-1'>Company</p>
+										<p className='text-sm text-muted-foreground mb-1'>
+											Company
+										</p>
 										<p className='text-sm'>
 											{result.service.linkedClientId.company}
 										</p>
@@ -232,7 +241,7 @@ export default function ServiceTracking() {
 										{result.service.assignedEmployeeId.name}
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										{result.service.assignedEmployeeId.email}
+										{result.service.assignedEmployeeId.phone}
 									</p>
 								</div>
 							</div>
@@ -245,7 +254,10 @@ export default function ServiceTracking() {
 							<h3 className='text-lg font-semibold mb-4'>Activity Timeline</h3>
 							<div className='space-y-4'>
 								{result.activities.map((activity) => (
-									<div key={activity._id} className='border-l-2 border-muted pl-4'>
+									<div
+										key={activity._id}
+										className='border-l-2 border-muted pl-4'
+									>
 										<div className='flex items-start justify-between gap-4'>
 											<div className='flex-1'>
 												<p className='font-semibold'>{activity.title}</p>

@@ -1,22 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import {
 	Form,
 	FormControl,
@@ -25,11 +15,24 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { Loader } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useForm } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import {
+	dailyServiceSchema,
+	type DailyServiceFormData,
+} from '@/lib/validations/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { dailyServiceSchema, type DailyServiceFormData } from '@/lib/validations/crm';
+import { Loader } from 'lucide-react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 interface DailyService {
 	_id: string;
@@ -37,7 +40,12 @@ interface DailyService {
 	serviceTitle: string;
 	serviceDescription?: string;
 	serviceCost: number;
-	serviceStatus: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold';
+	serviceStatus:
+		| 'pending'
+		| 'in_progress'
+		| 'completed'
+		| 'cancelled'
+		| 'on_hold';
 	linkedClientId?: string;
 	assignedEmployeeId?: string;
 }
@@ -48,7 +56,7 @@ interface DailyServiceFormDialogProps {
 	onSuccess: () => void;
 	clients: Array<{ _id: string; name: string }>;
 	employees: Array<{ _id: string; name: string }>;
-	service?: DailyService | null;
+	service?: DailyService | null | undefined;
 }
 
 export default function DailyServiceFormDialog({
@@ -59,6 +67,7 @@ export default function DailyServiceFormDialog({
 	employees,
 	service,
 }: DailyServiceFormDialogProps) {
+	console.log({ employees });
 	const isEditing = !!service;
 
 	const form = useForm<DailyServiceFormData>({
@@ -170,7 +179,10 @@ export default function DailyServiceFormDialog({
 									<FormItem className='col-span-2'>
 										<FormLabel>Service Title *</FormLabel>
 										<FormControl>
-											<Input placeholder='e.g. Website Design, Consultation' {...field} />
+											<Input
+												placeholder='e.g. Website Design, Consultation'
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -226,18 +238,17 @@ export default function DailyServiceFormDialog({
 								name='assignedEmployeeId'
 								render={({ field }) => (
 									<FormItem className='col-span-2'>
-										<FormLabel>Assigned Employee</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value || ''}>
+										<FormLabel>Assign employee *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder='Select employee (optional)' />
+													<SelectValue placeholder='Select a employee' />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value=''>None</SelectItem>
-												{employees.map((employee) => (
-													<SelectItem key={employee._id} value={employee._id}>
-														{employee.name}
+												{employees.map((client) => (
+													<SelectItem key={client._id} value={client._id}>
+														{client.name}
 													</SelectItem>
 												))}
 											</SelectContent>

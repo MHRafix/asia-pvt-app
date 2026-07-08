@@ -1,46 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
-import { DailyService } from '@/lib/models/DailyService';
 import { ClientActivity } from '@/lib/models/ClientActivity';
+import { DailyService } from '@/lib/models/DailyService';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: Promise<{ serviceId: string }> },
+) {
 	try {
 		await connectDB();
 
-		const { searchParams } = new URL(request.url);
-		const serviceId = searchParams.get('serviceId') || '';
+		const { serviceId } = await params;
 
 		if (!serviceId || serviceId.length < 1) {
 			return NextResponse.json(
 				{ success: false, error: 'Service ID is required' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
 		// Search by service ID
-		const service = await DailyService.findOne({
-			serviceId: { $regex: serviceId, $options: 'i' },
-		})
+		const service = await DailyService.findById({ _id: serviceId })
 			.populate('linkedClientId', 'name email phone company')
-			.populate('assignedEmployeeId', 'name email');
+			.populate('assignedEmployeeId', 'name phone');
 
 		if (!service) {
 			return NextResponse.json(
 				{ success: false, error: 'Service not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Get service activities
 		const activities = await ClientActivity.find({
-			metadata: {
-				$exists: true,
-				serviceId: service._id,
-			},
+			serviceId: service._id,
 		})
 			.sort({ createdAt: -1 })
 			.limit(50);
 
+		console.log({ activities });
 		return NextResponse.json({
 			success: true,
 			data: {
@@ -52,7 +50,7 @@ export async function GET(request: NextRequest) {
 		console.error('Error searching service:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to search service' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
