@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
-import { Invoice } from '@/lib/models/Invoice';
 import { Client } from '@/lib/models/Client';
+import { Invoice } from '@/lib/models/Invoice';
 import { invoiceSchema } from '@/lib/validations/crm';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 		console.error('Error fetching invoices:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to fetch invoices' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 		if (!clientExists) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 		if (existingInvoice) {
 			return NextResponse.json(
 				{ success: false, error: 'Invoice number already exists' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -142,13 +142,13 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json(
 			{ success: true, data: populatedInvoice },
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (error) {
 		console.error('Error creating invoice:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to create invoice' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

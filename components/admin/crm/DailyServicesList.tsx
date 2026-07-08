@@ -1,16 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Plus, Loader } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import DailyServiceFormDialog from './DailyServiceFormDialog';
 import DailyServicesTable from './DailyServicesTable';
@@ -44,7 +37,9 @@ export default function DailyServicesList() {
 	const [employees, setEmployees] = useState<Employee[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [selectedService, setSelectedService] = useState<DailyService | null>(null);
+	const [selectedService, setSelectedService] = useState<
+		DailyService | null | undefined
+	>(null);
 	const [search, setSearch] = useState('');
 	const [status, setStatus] = useState('all');
 
@@ -88,7 +83,7 @@ export default function DailyServicesList() {
 
 	const fetchEmployees = async () => {
 		try {
-			const response = await fetch('/api/employees?limit=1000');
+			const response = await fetch('/api/employees');
 			const result = await response.json();
 
 			if (result.success) {
@@ -125,7 +120,9 @@ export default function DailyServicesList() {
 			<div className='flex justify-between items-center'>
 				<div>
 					<h1 className='text-3xl font-bold'>Daily Services</h1>
-					<p className='text-muted-foreground mt-2'>Manage all daily services</p>
+					<p className='text-muted-foreground mt-2'>
+						Manage all daily services
+					</p>
 				</div>
 				<Button onClick={() => setIsFormOpen(true)}>
 					<Plus className='w-4 h-4 mr-2' />
@@ -140,7 +137,7 @@ export default function DailyServicesList() {
 					onChange={(e) => setSearch(e.target.value)}
 					className='flex-1'
 				/>
-				<Select value={status} onValueChange={setStatus}>
+				{/* <Select value={status} onValueChange={setStatus}>
 					<SelectTrigger className='w-40'>
 						<SelectValue placeholder='Filter by status' />
 					</SelectTrigger>
@@ -152,7 +149,7 @@ export default function DailyServicesList() {
 						<SelectItem value='on_hold'>On Hold</SelectItem>
 						<SelectItem value='cancelled'>Cancelled</SelectItem>
 					</SelectContent>
-				</Select>
+				</Select> */}
 			</div>
 
 			{isLoading ? (

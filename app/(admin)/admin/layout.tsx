@@ -10,11 +10,13 @@ import {
 	Calendar,
 	FileText,
 	Globe,
+	Grid2X2Check,
 	LayoutDashboard,
 	Loader,
 	LogOut,
 	Mail,
 	Menu,
+	Notebook,
 	Package,
 	Settings,
 	User,
@@ -31,6 +33,19 @@ import { toast } from 'sonner';
 const navItems = [
 	{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
 	{ label: 'CRM', href: '/admin/crm', icon: Users },
+
+	{
+		label: 'Daily Services',
+		href: '/admin/crm/daily-services',
+		icon: Grid2X2Check,
+	},
+
+	{
+		label: 'Invoices',
+		href: '/admin/crm/invoices',
+		icon: Notebook,
+	},
+
 	{ label: 'Employees', href: '/admin/employees', icon: UserCog },
 	{ label: 'Packages', href: '/admin/packages', icon: Package },
 	{ label: 'Services', href: '/admin/services', icon: Wrench },
