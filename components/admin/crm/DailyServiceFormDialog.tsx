@@ -1,0 +1,296 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Loader } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { dailyServiceSchema, type DailyServiceFormData } from '@/lib/validations/crm';
+
+interface DailyService {
+	_id: string;
+	serviceId: string;
+	serviceTitle: string;
+	serviceDescription?: string;
+	serviceCost: number;
+	serviceStatus: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold';
+	linkedClientId?: string;
+	assignedEmployeeId?: string;
+}
+
+interface DailyServiceFormDialogProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	onSuccess: () => void;
+	clients: Array<{ _id: string; name: string }>;
+	employees: Array<{ _id: string; name: string }>;
+	service?: DailyService | null;
+}
+
+export default function DailyServiceFormDialog({
+	open,
+	onOpenChange,
+	onSuccess,
+	clients,
+	employees,
+	service,
+}: DailyServiceFormDialogProps) {
+	const isEditing = !!service;
+
+	const form = useForm<DailyServiceFormData>({
+		resolver: zodResolver(dailyServiceSchema),
+		defaultValues: {
+			linkedClientId: '',
+			assignedEmployeeId: '',
+			serviceTitle: '',
+			serviceDescription: '',
+			serviceCost: 0,
+			serviceStatus: 'pending',
+			notes: '',
+		},
+	});
+
+	useEffect(() => {
+		if (service) {
+			form.reset({
+				linkedClientId: service.linkedClientId || '',
+				assignedEmployeeId: service.assignedEmployeeId || '',
+				serviceTitle: service.serviceTitle,
+				serviceDescription: service.serviceDescription || '',
+				serviceCost: service.serviceCost,
+				serviceStatus: service.serviceStatus,
+				notes: '',
+			});
+		} else {
+			form.reset({
+				linkedClientId: '',
+				assignedEmployeeId: '',
+				serviceTitle: '',
+				serviceDescription: '',
+				serviceCost: 0,
+				serviceStatus: 'pending',
+				notes: '',
+			});
+		}
+	}, [service, form]);
+
+	const onSubmit = async (data: DailyServiceFormData) => {
+		try {
+			const url = isEditing
+				? `/api/crm/daily-services/${service._id}`
+				: '/api/crm/daily-services';
+			const method = isEditing ? 'PUT' : 'POST';
+
+			const response = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success(isEditing ? 'Service updated!' : 'Service created!');
+				form.reset();
+				onSuccess();
+			} else {
+				toast.error(result.error || 'Failed to save service');
+			}
+		} catch (error) {
+			console.error('Error saving service:', error);
+			toast.error('Failed to save service');
+		}
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className='sm:max-w-lg'>
+				<DialogHeader>
+					<DialogTitle>
+						{isEditing ? 'Edit Service' : 'Add New Service'}
+					</DialogTitle>
+				</DialogHeader>
+
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
+								name='linkedClientId'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Client *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder='Select a client' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{clients.map((client) => (
+													<SelectItem key={client._id} value={client._id}>
+														{client.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='serviceTitle'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Service Title *</FormLabel>
+										<FormControl>
+											<Input placeholder='e.g. Website Design, Consultation' {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='serviceCost'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Service Cost *</FormLabel>
+										<FormControl>
+											<Input
+												type='number'
+												placeholder='0'
+												{...field}
+												onChange={(e) => field.onChange(Number(e.target.value))}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='serviceStatus'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Status</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder='Select status' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='pending'>Pending</SelectItem>
+												<SelectItem value='in_progress'>In Progress</SelectItem>
+												<SelectItem value='completed'>Completed</SelectItem>
+												<SelectItem value='on_hold'>On Hold</SelectItem>
+												<SelectItem value='cancelled'>Cancelled</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='assignedEmployeeId'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Assigned Employee</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value || ''}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder='Select employee (optional)' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value=''>None</SelectItem>
+												{employees.map((employee) => (
+													<SelectItem key={employee._id} value={employee._id}>
+														{employee.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='serviceDescription'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Service Description</FormLabel>
+										<FormControl>
+											<Textarea
+												placeholder='Detailed description of the service...'
+												className='resize-none'
+												rows={3}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<div className='flex justify-end gap-3 pt-4'>
+							<Button
+								type='button'
+								variant='outline'
+								onClick={() => onOpenChange(false)}
+							>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={form.formState.isSubmitting}>
+								{form.formState.isSubmitting ? (
+									<>
+										<Loader className='w-4 h-4 mr-2 animate-spin' />
+										Saving...
+									</>
+								) : isEditing ? (
+									'Update Service'
+								) : (
+									'Add Service'
+								)}
+							</Button>
+						</div>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}

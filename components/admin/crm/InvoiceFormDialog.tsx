@@ -29,90 +29,76 @@ import { Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { clientSchema, type ClientFormData } from '@/lib/validations/crm';
+import { invoiceSchema, type InvoiceFormData } from '@/lib/validations/crm';
 
-interface Client {
+interface Invoice {
 	_id: string;
-	name: string;
-	email: string;
-	phone: string;
-	address?: string;
-	company?: string;
-	profession?: string;
+	invoiceNumber: string;
+	amount: number;
+	paymentMethod: string;
+	transactionStatus: string;
+	clientId?: string;
+	description?: string;
 	notes?: string;
-	status: 'active' | 'inactive' | 'prospect' | 'vip';
-	customStatus?: string[];
-	source?: string;
-	tags: string[];
 }
 
-interface ClientFormDialogProps {
+interface InvoiceFormDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
-	client?: Client | null;
+	clients: Array<{ _id: string; name: string }>;
+	invoice?: Invoice | null;
 }
 
-export default function ClientFormDialog({
+export default function InvoiceFormDialog({
 	open,
 	onOpenChange,
 	onSuccess,
-	client,
-}: ClientFormDialogProps) {
-	const isEditing = !!client;
+	clients,
+	invoice,
+}: InvoiceFormDialogProps) {
+	const isEditing = !!invoice;
 
-	const form = useForm<ClientFormData>({
-		resolver: zodResolver(clientSchema),
+	const form = useForm<InvoiceFormData>({
+		resolver: zodResolver(invoiceSchema),
 		defaultValues: {
-			name: '',
-			email: '',
-			phone: '',
-			address: '',
-			company: '',
-			profession: '',
+			clientId: '',
+			invoiceNumber: '',
+			amount: 0,
+			paymentMethod: 'cash',
+			transactionStatus: 'pending',
+			description: '',
 			notes: '',
-			status: 'prospect',
-			customStatus: [],
-			source: '',
-			tags: [],
 		},
 	});
 
 	useEffect(() => {
-		if (client) {
+		if (invoice) {
 			form.reset({
-				name: client.name,
-				email: client.email,
-				phone: client.phone,
-				address: client.address || '',
-				company: client.company || '',
-				profession: client.profession || '',
-				notes: client.notes || '',
-				status: client.status,
-				customStatus: client.customStatus || [],
-				source: client.source || '',
-				tags: client.tags || [],
+				clientId: invoice.clientId || '',
+				invoiceNumber: invoice.invoiceNumber,
+				amount: invoice.amount,
+				paymentMethod: invoice.paymentMethod as any,
+				transactionStatus: invoice.transactionStatus as any,
+				description: invoice.description || '',
+				notes: invoice.notes || '',
 			});
 		} else {
 			form.reset({
-				name: '',
-				email: '',
-				phone: '',
-				address: '',
-				company: '',
-				profession: '',
+				clientId: '',
+				invoiceNumber: '',
+				amount: 0,
+				paymentMethod: 'cash',
+				transactionStatus: 'pending',
+				description: '',
 				notes: '',
-				status: 'prospect',
-				customStatus: [],
-				source: '',
-				tags: [],
 			});
 		}
-	}, [client, form]);
+	}, [invoice, form]);
 
-	const onSubmit = async (data: ClientFormData) => {
+	const onSubmit = async (data: InvoiceFormData) => {
 		try {
-			const url = isEditing ? `/api/crm/clients/${client._id}` : '/api/crm/clients';
+			const url = isEditing ? `/api/crm/invoices/${invoice._id}` : '/api/crm/invoices';
 			const method = isEditing ? 'PUT' : 'POST';
 
 			const response = await fetch(url, {
@@ -124,15 +110,15 @@ export default function ClientFormDialog({
 			const result = await response.json();
 
 			if (result.success) {
-				toast.success(isEditing ? 'Client updated!' : 'Client created!');
+				toast.success(isEditing ? 'Invoice updated!' : 'Invoice created!');
 				form.reset();
 				onSuccess();
 			} else {
-				toast.error(result.error || 'Failed to save client');
+				toast.error(result.error || 'Failed to save invoice');
 			}
 		} catch (error) {
-			console.error('Error saving client:', error);
-			toast.error('Failed to save client');
+			console.error('Error saving invoice:', error);
+			toast.error('Failed to save invoice');
 		}
 	};
 
@@ -141,7 +127,7 @@ export default function ClientFormDialog({
 			<DialogContent className='sm:max-w-lg'>
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? 'Edit Client' : 'Add New Client'}
+						{isEditing ? 'Edit Invoice' : 'Create New Invoice'}
 					</DialogTitle>
 				</DialogHeader>
 
@@ -150,12 +136,12 @@ export default function ClientFormDialog({
 						<div className='grid grid-cols-2 gap-4'>
 							<FormField
 								control={form.control}
-								name='name'
+								name='invoiceNumber'
 								render={({ field }) => (
 									<FormItem className='col-span-2'>
-										<FormLabel>Full Name</FormLabel>
+										<FormLabel>Invoice Number *</FormLabel>
 										<FormControl>
-											<Input placeholder='John Doe' {...field} />
+											<Input placeholder='INV-2024-001' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -164,77 +150,22 @@ export default function ClientFormDialog({
 
 							<FormField
 								control={form.control}
-								name='email'
+								name='clientId'
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Email</FormLabel>
-										<FormControl>
-											<Input type='email' placeholder='john@example.com' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='phone'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Phone</FormLabel>
-										<FormControl>
-											<Input placeholder='+1 234 567 8900' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='company'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Company</FormLabel>
-										<FormControl>
-											<Input placeholder='Company name' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='profession'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Profession</FormLabel>
-										<FormControl>
-											<Input placeholder='Job title or profession' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='status'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Status</FormLabel>
+									<FormItem className='col-span-2'>
+										<FormLabel>Client *</FormLabel>
 										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder='Select status' />
+													<SelectValue placeholder='Select a client' />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value='prospect'>Prospect</SelectItem>
-												<SelectItem value='active'>Active</SelectItem>
-												<SelectItem value='vip'>VIP</SelectItem>
-												<SelectItem value='inactive'>Inactive</SelectItem>
+												{clients.map((client) => (
+													<SelectItem key={client._id} value={client._id}>
+														{client.name}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -244,12 +175,17 @@ export default function ClientFormDialog({
 
 							<FormField
 								control={form.control}
-								name='source'
+								name='amount'
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Source</FormLabel>
+									<FormItem className='col-span-1'>
+										<FormLabel>Amount *</FormLabel>
 										<FormControl>
-											<Input placeholder='e.g. Website, Referral' {...field} />
+											<Input
+												type='number'
+												placeholder='0'
+												{...field}
+												onChange={(e) => field.onChange(Number(e.target.value))}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -258,12 +194,62 @@ export default function ClientFormDialog({
 
 							<FormField
 								control={form.control}
-								name='address'
+								name='paymentMethod'
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Address</FormLabel>
+									<FormItem className='col-span-1'>
+										<FormLabel>Payment Method *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder='Select method' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='cash'>Cash</SelectItem>
+												<SelectItem value='check'>Check</SelectItem>
+												<SelectItem value='bank_transfer'>Bank Transfer</SelectItem>
+												<SelectItem value='card'>Card</SelectItem>
+												<SelectItem value='other'>Other</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='transactionStatus'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Status *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder='Select status' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='paid'>Paid</SelectItem>
+												<SelectItem value='pending'>Pending</SelectItem>
+												<SelectItem value='partial'>Partial</SelectItem>
+												<SelectItem value='failed'>Failed</SelectItem>
+												<SelectItem value='refunded'>Refunded</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name='description'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Description</FormLabel>
 										<FormControl>
-											<Input placeholder='Street address' {...field} />
+											<Input placeholder='Invoice description' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -278,7 +264,7 @@ export default function ClientFormDialog({
 										<FormLabel>Notes</FormLabel>
 										<FormControl>
 											<Textarea
-												placeholder='Additional notes about the client...'
+												placeholder='Additional notes...'
 												className='resize-none'
 												rows={3}
 												{...field}
@@ -305,9 +291,9 @@ export default function ClientFormDialog({
 										Saving...
 									</>
 								) : isEditing ? (
-									'Update Client'
+									'Update Invoice'
 								) : (
-									'Add Client'
+									'Create Invoice'
 								)}
 							</Button>
 						</div>
