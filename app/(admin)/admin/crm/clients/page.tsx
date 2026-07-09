@@ -3,5 +3,9 @@
 import ClientsList from '@/components/admin/crm/ClientsList';
 
 export default function ClientsPage() {
-	return <ClientsList />;
+	return (
+		<div>
+			<ClientsList />
+		</div>
+	);
 }

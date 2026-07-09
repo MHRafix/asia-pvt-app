@@ -201,7 +201,7 @@ export default function CRMDashboard() {
 
 			{/* Filters and Search */}
 			<Card className='border-0 shadow-soft'>
-				<CardContent className='p-6'>
+				<CardContent>
 					<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 						<div className='flex flex-1 gap-4'>
 							<div className='relative flex-1 max-w-md'>
