@@ -3,11 +3,17 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 export interface IDailyService extends Document {
 	serviceId: string; // 5-character unique ID
 	linkedClientId: Types.ObjectId;
-	assignedEmployeeId?: Types.ObjectId;
+	assignedEmployeeId: Types.ObjectId;
+	serviceRefId: Types.ObjectId;
 	serviceTitle: string;
 	serviceDescription?: string;
 	serviceCost: number;
-	serviceStatus: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold';
+	serviceStatus:
+		| 'pending'
+		| 'in_progress'
+		| 'completed'
+		| 'cancelled'
+		| 'on_hold';
 	createdDate: Date;
 	completedDate?: Date;
 	notes?: string;
@@ -31,6 +37,12 @@ const DailyServiceSchema = new Schema<IDailyService>(
 		assignedEmployeeId: {
 			type: Schema.Types.ObjectId,
 			ref: 'Employee',
+			required: [true, 'Employee ID is required'],
+		},
+		serviceRefId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Service',
+			required: [true, 'Service reference is required'],
 		},
 		serviceTitle: {
 			type: String,
@@ -66,12 +78,13 @@ const DailyServiceSchema = new Schema<IDailyService>(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 // Index for efficient queries
 DailyServiceSchema.index({ linkedClientId: 1, createdDate: -1 });
 DailyServiceSchema.index({ assignedEmployeeId: 1, serviceStatus: 1 });
+DailyServiceSchema.index({ serviceRefId: 1, serviceStatus: 1 });
 DailyServiceSchema.index({ serviceStatus: 1, createdDate: -1 });
 
 export const DailyService: Model<IDailyService> =

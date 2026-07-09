@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
-import { DailyService } from '@/lib/models/DailyService';
 import { Client } from '@/lib/models/Client';
+import { DailyService } from '@/lib/models/DailyService';
 import { Employee } from '@/lib/models/Employee';
-import { dailyServiceSchema } from '@/lib/validations/crm';
 import { generateUniqueServiceId } from '@/lib/utils/generateServiceId';
+import { dailyServiceSchema } from '@/lib/validations/crm';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
 			DailyService.find(query)
 				.populate('linkedClientId', 'name email phone company')
 				.populate('assignedEmployeeId', 'name email')
+				.populate('serviceRefId', 'title')
 				.sort({ createdDate: -1 })
 				.skip(skip)
 				.limit(limit),
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
 		console.error('Error fetching daily services:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to fetch daily services' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -103,6 +104,8 @@ export async function POST(request: NextRequest) {
 
 		// Validate with Zod
 		const validationResult = dailyServiceSchema.safeParse(body);
+		// console.log({ body, validationResult });
+
 		if (!validationResult.success) {
 			return NextResponse.json(
 				{
@@ -110,26 +113,30 @@ export async function POST(request: NextRequest) {
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
 		// Verify client exists
-		const clientExists = await Client.findById(validationResult.data.linkedClientId);
+		const clientExists = await Client.findById(
+			validationResult.data.linkedClientId,
+		);
 		if (!clientExists) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Verify employee exists if provided
 		if (validationResult.data.assignedEmployeeId) {
-			const employeeExists = await Employee.findById(validationResult.data.assignedEmployeeId);
+			const employeeExists = await Employee.findById(
+				validationResult.data.assignedEmployeeId,
+			);
 			if (!employeeExists) {
 				return NextResponse.json(
 					{ success: false, error: 'Employee not found' },
-					{ status: 404 }
+					{ status: 404 },
 				);
 			}
 		}
@@ -140,28 +147,32 @@ export async function POST(request: NextRequest) {
 		const service = await DailyService.create({
 			...validationResult.data,
 			serviceId,
+			serviceRefId: '6a2ad6540ca520dad963be9a',
 		});
 
 		// Update client's total services count
-		await Client.findByIdAndUpdate(
-			validationResult.data.linkedClientId,
-			{ $inc: { totalServices: 1 } }
-		);
+		await Client.findByIdAndUpdate(validationResult.data.linkedClientId, {
+			$inc: { totalServices: 1 },
+		});
 
 		const populatedService = await service.populate([
 			{ path: 'linkedClientId', select: 'name email phone company' },
 			{ path: 'assignedEmployeeId', select: 'name email' },
+			{
+				path: 'serviceRefId',
+				select: 'title',
+			},
 		]);
 
 		return NextResponse.json(
 			{ success: true, data: populatedService },
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (error) {
 		console.error('Error creating daily service:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to create daily service' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

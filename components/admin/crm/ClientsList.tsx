@@ -84,7 +84,9 @@ export default function ClientsList() {
 		pages: 0,
 	});
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [editingClient, setEditingClient] = useState<Client | null>(null);
+	const [editingClient, setEditingClient] = useState<Client | null | undefined>(
+		null,
+	);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 

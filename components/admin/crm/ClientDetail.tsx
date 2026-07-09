@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-	Activity,
 	ArrowLeft,
 	Building,
 	Calendar,
@@ -21,9 +20,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import ActivityFormDialog from './ActivityFormDialog';
 import ClientFormDialog from './ClientFormDialog';
-import TransactionFormDialog from './TransactionFormDialog';
+import { DailyService } from './DailyServicesList';
+import DailyServicesTable from './DailyServicesTable';
 
 interface Client {
 	_id: string;
@@ -55,14 +54,6 @@ interface Transaction {
 	createdAt: string;
 }
 
-interface ActivityItem {
-	_id: string;
-	type: string;
-	title: string;
-	description?: string;
-	createdAt: string;
-}
-
 interface ClientDetailProps {
 	clientId: string;
 }
@@ -71,7 +62,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 	const router = useRouter();
 	const [client, setClient] = useState<Client | null>(null);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
-	const [activities, setActivities] = useState<ActivityItem[]>([]);
+	const [activities, setActivities] = useState<DailyService[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
@@ -81,6 +72,10 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 		fetchClientData();
 	}, [clientId]);
 
+	useEffect(() => {
+		fetchServices();
+	}, []);
+
 	const fetchClientData = async () => {
 		try {
 			setLoading(true);
@@ -89,8 +84,6 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 
 			if (data.success) {
 				setClient(data.data.client);
-				setTransactions(data.data.transactions);
-				setActivities(data.data.activities);
 			} else {
 				toast.error('Client not found');
 				router.push('/admin/crm');
@@ -102,6 +95,28 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 			setLoading(false);
 		}
 	};
+
+	const fetchServices = async () => {
+		try {
+			const response = await fetch(
+				`/api/crm/daily-services?clientId=${clientId}`,
+			);
+			const result = await response.json();
+
+			if (result.success) {
+				setActivities(result.data);
+			} else {
+				toast.error(result.error || 'Failed to fetch services');
+			}
+		} catch (error) {
+			console.error('Error fetching services:', error);
+			toast.error('Failed to fetch services');
+		} finally {
+			// setIsLoading(false);
+		}
+	};
+
+	console.log({ activities });
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -273,7 +288,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 				<TabsList>
 					<TabsTrigger value='overview'>Overview</TabsTrigger>
 					<TabsTrigger value='transactions'>Transactions</TabsTrigger>
-					<TabsTrigger value='activity'>Activity</TabsTrigger>
+					<TabsTrigger value='activity'>Taken Service History</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value='overview' className='space-y-6'>
@@ -487,49 +502,30 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 				<TabsContent value='activity' className='space-y-6'>
 					<Card className='border-0 shadow-soft'>
 						<CardHeader className='flex flex-row items-center justify-between'>
-							<CardTitle className='text-lg'>Activity History</CardTitle>
+							<CardTitle className='text-lg'>
+								Taken Services ({activities?.length})
+							</CardTitle>
 							<Button
 								size='sm'
 								onClick={() => setActivityDialogOpen(true)}
 								className='gap-2'
 							>
 								<Plus className='w-4 h-4' />
-								Add Activity
+								Add Service
 							</Button>
 						</CardHeader>
 						<CardContent>
 							{activities.length === 0 ? (
 								<p className='text-muted-foreground text-center py-8'>
-									No activity recorded
+									No taken service recorded
 								</p>
 							) : (
 								<div className='space-y-4'>
-									{activities.map((activity) => (
-										<div
-											key={activity._id}
-											className='flex items-start gap-3 p-3 rounded-lg bg-muted/50'
-										>
-											<div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5'>
-												<Activity className='w-4 h-4 text-primary' />
-											</div>
-											<div className='flex-1'>
-												<div className='flex items-center gap-2'>
-													<p className='font-medium'>{activity.title}</p>
-													<Badge variant='outline' className='text-xs'>
-														{activity.type}
-													</Badge>
-												</div>
-												{activity.description && (
-													<p className='text-sm text-muted-foreground mt-1'>
-														{activity.description}
-													</p>
-												)}
-												<p className='text-xs text-muted-foreground mt-2'>
-													{formatDate(activity.createdAt)}
-												</p>
-											</div>
-										</div>
-									))}
+									<DailyServicesTable
+										services={activities}
+										onEdit={() => {}}
+										onRefresh={fetchServices}
+									/>
 								</div>
 							)}
 						</CardContent>
@@ -546,26 +542,6 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 					setEditDialogOpen(false);
 				}}
 				client={client}
-			/>
-
-			<TransactionFormDialog
-				open={transactionDialogOpen}
-				onOpenChange={setTransactionDialogOpen}
-				onSuccess={() => {
-					fetchClientData();
-					setTransactionDialogOpen(false);
-				}}
-				clientId={clientId}
-			/>
-
-			<ActivityFormDialog
-				open={activityDialogOpen}
-				onOpenChange={setActivityDialogOpen}
-				onSuccess={() => {
-					fetchClientData();
-					setActivityDialogOpen(false);
-				}}
-				clientId={clientId}
 			/>
 		</div>
 	);
