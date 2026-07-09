@@ -2,17 +2,14 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 
 export interface IClientTransaction extends Document {
 	clientId: Types.ObjectId;
-	type: 'service' | 'package' | 'payment' | 'refund' | 'adjustment';
-	serviceId?: Types.ObjectId;
-	dailyServiceId?: Types.ObjectId;
-	packageId?: Types.ObjectId;
-	serviceName?: string;
-	packageName?: string;
-	description: string;
+	invoiceId: Types.ObjectId;
+	transactionId: string;
+	description?: string;
+	type: 'payment' | 'refund' | 'adjustment' | 'credit';
 	amount: number;
-	status: 'pending' | 'completed' | 'cancelled' | 'partial' | 'failed' | 'refunded';
-	paymentMethod?: 'cash' | 'check' | 'bank_transfer' | 'card' | 'other';
+	paymentMethod: 'cash' | 'check' | 'bank' | 'card' | 'bkash' | 'other';
 	notes?: string;
+	date: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -24,53 +21,45 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 			ref: 'Client',
 			required: [true, 'Client ID is required'],
 		},
+		transactionId: {
+			type: String,
+			required: [true, 'Transaction id is required'],
+		},
+		invoiceId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Invoice',
+			required: [true, 'Invoice is required'],
+		},
+
 		type: {
 			type: String,
-			enum: ['service', 'package', 'payment', 'refund', 'adjustment'],
-			required: [true, 'Transaction type is required'],
+			enum: ['payment', 'adjustment', 'refund', 'credit'],
 		},
-		serviceId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Service',
-		},
-		dailyServiceId: {
-			type: Schema.Types.ObjectId,
-			ref: 'DailyService',
-		},
-		packageId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Package',
-		},
-		serviceName: {
-			type: String,
-		},
-		packageName: {
-			type: String,
-		},
+
 		description: {
 			type: String,
-			required: [true, 'Description is required'],
 		},
+
 		amount: {
 			type: Number,
 			required: [true, 'Amount is required'],
 		},
-		status: {
-			type: String,
-			enum: ['pending', 'completed', 'cancelled', 'partial', 'failed', 'refunded'],
-			default: 'pending',
-		},
+
 		paymentMethod: {
 			type: String,
-			enum: ['cash', 'check', 'bank_transfer', 'card', 'other'],
+			enum: ['cash', 'check', 'bank', 'card', 'bkash', 'other'],
 		},
 		notes: {
 			type: String,
 		},
+		date: {
+			type: Date,
+			required: [true, 'Date is required'],
+		},
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 // Index for efficient queries
@@ -78,4 +67,7 @@ ClientTransactionSchema.index({ clientId: 1, createdAt: -1 });
 
 export const ClientTransaction: Model<IClientTransaction> =
 	mongoose.models.ClientTransaction ||
-	mongoose.model<IClientTransaction>('ClientTransaction', ClientTransactionSchema);
+	mongoose.model<IClientTransaction>(
+		'ClientTransaction',
+		ClientTransactionSchema,
+	);

@@ -68,11 +68,33 @@ export const invoiceSchema = z.object({
 	linkedServiceId: z.string().optional(),
 	linkedTransactionId: z.string().optional(),
 	invoiceNumber: z.string().min(1, 'Invoice number is required'),
-	amount: z.number().min(0, 'Amount cannot be negative'),
-	paymentMethod: z.enum(['cash', 'check', 'bank_transfer', 'card', 'other']),
-	transactionStatus: z
-		.enum(['paid', 'pending', 'partial', 'failed', 'refunded'])
-		.default('pending'),
+	subtotal: z.number().min(0, 'Amount cannot be negative'),
+	discount: z.number().optional(),
+	grandTotal: z.number().optional(),
+	paidAmount: z.number().optional(),
+	dueAmount: z.number().optional(),
+	status: z
+		.enum(['paid', 'due', 'partial', 'failed', 'refunded'])
+		.default('due'),
+});
+
+export const paymentTransactionSchema = z.object({
+	transactionId: z.string().min(1, 'Transaction id is required'),
+	invoiceId: z.string().min(1, 'Invoice ID is required'),
+	clientId: z.string().min(1, 'Client ID is required'),
+	type: z
+		.enum(['payment', 'refund', 'adjustment', 'credit'])
+		.default('payment'),
+	amount: z.number().min(0.01, 'Amount must be greater than 0'),
+	paymentMethod: z.enum(['cash', 'card', 'bank', 'bkash', 'other']),
+	description: z.string().optional(),
+	notes: z.string().optional(),
+	date: z.string().optional(),
+});
+
+export const clientActivitySchema = z.object({
+	clientId: z.string().min(1, 'Client ID is required'),
+	activityType: z.string().min(1, 'Activity type is required'),
 	description: z.string().optional(),
 	notes: z.string().optional(),
 });
@@ -82,3 +104,6 @@ export type ClientTransactionFormData = z.infer<typeof clientTransactionSchema>;
 export type ClientActivityFormData = z.infer<typeof clientActivitySchema>;
 export type DailyServiceFormData = z.infer<typeof dailyServiceSchema>;
 export type InvoiceFormData = z.infer<typeof invoiceSchema>;
+export type PaymentTransactionFormData = z.infer<
+	typeof paymentTransactionSchema
+>;

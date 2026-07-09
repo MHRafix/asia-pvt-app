@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
 import { Client } from '@/lib/models/Client';
-import { ClientActivity } from '@/lib/models/ClientActivity';
 import { clientSchema } from '@/lib/validations/crm';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -74,7 +73,7 @@ export async function GET(request: NextRequest) {
 		console.error('Error fetching clients:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to fetch clients' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -94,7 +93,7 @@ export async function POST(request: NextRequest) {
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -103,26 +102,18 @@ export async function POST(request: NextRequest) {
 		if (existingClient) {
 			return NextResponse.json(
 				{ success: false, error: 'A client with this email already exists' },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
 		const client = await Client.create(validationResult.data);
-
-		// Create activity for new client
-		await ClientActivity.create({
-			clientId: client._id,
-			type: 'note',
-			title: 'Client Created',
-			description: `New client ${client.name} was registered`,
-		});
 
 		return NextResponse.json({ success: true, data: client }, { status: 201 });
 	} catch (error) {
 		console.error('Error creating client:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to create client' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

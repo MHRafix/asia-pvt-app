@@ -1,13 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/connection';
 import { Client } from '@/lib/models/Client';
 import { ClientTransaction } from '@/lib/models/ClientTransaction';
-import { ClientActivity } from '@/lib/models/ClientActivity';
+import { DailyService } from '@/lib/models/DailyService';
+import { Invoice } from '@/lib/models/Invoice';
 import { clientSchema } from '@/lib/validations/crm';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		await connectDB();
@@ -17,7 +18,7 @@ export async function GET(
 		if (!client) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -27,7 +28,7 @@ export async function GET(
 			.limit(50);
 
 		// Get activities
-		const activities = await ClientActivity.find({ clientId: id })
+		const takenServices = await DailyService.find({ clientId: id })
 			.sort({ createdAt: -1 })
 			.limit(50);
 
@@ -36,21 +37,21 @@ export async function GET(
 			data: {
 				client,
 				transactions,
-				activities,
+				takenServices,
 			},
 		});
 	} catch (error) {
 		console.error('Error fetching client:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to fetch client' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function PUT(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		await connectDB();
@@ -66,7 +67,7 @@ export async function PUT(
 					error: 'Validation failed',
 					details: validationResult.error.flatten().fieldErrors,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -74,28 +75,14 @@ export async function PUT(
 		if (!existingClient) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
-		}
-
-		// Track status change
-		if (body.status && body.status !== existingClient.status) {
-			await ClientActivity.create({
-				clientId: id,
-				type: 'status_change',
-				title: 'Status Changed',
-				description: `Status changed from ${existingClient.status} to ${body.status}`,
-				metadata: {
-					oldStatus: existingClient.status,
-					newStatus: body.status,
-				},
-			});
 		}
 
 		const client = await Client.findByIdAndUpdate(
 			id,
 			{ ...validationResult.data, lastActivityDate: new Date() },
-			{ new: true, runValidators: true }
+			{ new: true, runValidators: true },
 		);
 
 		return NextResponse.json({ success: true, data: client });
@@ -103,14 +90,14 @@ export async function PUT(
 		console.error('Error updating client:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to update client' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		await connectDB();
@@ -120,14 +107,15 @@ export async function DELETE(
 		if (!client) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Delete related data
 		await Promise.all([
 			ClientTransaction.deleteMany({ clientId: id }),
-			ClientActivity.deleteMany({ clientId: id }),
+			DailyService.deleteMany({ linkedClientId: id }),
+			Invoice.deleteMany({ clientId: id }),
 			Client.findByIdAndDelete(id),
 		]);
 
@@ -139,7 +127,7 @@ export async function DELETE(
 		console.error('Error deleting client:', error);
 		return NextResponse.json(
 			{ success: false, error: 'Failed to delete client' },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

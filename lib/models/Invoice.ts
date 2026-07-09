@@ -4,14 +4,12 @@ export interface IInvoice extends Document {
 	invoiceNumber: string;
 	clientId: Types.ObjectId;
 	linkedServiceId?: Types.ObjectId;
-	linkedTransactionId?: Types.ObjectId;
-	amount: number;
-	paymentDate: Date;
-	paymentMethod: 'cash' | 'check' | 'bank_transfer' | 'card' | 'other';
-	transactionStatus: 'paid' | 'pending' | 'partial' | 'failed' | 'refunded';
-	description?: string;
-	notes?: string;
-	pdfPath?: string;
+	subTotal: number;
+	discount?: number;
+	grandTotal: number;
+	paidAmount?: number;
+	dueAmount?: number;
+	status: 'paid' | 'due' | 'partial' | 'failed' | 'refunded';
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -33,44 +31,40 @@ const InvoiceSchema = new Schema<IInvoice>(
 			type: Schema.Types.ObjectId,
 			ref: 'DailyService',
 		},
-		linkedTransactionId: {
-			type: Schema.Types.ObjectId,
-			ref: 'ClientTransaction',
-		},
-		amount: {
+
+		subTotal: {
 			type: Number,
-			required: [true, 'Amount is required'],
+			required: [true, 'Sub total is required'],
 			default: 0,
 		},
-		paymentDate: {
-			type: Date,
-			required: [true, 'Payment date is required'],
-			default: Date.now,
+
+		discount: {
+			type: Number,
+			default: 0,
 		},
-		paymentMethod: {
-			type: String,
-			enum: ['cash', 'check', 'bank_transfer', 'card', 'other'],
-			required: [true, 'Payment method is required'],
+		grandTotal: {
+			type: Number,
+			required: [true, 'Grand total is required'],
+			default: 0,
 		},
-		transactionStatus: {
-			type: String,
-			enum: ['paid', 'pending', 'partial', 'failed', 'refunded'],
-			default: 'pending',
+		dueAmount: {
+			type: Number,
+			default: 0,
 		},
-		description: {
-			type: String,
-			trim: true,
+		paidAmount: {
+			type: Number,
+			default: 0,
 		},
-		notes: {
+
+		status: {
 			type: String,
-		},
-		pdfPath: {
-			type: String,
+			enum: ['paid', 'due', 'partial', 'failed', 'refunded'],
+			default: 'due',
 		},
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 // Index for efficient queries
