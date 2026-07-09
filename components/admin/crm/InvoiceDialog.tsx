@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
@@ -8,33 +9,17 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
-import TransactionForm from './TransactionForm';
+import {
+	formatCurrency,
+	formatDate,
+	getStatusColor,
+	getStatusLabel,
+} from '@/lib/utils/formatting';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-
-interface Invoice {
-	_id: string;
-	invoiceNumber: string;
-	amount: number;
-	transactionStatus: string;
-	paymentDate: string;
-	description?: string;
-	notes?: string;
-	clientId?: {
-		_id: string;
-		name: string;
-		email: string;
-		phone: string;
-	};
-	linkedServiceId?: {
-		_id: string;
-		serviceTitle: string;
-	};
-	createdAt: string;
-}
+import TransactionForm from './TransactionForm';
+import { Invoice } from './InvoicesTable';
 
 interface InvoiceDialogProps {
 	invoice: Invoice;
@@ -62,9 +47,7 @@ export default function InvoiceDialog({
 			<DialogContent className='max-w-2xl'>
 				<DialogHeader>
 					<DialogTitle>Invoice Details</DialogTitle>
-					<DialogDescription>
-						Invoice {invoice.invoiceNumber}
-					</DialogDescription>
+					<DialogDescription>Invoice {invoice.invoiceNumber}</DialogDescription>
 				</DialogHeader>
 
 				<Tabs defaultValue='details' className='w-full'>
@@ -76,14 +59,20 @@ export default function InvoiceDialog({
 					<TabsContent value='details' className='space-y-4 py-4'>
 						<div className='grid grid-cols-2 gap-4'>
 							<div>
-								<p className='text-sm font-medium text-muted-foreground'>Invoice Number</p>
-								<p className='font-mono font-semibold text-lg'>{invoice.invoiceNumber}</p>
+								<p className='text-sm font-medium text-muted-foreground'>
+									Invoice Number
+								</p>
+								<p className='font-mono font-semibold text-lg'>
+									{invoice.invoiceNumber}
+								</p>
 							</div>
 							<div>
-								<p className='text-sm font-medium text-muted-foreground'>Status</p>
+								<p className='text-sm font-medium text-muted-foreground'>
+									Status
+								</p>
 								<div className='mt-1'>
-									<Badge className={getStatusColor(invoice.transactionStatus as any)}>
-										{getStatusLabel(invoice.transactionStatus as any)}
+									<Badge className={getStatusColor(invoice.status as any)}>
+										{getStatusLabel(invoice.status as any)}
 									</Badge>
 								</div>
 							</div>
@@ -94,15 +83,21 @@ export default function InvoiceDialog({
 							<div className='grid grid-cols-2 gap-4'>
 								<div>
 									<p className='text-sm text-muted-foreground'>Name</p>
-									<p className='font-medium'>{invoice.clientId?.name || 'N/A'}</p>
+									<p className='font-medium'>
+										{invoice.clientId?.name || 'N/A'}
+									</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Email</p>
-									<p className='font-medium'>{invoice.clientId?.email || 'N/A'}</p>
+									<p className='font-medium'>
+										{invoice.clientId?.email || 'N/A'}
+									</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Phone</p>
-									<p className='font-medium'>{invoice.clientId?.phone || 'N/A'}</p>
+									<p className='font-medium'>
+										{invoice.clientId?.phone || 'N/A'}
+									</p>
 								</div>
 							</div>
 						</div>
@@ -119,37 +114,23 @@ export default function InvoiceDialog({
 								<div>
 									<p className='text-sm text-muted-foreground'>Amount</p>
 									<p className='font-semibold text-lg'>
-										{formatCurrency(invoice.amount)}
+										{formatCurrency(invoice.grandTotal)}
 									</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Created Date</p>
-									<p className='font-medium'>{formatDate(new Date(invoice.createdAt))}</p>
+									<p className='font-medium'>
+										{formatDate(new Date(invoice.createdAt))}
+									</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Payment Date</p>
 									<p className='font-medium'>
-										{formatDate(new Date(invoice.paymentDate))}
+										{formatDate(new Date(invoice.date))}
 									</p>
 								</div>
 							</div>
 						</div>
-
-						{invoice.description && (
-							<div className='border-t pt-4'>
-								<p className='text-sm font-medium text-muted-foreground mb-1'>
-									Description
-								</p>
-								<p className='text-sm'>{invoice.description}</p>
-							</div>
-						)}
-
-						{invoice.notes && (
-							<div className='border-t pt-4'>
-								<p className='text-sm font-medium text-muted-foreground mb-1'>Notes</p>
-								<p className='text-sm'>{invoice.notes}</p>
-							</div>
-						)}
 					</TabsContent>
 
 					<TabsContent value='payment' className='space-y-4 py-4'>
@@ -157,7 +138,7 @@ export default function InvoiceDialog({
 							<TransactionForm
 								invoiceId={invoice._id}
 								clientId={invoice.clientId?._id || ''}
-								invoiceAmount={invoice.amount}
+								invoiceAmount={invoice.grandTotal}
 								onSubmit={handleTransactionAdded}
 								onCancel={() => setShowTransactionForm(false)}
 							/>

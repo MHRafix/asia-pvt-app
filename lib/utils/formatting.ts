@@ -2,7 +2,7 @@
  * Format currency in BDT (Bangladeshi Taka)
  */
 export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('bn-BD', {
+	return new Intl.NumberFormat('bn-bn', {
 		style: 'currency',
 		currency: 'BDT',
 		minimumFractionDigits: 0,
@@ -50,7 +50,16 @@ export function formatTime(date: Date): string {
  * Get status badge color based on service status
  */
 export function getStatusColor(
-	status: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold' | 'paid' | 'partial' | 'failed' | 'refunded'
+	status:
+		| 'pending'
+		| 'in_progress'
+		| 'completed'
+		| 'cancelled'
+		| 'on_hold'
+		| 'paid'
+		| 'partial'
+		| 'failed'
+		| 'refunded',
 ): string {
 	const colors: Record<string, string> = {
 		pending: 'bg-yellow-100 text-yellow-800',
@@ -70,7 +79,16 @@ export function getStatusColor(
  * Get status label from status value
  */
 export function getStatusLabel(
-	status: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold' | 'paid' | 'partial' | 'failed' | 'refunded'
+	status:
+		| 'pending'
+		| 'in_progress'
+		| 'completed'
+		| 'cancelled'
+		| 'on_hold'
+		| 'paid'
+		| 'partial'
+		| 'failed'
+		| 'refunded',
 ): string {
 	const labels: Record<string, string> = {
 		pending: 'Pending',

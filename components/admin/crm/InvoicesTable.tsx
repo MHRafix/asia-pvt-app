@@ -1,17 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit, Eye } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,21 +9,43 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import {
+	formatCurrency,
+	formatDateOnly,
+	getStatusColor,
+	getStatusLabel,
+} from '@/lib/utils/formatting';
+import { Edit, Eye, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { formatCurrency, formatDateOnly, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
 import InvoiceDialog from './InvoiceDialog';
-import Link from 'next/link';
 
-interface Invoice {
+export interface Invoice {
 	_id: string;
 	invoiceNumber: string;
-	amount: number;
-	transactionStatus: string;
-	paymentDate: string;
+	subTotal: number;
+	grandTotal: number;
+	discount: number;
+	dueAmount: number;
+	paidAmount: number;
+
+	status: string;
+	date: string;
 	clientId?: {
 		_id: string;
 		name: string;
 		email: string;
+		phone: string;
 	};
 	linkedServiceId?: {
 		_id: string;
@@ -105,7 +115,7 @@ export default function InvoicesTable({
 							<TableHead>Invoice Number</TableHead>
 							<TableHead>Client</TableHead>
 							<TableHead>Service</TableHead>
-							<TableHead>Amount</TableHead>
+							<TableHead>Grand Total</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Date</TableHead>
 							<TableHead className='text-right'>Actions</TableHead>
@@ -114,7 +124,10 @@ export default function InvoicesTable({
 					<TableBody>
 						{invoices.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={7} className='text-center py-8 text-muted-foreground'>
+								<TableCell
+									colSpan={7}
+									className='text-center py-8 text-muted-foreground'
+								>
 									No invoices found
 								</TableCell>
 							</TableRow>
@@ -130,7 +143,9 @@ export default function InvoicesTable({
 									</TableCell>
 									<TableCell>
 										<div>
-											<div className='font-medium'>{invoice.clientId?.name || 'N/A'}</div>
+											<div className='font-medium'>
+												{invoice.clientId?.name || 'N/A'}
+											</div>
 											<div className='text-sm text-muted-foreground'>
 												{invoice.clientId?.email}
 											</div>
@@ -142,15 +157,17 @@ export default function InvoicesTable({
 										</div>
 									</TableCell>
 									<TableCell className='font-semibold'>
-										{formatCurrency(invoice.amount)}
+										{formatCurrency(invoice.grandTotal)}
 									</TableCell>
 									<TableCell>
-										<Badge className={getStatusColor(invoice.transactionStatus as any)}>
-											{getStatusLabel(invoice.transactionStatus as any)}
+										<Badge className={getStatusColor(invoice.status as any)}>
+											{getStatusLabel(invoice.status as any)}
 										</Badge>
 									</TableCell>
 									<TableCell className='text-sm text-muted-foreground'>
-										{formatDateOnly(new Date(invoice.paymentDate || invoice.createdAt))}
+										{formatDateOnly(
+											new Date(invoice.date || invoice.createdAt),
+										)}
 									</TableCell>
 									<TableCell className='text-right'>
 										<div className='flex justify-end gap-2'>
@@ -200,7 +217,8 @@ export default function InvoicesTable({
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Invoice</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete this invoice? This action cannot be undone.
+							Are you sure you want to delete this invoice? This action cannot
+							be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<div className='flex justify-end gap-3'>

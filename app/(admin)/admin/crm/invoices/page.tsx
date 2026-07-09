@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import InvoicesTable, { Invoice } from '@/components/admin/crm/InvoicesTable';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -10,29 +11,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
-import InvoicesTable from '@/components/admin/crm/InvoicesTable';
-import toast from 'react-hot-toast';
-import { Plus, Search } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/formatting';
-
-interface Invoice {
-	_id: string;
-	invoiceNumber: string;
-	amount: number;
-	transactionStatus: string;
-	paymentDate: string;
-	clientId?: {
-		_id: string;
-		name: string;
-		email: string;
-	};
-	linkedServiceId?: {
-		_id: string;
-		serviceTitle: string;
-	};
-	createdAt: string;
-}
+import { Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Stats {
 	totalInvoices: number;
@@ -90,7 +72,9 @@ export default function AdminInvoicesPage() {
 			<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 				<div>
 					<h1 className='text-3xl font-bold'>Invoices</h1>
-					<p className='text-muted-foreground'>Manage and track your invoices</p>
+					<p className='text-muted-foreground'>
+						Manage and track your invoices
+					</p>
 				</div>
 				<Button disabled className='gap-2'>
 					<Plus className='w-4 h-4' />
@@ -129,7 +113,9 @@ export default function AdminInvoicesPage() {
 					</Card>
 					<Card className='border-0 shadow-soft'>
 						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>Pending</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Pending
+							</p>
 							<p className='text-2xl font-bold mt-2 text-yellow-600'>
 								{stats.pendingInvoices}
 							</p>
@@ -137,7 +123,9 @@ export default function AdminInvoicesPage() {
 					</Card>
 					<Card className='border-0 shadow-soft'>
 						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>Partial</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Partial
+							</p>
 							<p className='text-2xl font-bold mt-2 text-blue-600'>
 								{stats.partialInvoices}
 							</p>
@@ -186,10 +174,7 @@ export default function AdminInvoicesPage() {
 			</Card>
 
 			{/* Table */}
-			<InvoicesTable
-				invoices={invoices}
-				onRefresh={fetchInvoices}
-			/>
+			<InvoicesTable invoices={invoices} onRefresh={fetchInvoices} />
 
 			{/* Pagination */}
 			{pagination && pagination.pages > 1 && (

@@ -4,15 +4,18 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		await connectDB();
+		const { id } = await params;
 
-		const invoice = await Invoice.findById(params.id).populate([
+		const invoice = await Invoice.findById(id).populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			{ path: 'linkedServiceId', select: 'serviceTitle serviceCost serviceStatus' },
-			{ path: 'linkedTransactionId' },
+			// {
+			// 	path: 'linkedServiceId',
+			// 	select: 'serviceTitle',
+			// },
 		]);
 
 		if (!invoice) {
@@ -42,14 +45,18 @@ export async function PUT(
 	try {
 		await connectDB();
 
+		const { id } = await params;
 		const body = await request.json();
 
-		const invoice = await Invoice.findByIdAndUpdate(params.id, body, {
+		const invoice = await Invoice.findByIdAndUpdate(id, body, {
 			new: true,
 			runValidators: true,
 		}).populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			{ path: 'linkedServiceId', select: 'serviceTitle serviceCost serviceStatus' },
+			{
+				path: 'linkedServiceId',
+				select: 'serviceTitle serviceCost serviceStatus',
+			},
 		]);
 
 		if (!invoice) {
@@ -77,9 +84,10 @@ export async function DELETE(
 	{ params }: { params: { id: string } },
 ) {
 	try {
+		const { id } = await params;
 		await connectDB();
 
-		const invoice = await Invoice.findByIdAndDelete(params.id);
+		const invoice = await Invoice.findByIdAndDelete(id);
 
 		if (!invoice) {
 			return NextResponse.json(

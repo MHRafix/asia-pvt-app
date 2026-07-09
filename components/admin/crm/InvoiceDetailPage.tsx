@@ -1,9 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import {
 	Table,
 	TableBody,
@@ -13,38 +19,17 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
+	formatCurrency,
+	formatDate,
+	getStatusColor,
+	getStatusLabel,
+} from '@/lib/utils/formatting';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Invoice } from './InvoicesTable';
 import TransactionForm from './TransactionForm';
-
-interface Invoice {
-	_id: string;
-	invoiceNumber: string;
-	amount: number;
-	transactionStatus: string;
-	paymentDate: string;
-	description?: string;
-	notes?: string;
-	clientId?: {
-		_id: string;
-		name: string;
-		email: string;
-		phone: string;
-	};
-	linkedServiceId?: {
-		_id: string;
-		serviceTitle: string;
-	};
-	createdAt: string;
-}
 
 interface Transaction {
 	_id: string;
@@ -61,7 +46,9 @@ interface InvoiceDetailPageProps {
 	invoiceId: string;
 }
 
-export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps) {
+export default function InvoiceDetailPage({
+	invoiceId,
+}: InvoiceDetailPageProps) {
 	const [invoice, setInvoice] = useState<Invoice | null>(null);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -117,10 +104,14 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 	};
 
 	const canPayment =
-		invoice && (invoice.transactionStatus === 'due' || invoice.transactionStatus === 'partial');
+		invoice && (invoice.status === 'due' || invoice.status === 'partial');
 
 	if (isLoading && !invoice) {
-		return <div className='flex items-center justify-center min-h-screen'>Loading...</div>;
+		return (
+			<div className='flex items-center justify-center min-h-screen'>
+				Loading...
+			</div>
+		);
 	}
 
 	if (!invoice) {
@@ -145,7 +136,9 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 						</Button>
 					</Link>
 					<div>
-						<h1 className='text-3xl font-bold'>Invoice {invoice.invoiceNumber}</h1>
+						<h1 className='text-3xl font-bold'>
+							Invoice {invoice.invoiceNumber}
+						</h1>
 						<p className='text-muted-foreground mt-1'>
 							Created {formatDate(new Date(invoice.createdAt))}
 						</p>
@@ -168,25 +161,29 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 					</CardHeader>
 					<CardContent className='space-y-4'>
 						<div>
-							<p className='text-sm font-medium text-muted-foreground'>Status</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Status
+							</p>
 							<div className='mt-1'>
-								<Badge className={getStatusColor(invoice.transactionStatus as any)}>
-									{getStatusLabel(invoice.transactionStatus as any)}
+								<Badge className={getStatusColor(invoice.status as any)}>
+									{getStatusLabel(invoice.status as any)}
 								</Badge>
 							</div>
 						</div>
 						<div>
-							<p className='text-sm font-medium text-muted-foreground'>Amount</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Grand Amount
+							</p>
 							<p className='text-2xl font-bold'>
-								{formatCurrency(invoice.amount)}
+								{formatCurrency(invoice.grandTotal)}
 							</p>
 						</div>
 						<div>
 							<p className='text-sm font-medium text-muted-foreground'>
-								Payment Date
+								Due Amount
 							</p>
-							<p className='font-medium'>
-								{formatDate(new Date(invoice.paymentDate))}
+							<p className='text-2xl font-bold'>
+								{formatCurrency(invoice.dueAmount)}
 							</p>
 						</div>
 					</CardContent>
@@ -222,36 +219,16 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 					</CardHeader>
 					<CardContent>
 						<div>
-							<p className='text-sm font-medium text-muted-foreground'>Service</p>
-							<p className='font-medium'>{invoice.linkedServiceId.serviceTitle}</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Service
+							</p>
+							<p className='font-medium'>
+								{invoice.linkedServiceId.serviceTitle}
+							</p>
 						</div>
 					</CardContent>
 				</Card>
 			)}
-
-			{/* Description and Notes */}
-			<div className='grid gap-4 md:grid-cols-2'>
-				{invoice.description && (
-					<Card className='border-0 shadow-soft'>
-						<CardHeader>
-							<CardTitle className='text-lg'>Description</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className='text-sm'>{invoice.description}</p>
-						</CardContent>
-					</Card>
-				)}
-				{invoice.notes && (
-					<Card className='border-0 shadow-soft'>
-						<CardHeader>
-							<CardTitle className='text-lg'>Notes</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className='text-sm'>{invoice.notes}</p>
-						</CardContent>
-					</Card>
-				)}
-			</div>
 
 			{/* Transactions */}
 			<Card className='border-0 shadow-soft'>
@@ -282,7 +259,10 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 								</TableHeader>
 								<TableBody>
 									{transactions.map((transaction) => (
-										<TableRow key={transaction._id} className='hover:bg-muted/50'>
+										<TableRow
+											key={transaction._id}
+											className='hover:bg-muted/50'
+										>
 											<TableCell className='text-sm'>
 												{formatDate(new Date(transaction.createdAt))}
 											</TableCell>
@@ -329,7 +309,7 @@ export default function InvoiceDetailPage({ invoiceId }: InvoiceDetailPageProps)
 						<TransactionForm
 							invoiceId={invoice._id}
 							clientId={invoice.clientId?._id || ''}
-							invoiceAmount={invoice.amount}
+							invoiceAmount={invoice.grandTotal}
 							onSubmit={handlePaymentSuccess}
 							onCancel={() => setShowPaymentDialog(false)}
 						/>
