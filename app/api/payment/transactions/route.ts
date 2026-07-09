@@ -1,9 +1,9 @@
 import { connectDB } from '@/lib/db/connection';
+import { Client } from '@/lib/models/Client';
 import { ClientTransaction } from '@/lib/models/ClientTransaction';
 import { Invoice } from '@/lib/models/Invoice';
-import { Client } from '@/lib/models/Client';
+import { calculateInvoiceStatus } from '@/lib/utils/invoiceUtils';
 import { paymentTransactionSchema } from '@/lib/validations/crm';
-import { calculateInvoiceStatus, calculateDueAmount } from '@/lib/utils/invoiceUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = new URL(request.url);
 		const search = searchParams.get('search') || '';
 		const type = searchParams.get('type') || '';
-		const invoiceId = searchParams.get('invoiceId') || '';
+		// const invoiceId = searchParams.get('invoiceId') || '';
 		const clientId = searchParams.get('clientId') || '';
 		const page = parseInt(searchParams.get('page') || '1');
 		const limit = parseInt(searchParams.get('limit') || '20');
@@ -29,14 +29,6 @@ export async function GET(request: NextRequest) {
 
 		if (type && type !== 'all') {
 			query.type = type;
-		}
-
-		if (invoiceId) {
-			// Find transactions linked to this invoice
-			const invoice = await Invoice.findById(invoiceId);
-			if (invoice && invoice.linkedTransactionId) {
-				query._id = invoice.linkedTransactionId;
-			}
 		}
 
 		if (clientId) {
@@ -98,6 +90,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+	console.log('object');
 	try {
 		await connectDB();
 
@@ -119,6 +112,7 @@ export async function POST(request: NextRequest) {
 
 		// Verify invoice exists
 		const invoice = await Invoice.findById(validationResult.data.invoiceId);
+
 		if (!invoice) {
 			return NextResponse.json(
 				{ success: false, error: 'Invoice not found' },
@@ -128,6 +122,7 @@ export async function POST(request: NextRequest) {
 
 		// Verify client exists
 		const clientExists = await Client.findById(validationResult.data.clientId);
+
 		if (!clientExists) {
 			return NextResponse.json(
 				{ success: false, error: 'Client not found' },
@@ -138,31 +133,41 @@ export async function POST(request: NextRequest) {
 		// Create transaction
 		const transaction = await ClientTransaction.create({
 			clientId: validationResult.data.clientId,
-			type: 'payment',
-			description: `Payment for Invoice ${invoice.invoiceNumber}`,
+			type: validationResult?.data?.type,
+			description: validationResult?.data?.description,
+			transactionId: validationResult?.data?.transactionId,
+			date: validationResult?.data?.date,
+			invoiceId: validationResult?.data?.invoiceId,
 			amount: validationResult.data.amount,
-			status: 'completed',
 			paymentMethod: validationResult.data.paymentMethod,
 			notes: validationResult.data.notes,
 		});
 
 		// Update invoice with transaction link and calculate new status
-		const newPaidAmount = (invoice.amount || 0) + validationResult.data.amount;
-		const newStatus = calculateInvoiceStatus(newPaidAmount, invoice.amount);
+		const newPaidAmount =
+			(invoice.paidAmount || 0) + validationResult.data.amount;
+		const newStatus = calculateInvoiceStatus(newPaidAmount, invoice.grandTotal);
 
 		const updatedInvoice = await Invoice.findByIdAndUpdate(
 			validationResult.data.invoiceId,
 			{
-				linkedTransactionId: transaction._id,
-				transactionStatus: newStatus,
+				paidAmount: newPaidAmount,
+				dueAmount: invoice?.grandTotal - newPaidAmount,
+				status: newStatus,
 			},
 			{ new: true },
 		).populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			{ path: 'linkedServiceId', select: 'serviceTitle serviceCost serviceStatus' },
+			{
+				path: 'linkedServiceId',
+				select: 'serviceTitle serviceCost serviceStatus',
+			},
 		]);
 
-		const populatedTransaction = await transaction.populate('clientId', 'name email phone company');
+		const populatedTransaction = await transaction.populate(
+			'clientId',
+			'name email phone company',
+		);
 
 		return NextResponse.json(
 			{

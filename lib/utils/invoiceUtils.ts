@@ -11,8 +11,16 @@ export async function generateUniqueInvoiceNumber(): Promise<string> {
 	const dateStr = `${year}${month}${day}`;
 
 	// Get count of invoices created today to make unique suffix
-	const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	const todayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+	const todayStart = new Date(
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate(),
+	);
+	const todayEnd = new Date(
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate() + 1,
+	);
 
 	const countToday = await Invoice.countDocuments({
 		createdAt: {
@@ -30,7 +38,9 @@ export async function generateUniqueInvoiceNumber(): Promise<string> {
 	let finalInvoiceNumber = invoiceNumber;
 
 	while (!isUnique && counter < 10) {
-		const existing = await Invoice.findOne({ invoiceNumber: finalInvoiceNumber });
+		const existing = await Invoice.findOne({
+			invoiceNumber: finalInvoiceNumber,
+		});
 		if (!existing) {
 			isUnique = true;
 		} else {
@@ -48,8 +58,8 @@ export async function generateUniqueInvoiceNumber(): Promise<string> {
 export function calculateInvoiceStatus(
 	paidAmount: number,
 	grandTotal: number,
-): 'paid' | 'pending' | 'partial' {
-	if (paidAmount <= 0) return 'pending';
+): 'paid' | 'due' | 'partial' {
+	if (paidAmount <= 0) return 'due';
 	if (paidAmount >= grandTotal) return 'paid';
 	return 'partial';
 }
@@ -57,7 +67,10 @@ export function calculateInvoiceStatus(
 /**
  * Calculate due amount for an invoice
  */
-export function calculateDueAmount(grandTotal: number, paidAmount: number): number {
+export function calculateDueAmount(
+	grandTotal: number,
+	paidAmount: number,
+): number {
 	const due = grandTotal - paidAmount;
 	return Math.max(0, due);
 }

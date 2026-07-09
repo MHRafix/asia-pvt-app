@@ -1,7 +1,7 @@
 import { connectDB } from '@/lib/db/connection';
-import { Invoice } from '@/lib/models/Invoice';
-import { DailyService } from '@/lib/models/DailyService';
 import { Client } from '@/lib/models/Client';
+import { DailyService } from '@/lib/models/DailyService';
+import { Invoice } from '@/lib/models/Invoice';
 import { generateUniqueInvoiceNumber } from '@/lib/utils/invoiceUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Check if invoice already exists for this service
-		const existingInvoice = await Invoice.findOne({ linkedServiceId: serviceId });
+		const existingInvoice = await Invoice.findOne({
+			linkedServiceId: serviceId,
+		});
 		if (existingInvoice) {
 			return NextResponse.json(
 				{
@@ -67,16 +69,20 @@ export async function POST(request: NextRequest) {
 			invoiceNumber,
 			clientId: service.linkedClientId,
 			linkedServiceId: serviceId,
-			amount: service.serviceCost,
-			paymentMethod: 'cash',
-			transactionStatus: 'pending',
-			description: service.serviceTitle,
-			notes: service.serviceDescription || '',
+			subTotal: service.serviceCost,
+			discount: 0,
+			grandTotal: service?.serviceCost - 0,
+			dueAmount: service?.serviceCost,
+			paidAmount: 0,
+			status: 'due',
 		});
 
 		const populatedInvoice = await invoice.populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			{ path: 'linkedServiceId', select: 'serviceTitle serviceCost serviceStatus' },
+			{
+				path: 'linkedServiceId',
+				select: 'serviceTitle serviceCost serviceStatus',
+			},
 		]);
 
 		return NextResponse.json(
