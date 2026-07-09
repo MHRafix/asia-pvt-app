@@ -24,6 +24,7 @@ import {
 import toast from 'react-hot-toast';
 import { formatCurrency, formatDateOnly, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
 import InvoiceDialog from './InvoiceDialog';
+import Link from 'next/link';
 
 interface Invoice {
 	_id: string;
@@ -90,6 +91,11 @@ export default function InvoicesTable({
 		setShowInvoiceDialog(true);
 	};
 
+	const handleRowClick = (invoice: Invoice) => {
+		// Navigate to invoice detail page
+		window.location.href = `/admin/crm/invoices/${invoice._id}`;
+	};
+
 	return (
 		<>
 			<div className='border rounded-lg overflow-hidden'>
@@ -114,7 +120,11 @@ export default function InvoicesTable({
 							</TableRow>
 						) : (
 							invoices.map((invoice) => (
-								<TableRow key={invoice._id} className='hover:bg-muted/50'>
+								<TableRow
+									key={invoice._id}
+									className='hover:bg-muted/50 cursor-pointer'
+									onClick={() => handleRowClick(invoice)}
+								>
 									<TableCell className='font-mono text-sm font-semibold'>
 										{invoice.invoiceNumber}
 									</TableCell>
