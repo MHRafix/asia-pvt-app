@@ -1,5 +1,4 @@
 import { connectDB } from '@/lib/db/connection';
-import { ClientActivity } from '@/lib/models/ClientActivity';
 import { DailyService } from '@/lib/models/DailyService';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -31,19 +30,11 @@ export async function GET(
 			);
 		}
 
-		// Get service activities
-		const activities = await ClientActivity.find({
-			serviceId: service._id,
-		})
-			.sort({ createdAt: -1 })
-			.limit(50);
-
-		console.log({ activities });
+	
 		return NextResponse.json({
 			success: true,
 			data: {
-				service,
-				activities: activities || [],
+				service
 			},
 		});
 	} catch (error) {
