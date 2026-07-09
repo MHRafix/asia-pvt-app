@@ -24,6 +24,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Service } from '@/lib/types';
 import {
 	dailyServiceSchema,
 	type DailyServiceFormData,
@@ -47,6 +48,7 @@ interface DailyService {
 		| 'cancelled'
 		| 'on_hold';
 	linkedClientId?: string;
+	serviceRefId: string;
 	assignedEmployeeId?: string;
 }
 
@@ -57,6 +59,7 @@ interface DailyServiceFormDialogProps {
 	clients: Array<{ _id: string; name: string }>;
 	employees: Array<{ _id: string; name: string }>;
 	service?: DailyService | null | undefined;
+	asiaServices: Service[];
 }
 
 export default function DailyServiceFormDialog({
@@ -66,8 +69,8 @@ export default function DailyServiceFormDialog({
 	clients,
 	employees,
 	service,
+	asiaServices,
 }: DailyServiceFormDialogProps) {
-	console.log({ employees });
 	const isEditing = !!service;
 
 	const form = useForm<DailyServiceFormData>({
@@ -80,6 +83,7 @@ export default function DailyServiceFormDialog({
 			serviceCost: 0,
 			serviceStatus: 'pending',
 			notes: '',
+			serviceRefId: '',
 		},
 	});
 
@@ -93,6 +97,7 @@ export default function DailyServiceFormDialog({
 				serviceCost: service.serviceCost,
 				serviceStatus: service.serviceStatus,
 				notes: '',
+				serviceRefId: service?.serviceRefId || '',
 			});
 		} else {
 			form.reset({
@@ -103,6 +108,7 @@ export default function DailyServiceFormDialog({
 				serviceCost: 0,
 				serviceStatus: 'pending',
 				notes: '',
+				serviceRefId: '',
 			});
 		}
 	}, [service, form]);
@@ -137,7 +143,7 @@ export default function DailyServiceFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className='sm:max-w-lg'>
+			<DialogContent className='sm:max-w-2xl'>
 				<DialogHeader>
 					<DialogTitle>
 						{isEditing ? 'Edit Service' : 'Add New Service'}
@@ -147,31 +153,6 @@ export default function DailyServiceFormDialog({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 						<div className='grid grid-cols-2 gap-4'>
-							<FormField
-								control={form.control}
-								name='linkedClientId'
-								render={({ field }) => (
-									<FormItem className='col-span-2'>
-										<FormLabel>Client *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder='Select a client' />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												{clients.map((client) => (
-													<SelectItem key={client._id} value={client._id}>
-														{client.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
 							<FormField
 								control={form.control}
 								name='serviceTitle'
@@ -187,8 +168,31 @@ export default function DailyServiceFormDialog({
 										<FormMessage />
 									</FormItem>
 								)}
+							/>{' '}
+							<FormField
+								control={form.control}
+								name='serviceRefId'
+								render={({ field }) => (
+									<FormItem className='col-span-2'>
+										<FormLabel>Select Service *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger className='w-full'>
+													<SelectValue placeholder='Select a service' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{asiaServices.map((client) => (
+													<SelectItem key={client._id} value={client._id!}>
+														{client.title}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
-
 							<FormField
 								control={form.control}
 								name='serviceCost'
@@ -207,7 +211,6 @@ export default function DailyServiceFormDialog({
 									</FormItem>
 								)}
 							/>
-
 							<FormField
 								control={form.control}
 								name='serviceStatus'
@@ -216,11 +219,11 @@ export default function DailyServiceFormDialog({
 										<FormLabel>Status</FormLabel>
 										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
-												<SelectTrigger>
+												<SelectTrigger className='w-full'>
 													<SelectValue placeholder='Select status' />
 												</SelectTrigger>
 											</FormControl>
-											<SelectContent>
+											<SelectContent className='w-full'>
 												<SelectItem value='pending'>Pending</SelectItem>
 												<SelectItem value='in_progress'>In Progress</SelectItem>
 												<SelectItem value='completed'>Completed</SelectItem>
@@ -232,17 +235,16 @@ export default function DailyServiceFormDialog({
 									</FormItem>
 								)}
 							/>
-
 							<FormField
 								control={form.control}
 								name='assignedEmployeeId'
 								render={({ field }) => (
-									<FormItem className='col-span-2'>
+									<FormItem>
 										<FormLabel>Assign employee *</FormLabel>
 										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder='Select a employee' />
+												<SelectTrigger className='w-full'>
+													<SelectValue placeholder='Select an employee' />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
@@ -257,7 +259,30 @@ export default function DailyServiceFormDialog({
 									</FormItem>
 								)}
 							/>
-
+							<FormField
+								control={form.control}
+								name='linkedClientId'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Select Client *</FormLabel>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger className='w-full'>
+													<SelectValue placeholder='Select a client' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{clients.map((client) => (
+													<SelectItem key={client._id} value={client._id}>
+														{client.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 							<FormField
 								control={form.control}
 								name='serviceDescription'

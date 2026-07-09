@@ -2,13 +2,21 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Service } from '@/lib/types';
 import { Loader, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import DailyServiceFormDialog from './DailyServiceFormDialog';
 import DailyServicesTable from './DailyServicesTable';
 
-interface DailyService {
+export interface DailyService {
 	_id: string;
 	serviceId: string;
 	serviceTitle: string;
@@ -18,6 +26,7 @@ interface DailyService {
 		_id: string;
 		name: string;
 	};
+	serviceDescription?: string;
 	createdDate: string;
 }
 
@@ -33,6 +42,7 @@ interface Employee {
 
 export default function DailyServicesList() {
 	const [services, setServices] = useState<DailyService[]>([]);
+	const [asiaServices, setAsiaServices] = useState<Service[]>([]);
 	const [clients, setClients] = useState<Client[]>([]);
 	const [employees, setEmployees] = useState<Employee[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -94,8 +104,23 @@ export default function DailyServicesList() {
 		}
 	};
 
+	const fetchAsiaServices = async () => {
+		try {
+			const response = await fetch('/api/services');
+			const data = await response.json();
+			if (data.success) {
+				setAsiaServices(data.data);
+			}
+		} catch (error) {
+			console.error('[v0] Error fetching services:', error);
+			toast.error('Failed to fetch services');
+		} finally {
+		}
+	};
+
 	useEffect(() => {
 		fetchServices();
+		fetchAsiaServices();
 		fetchClients();
 		fetchEmployees();
 	}, [search, status]);
@@ -137,7 +162,7 @@ export default function DailyServicesList() {
 					onChange={(e) => setSearch(e.target.value)}
 					className='flex-1'
 				/>
-				{/* <Select value={status} onValueChange={setStatus}>
+				<Select value={status} onValueChange={setStatus}>
 					<SelectTrigger className='w-40'>
 						<SelectValue placeholder='Filter by status' />
 					</SelectTrigger>
@@ -149,7 +174,7 @@ export default function DailyServicesList() {
 						<SelectItem value='on_hold'>On Hold</SelectItem>
 						<SelectItem value='cancelled'>Cancelled</SelectItem>
 					</SelectContent>
-				</Select> */}
+				</Select>
 			</div>
 
 			{isLoading ? (
@@ -170,7 +195,9 @@ export default function DailyServicesList() {
 				onSuccess={handleSuccess}
 				clients={clients}
 				employees={employees}
+				// @ts-ignore
 				service={selectedService}
+				asiaServices={asiaServices}
 			/>
 		</div>
 	);

@@ -1,22 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import {
 	Form,
 	FormControl,
@@ -25,11 +15,21 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { Loader } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { clientSchema, type ClientFormData } from '@/lib/validations/crm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader } from 'lucide-react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 interface Client {
 	_id: string;
@@ -43,14 +43,14 @@ interface Client {
 	status: 'active' | 'inactive' | 'prospect' | 'vip';
 	customStatus?: string[];
 	source?: string;
-	tags: string[];
+	// tags: string[];
 }
 
 interface ClientFormDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
-	client?: Client | null;
+	client?: Client | null | undefined;
 }
 
 export default function ClientFormDialog({
@@ -91,7 +91,7 @@ export default function ClientFormDialog({
 				status: client.status,
 				customStatus: client.customStatus || [],
 				source: client.source || '',
-				tags: client.tags || [],
+				// tags: client.tags || [],
 			});
 		} else {
 			form.reset({
@@ -112,7 +112,9 @@ export default function ClientFormDialog({
 
 	const onSubmit = async (data: ClientFormData) => {
 		try {
-			const url = isEditing ? `/api/crm/clients/${client._id}` : '/api/crm/clients';
+			const url = isEditing
+				? `/api/crm/clients/${client._id}`
+				: '/api/crm/clients';
 			const method = isEditing ? 'PUT' : 'POST';
 
 			const response = await fetch(url, {
@@ -169,7 +171,11 @@ export default function ClientFormDialog({
 									<FormItem>
 										<FormLabel>Email</FormLabel>
 										<FormControl>
-											<Input type='email' placeholder='john@example.com' {...field} />
+											<Input
+												type='email'
+												placeholder='john@example.com'
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
