@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit, Eye } from 'lucide-react';
+import { Trash2, Edit, FileText, Loader } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -35,6 +35,7 @@ interface DailyService {
 		name: string;
 	};
 	createdDate: string;
+	invoiceId?: string;
 }
 
 interface DailyServicesTableProps {
@@ -50,6 +51,7 @@ export default function DailyServicesTable({
 }: DailyServicesTableProps) {
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [generatingInvoiceId, setGeneratingInvoiceId] = useState<string | null>(null);
 
 	const handleDelete = async () => {
 		if (!deleteId) return;
@@ -77,19 +79,46 @@ export default function DailyServicesTable({
 		}
 	};
 
+	const handleGenerateInvoice = async (serviceId: string) => {
+		setGeneratingInvoiceId(serviceId);
+		try {
+			const response = await fetch('/api/payment/invoices/generate', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ serviceId }),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success('Invoice generated successfully');
+				onRefresh();
+			} else {
+				toast.error(result.error || 'Failed to generate invoice');
+			}
+		} catch (error) {
+			console.error('Error generating invoice:', error);
+			toast.error('Failed to generate invoice');
+		} finally {
+			setGeneratingInvoiceId(null);
+		}
+	};
+
 	return (
 		<>
 			<div className='border rounded-lg overflow-hidden'>
 				<Table>
 					<TableHeader>
 						<TableRow className='bg-muted'>
-							<TableHead>Service ID</TableHead>
-							<TableHead>Title</TableHead>
-							<TableHead>Client</TableHead>
-							<TableHead>Cost</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Created</TableHead>
-							<TableHead className='text-right'>Actions</TableHead>
+								<TableHead>Service ID</TableHead>
+								<TableHead>Title</TableHead>
+								<TableHead>Client</TableHead>
+								<TableHead>Cost</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead>Created</TableHead>
+								<TableHead className='text-right w-32'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -123,7 +152,20 @@ export default function DailyServicesTable({
 										{formatDateOnly(new Date(service.createdDate))}
 									</TableCell>
 									<TableCell className='text-right'>
-										<div className='flex justify-end gap-2'>
+										<div className='flex justify-end gap-1'>
+											<Button
+												variant='ghost'
+												size='sm'
+												onClick={() => handleGenerateInvoice(service._id)}
+												disabled={generatingInvoiceId === service._id}
+												title='Generate Invoice'
+											>
+												{generatingInvoiceId === service._id ? (
+													<Loader className='w-4 h-4 animate-spin' />
+												) : (
+													<FileText className='w-4 h-4' />
+												)}
+											</Button>
 											<Button
 												variant='ghost'
 												size='sm'
