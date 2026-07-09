@@ -44,12 +44,14 @@ interface TransactionsTableProps {
 	transactions: Transaction[];
 	onEdit?: (transaction: Transaction) => void;
 	onRefresh: () => void;
+	isLoading?: boolean;
 }
 
 export default function TransactionsTable({
 	transactions,
 	onEdit,
 	onRefresh,
+	isLoading = false,
 }: TransactionsTableProps) {
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -96,14 +98,20 @@ export default function TransactionsTable({
 							<TableHead className='text-right'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
-					<TableBody>
-						{transactions.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
-									No transactions found
-								</TableCell>
-							</TableRow>
-						) : (
+				<TableBody>
+					{isLoading ? (
+						<TableRow>
+							<TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
+								Loading transactions...
+							</TableCell>
+						</TableRow>
+					) : transactions.length === 0 ? (
+						<TableRow>
+							<TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
+								No transactions found
+							</TableCell>
+						</TableRow>
+					) : (
 							transactions.map((transaction) => (
 								<TableRow key={transaction._id} className='hover:bg-muted/50'>
 									<TableCell>
