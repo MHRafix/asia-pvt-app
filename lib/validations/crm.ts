@@ -77,8 +77,26 @@ export const invoiceSchema = z.object({
 	notes: z.string().optional(),
 });
 
+export const paymentTransactionSchema = z.object({
+	invoiceId: z.string().min(1, 'Invoice ID is required'),
+	clientId: z.string().min(1, 'Client ID is required'),
+	transactionType: z.enum(['Payment', 'Refund', 'Adjustment', 'Credit']).default('Payment'),
+	amount: z.number().min(0.01, 'Amount must be greater than 0'),
+	paymentMethod: z.enum(['cash', 'card', 'bank', 'bkash', 'other']),
+	notes: z.string().optional(),
+	date: z.date().optional(),
+});
+
+export const clientActivitySchema = z.object({
+	clientId: z.string().min(1, 'Client ID is required'),
+	activityType: z.string().min(1, 'Activity type is required'),
+	description: z.string().optional(),
+	notes: z.string().optional(),
+});
+
 export type ClientFormData = z.infer<typeof clientSchema>;
 export type ClientTransactionFormData = z.infer<typeof clientTransactionSchema>;
 export type ClientActivityFormData = z.infer<typeof clientActivitySchema>;
 export type DailyServiceFormData = z.infer<typeof dailyServiceSchema>;
 export type InvoiceFormData = z.infer<typeof invoiceSchema>;
+export type PaymentTransactionFormData = z.infer<typeof paymentTransactionSchema>;
