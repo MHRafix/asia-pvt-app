@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
@@ -13,6 +10,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -20,10 +18,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import toast from 'react-hot-toast';
 import { paymentTransactionSchema } from '@/lib/validations/crm';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
 
 type PaymentTransactionFormData = z.infer<typeof paymentTransactionSchema>;
@@ -50,11 +50,11 @@ export default function TransactionForm({
 		defaultValues: {
 			invoiceId,
 			clientId,
-			transactionType: 'Payment',
+			type: 'payment',
 			amount: undefined,
 			paymentMethod: 'cash',
 			notes: '',
-			date: new Date(),
+			date: new Date().toDateString(),
 		},
 	});
 
@@ -91,10 +91,13 @@ export default function TransactionForm({
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-6'>
+			<form
+				onSubmit={form.handleSubmit(handleFormSubmit)}
+				className='space-y-6'
+			>
 				<FormField
 					control={form.control}
-					name='transactionType'
+					name='type'
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Transaction Type</FormLabel>
@@ -105,10 +108,10 @@ export default function TransactionForm({
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value='Payment'>Payment</SelectItem>
-									<SelectItem value='Refund'>Refund</SelectItem>
-									<SelectItem value='Adjustment'>Adjustment</SelectItem>
-									<SelectItem value='Credit'>Credit</SelectItem>
+									<SelectItem value='payment'>Payment</SelectItem>
+									<SelectItem value='refund'>Refund</SelectItem>
+									<SelectItem value='adjustment'>Adjustment</SelectItem>
+									<SelectItem value='credit'>Credit</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />
@@ -128,12 +131,20 @@ export default function TransactionForm({
 									step='0.01'
 									placeholder='0.00'
 									{...field}
-									onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+									onChange={(e) =>
+										field.onChange(parseFloat(e.target.value) || 0)
+									}
 								/>
 							</FormControl>
 							<FormDescription>
-								Invoice amount: {invoiceAmount.toFixed(2)} | Remaining due:{' '}
-								{dueAmount.toFixed(2)}
+								Invoice amount:{' '}
+								<span className='text-primary font-semibold'>
+									{invoiceAmount.toFixed(2)} BDT
+								</span>{' '}
+								| Remaining due:{' '}
+								<span className='text-primary font-semibold'>
+									{dueAmount.toFixed(2)} BDT
+								</span>
 							</FormDescription>
 							<FormMessage />
 						</FormItem>

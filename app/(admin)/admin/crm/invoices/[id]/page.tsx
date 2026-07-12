@@ -1,6 +1,6 @@
 'use client';
 
-import InvoiceDetailPage from '@/components/admin/crm/InvoiceDetailPage';
+import InvoiceDetails from '@/components/admin/crm/InvoiceDemo';
 import { use } from 'react';
 
 export default function InvoicePage({
@@ -9,5 +9,5 @@ export default function InvoicePage({
 	params: Promise<{ id: string }>;
 }) {
 	const { id } = use(params);
-	return <InvoiceDetailPage invoiceId={id} />;
+	return <InvoiceDetails invoiceId={id} />;
 }

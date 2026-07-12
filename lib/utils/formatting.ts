@@ -2,7 +2,7 @@
  * Format currency in BDT (Bangladeshi Taka)
  */
 export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('bn-bn', {
+	return new Intl.NumberFormat('en-bn', {
 		style: 'currency',
 		currency: 'BDT',
 		minimumFractionDigits: 0,
@@ -59,10 +59,12 @@ export function getStatusColor(
 		| 'paid'
 		| 'partial'
 		| 'failed'
+		| 'due'
 		| 'refunded',
 ): string {
 	const colors: Record<string, string> = {
 		pending: 'bg-yellow-100 text-yellow-800',
+		due: 'bg-primary/10 text-primary',
 		in_progress: 'bg-blue-100 text-blue-800',
 		completed: 'bg-green-100 text-green-800',
 		cancelled: 'bg-red-100 text-red-800',
@@ -81,6 +83,7 @@ export function getStatusColor(
 export function getStatusLabel(
 	status:
 		| 'pending'
+		| 'due'
 		| 'in_progress'
 		| 'completed'
 		| 'cancelled'
@@ -97,6 +100,7 @@ export function getStatusLabel(
 		cancelled: 'Cancelled',
 		on_hold: 'On Hold',
 		paid: 'Paid',
+		due: 'Due',
 		partial: 'Partial',
 		failed: 'Failed',
 		refunded: 'Refunded',

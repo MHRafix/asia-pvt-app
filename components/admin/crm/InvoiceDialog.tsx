@@ -5,21 +5,19 @@ import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
 	formatCurrency,
-	formatDate,
 	getStatusColor,
 	getStatusLabel,
 } from '@/lib/utils/formatting';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import TransactionForm from './TransactionForm';
 import { Invoice } from './InvoicesTable';
+import TransactionForm from './TransactionForm';
 
 interface InvoiceDialogProps {
 	invoice: Invoice;
@@ -44,10 +42,14 @@ export default function InvoiceDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className='max-w-2xl'>
+			<DialogContent className='!max-w-3xl'>
 				<DialogHeader>
-					<DialogTitle>Invoice Details</DialogTitle>
-					<DialogDescription>Invoice {invoice.invoiceNumber}</DialogDescription>
+					<DialogTitle className='flex gap-2 items-center'>
+						Invoice:{' '}
+						<p className='font-mono font-semibold text-lg'>
+							{invoice.invoiceNumber}
+						</p>
+					</DialogTitle>
 				</DialogHeader>
 
 				<Tabs defaultValue='details' className='w-full'>
@@ -112,21 +114,21 @@ export default function InvoiceDialog({
 									</p>
 								</div>
 								<div>
-									<p className='text-sm text-muted-foreground'>Amount</p>
+									<p className='text-sm text-muted-foreground'>Grand Total</p>
 									<p className='font-semibold text-lg'>
 										{formatCurrency(invoice.grandTotal)}
 									</p>
 								</div>
 								<div>
-									<p className='text-sm text-muted-foreground'>Created Date</p>
-									<p className='font-medium'>
-										{formatDate(new Date(invoice.createdAt))}
+									<p className='text-sm text-muted-foreground'>Paid Amount</p>
+									<p className='font-medium text-green-500'>
+										{formatCurrency(invoice?.paidAmount)}
 									</p>
 								</div>
 								<div>
-									<p className='text-sm text-muted-foreground'>Payment Date</p>
+									<p className='text-sm text-muted-foreground'>Due Amount</p>
 									<p className='font-medium'>
-										{formatDate(new Date(invoice.date))}
+										{formatCurrency(invoice?.dueAmount)}
 									</p>
 								</div>
 							</div>

@@ -92,7 +92,7 @@ export default function AdminInvoicesPage() {
 							</p>
 							<p className='text-2xl font-bold mt-2'>{stats.totalInvoices}</p>
 							{stats.totalAmount && (
-								<p className='text-sm text-muted-foreground mt-1'>
+								<p className='text-sm text-muted-foreground font-semibold mt-1'>
 									{formatCurrency(stats.totalAmount)}
 								</p>
 							)}
@@ -113,10 +113,8 @@ export default function AdminInvoicesPage() {
 					</Card>
 					<Card className='border-0 shadow-soft'>
 						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Pending
-							</p>
-							<p className='text-2xl font-bold mt-2 text-yellow-600'>
+							<p className='text-sm font-medium text-muted-foreground'>Due</p>
+							<p className='text-2xl font-bold mt-2 text-primary'>
 								{stats.pendingInvoices}
 							</p>
 						</CardContent>
@@ -163,7 +161,7 @@ export default function AdminInvoicesPage() {
 							<SelectContent>
 								<SelectItem value='all'>All Status</SelectItem>
 								<SelectItem value='paid'>Paid</SelectItem>
-								<SelectItem value='pending'>Pending</SelectItem>
+								<SelectItem value='due'>Due</SelectItem>
 								<SelectItem value='partial'>Partial</SelectItem>
 								<SelectItem value='failed'>Failed</SelectItem>
 								<SelectItem value='refunded'>Refunded</SelectItem>

@@ -7,8 +7,11 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { cn } from '@/lib/utils';
 import {
 	ArrowLeft,
+	Blocks,
 	Calendar,
 	ChevronDown,
+	CircleGauge,
+	Combine,
 	FileText,
 	Globe,
 	Grid2X2Check,
@@ -18,12 +21,12 @@ import {
 	Mail,
 	Menu,
 	Notebook,
-	Package,
+	Repeat2,
 	Settings,
 	User,
 	UserCog,
+	UserPlus2,
 	Users,
-	Wrench,
 	X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -32,21 +35,26 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const navItems = [
-	{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+	{ label: 'Dashboard', href: '/admin', icon: CircleGauge },
 	{
 		label: 'CRM',
+		href: '/admin/crm',
 		icon: Users,
 		submenu: [
-			{ label: 'CRM Dashboard', href: '/admin/crm' },
-			{ label: 'Clients', href: '/admin/crm/clients' },
-			{ label: 'Daily Services', href: '/admin/crm/daily-services' },
-			{ label: 'Invoices', href: '/admin/crm/invoices' },
-			{ label: 'Transactions', href: '/admin/crm/transactions' },
+			// { label: 'CRM Dashboard', href: '/admin/crm' },
+			{ label: 'Clients', href: '/admin/crm/clients', icon: UserPlus2 },
+			{
+				label: 'Daily Services',
+				href: '/admin/crm/daily-services',
+				icon: Grid2X2Check,
+			},
+			{ label: 'Invoices', href: '/admin/crm/invoices', icon: Notebook },
+			{ label: 'Transactions', href: '/admin/crm/transactions', icon: Repeat2 },
 		],
 	},
 	{ label: 'Employees', href: '/admin/employees', icon: UserCog },
-	{ label: 'Packages', href: '/admin/packages', icon: Package },
-	{ label: 'Services', href: '/admin/services', icon: Wrench },
+	{ label: 'Packages', href: '/admin/packages', icon: Blocks },
+	{ label: 'Services', href: '/admin/services', icon: Combine },
 	{ label: 'Blog', href: '/admin/blog', icon: FileText },
 	{ label: 'Visa Countries', href: '/admin/visa', icon: Globe },
 	{ label: 'Appointments', href: '/admin/appointments', icon: Calendar },
@@ -164,55 +172,63 @@ export default function AdminLayout({
 					</div>
 
 					{/* Navigation */}
-					<nav className='flex-1 p-4 space-y-1 overflow-y-auto'>
+					<nav className='flex-1 p-4 space-y-2 overflow-y-auto'>
 						{navItems.map((item) => {
 							const isSubmenu = 'submenu' in item;
 							const isExpanded = expandedMenus.includes(item.label);
 							const isActive = !isSubmenu && pathname === item.href;
-							const isSubmenuActive = isSubmenu && item.submenu?.some(sub => pathname === sub.href);
+							const isSubmenuActive =
+								isSubmenu && item.submenu?.some((sub) => pathname === sub.href);
 
 							if (isSubmenu) {
 								return (
 									<div key={item.label}>
-										<button
-											onClick={() => {
-												setExpandedMenus(prev =>
-													prev.includes(item.label)
-														? prev.filter(label => label !== item.label)
-														: [...prev, item.label]
-												);
-											}}
-											className={cn(
-												'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
-												isSubmenuActive || isExpanded
-													? 'bg-primary/10 text-primary'
-													: 'text-muted-foreground hover:bg-muted hover:text-foreground',
-											)}
-										>
-											<item.icon className='w-5 h-5' />
-											<span className='font-medium flex-1 text-left'>{item.label}</span>
-											<ChevronDown
+										<Link key={item.href} href={item.href}>
+											<button
+												onClick={() => {
+													setExpandedMenus((prev) =>
+														prev.includes(item.label)
+															? prev.filter((label) => label !== item.label)
+															: [...prev, item.label],
+													);
+												}}
 												className={cn(
-													'w-4 h-4 transition-transform duration-200',
-													isExpanded ? 'rotate-180' : '',
+													'w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200',
+													isSubmenuActive || isExpanded
+														? 'bg-primary/5 text-primary'
+														: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 												)}
-											/>
-										</button>
+											>
+												<item.icon className='w-5 h-5' />{' '}
+												<span className='font-medium text-sm flex-1 text-left'>
+													{item.label}
+												</span>
+												<ChevronDown
+													className={cn(
+														'w-4 h-4 transition-transform duration-200',
+														isExpanded ? 'rotate-180' : '',
+													)}
+												/>
+											</button>
+										</Link>
 										{isExpanded && (
 											<div className='ml-2 mt-1 space-y-1'>
-												{item.submenu?.map(subitem => {
+												{item.submenu?.map((subitem) => {
 													const isSubActive = pathname === subitem.href;
 													return (
 														<Link key={subitem.href} href={subitem.href}>
 															<div
 																className={cn(
-																	'flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ml-2',
+																	'flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm ml-2 my-2',
 																	isSubActive
 																		? 'bg-primary text-primary-foreground shadow-md'
 																		: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 																)}
 															>
-																<span className='font-medium'>{subitem.label}</span>
+																<subitem.icon className='w-5 h-5' />
+																<span className='font-medium'>
+																	{subitem.label}
+																</span>
 															</div>
 														</Link>
 													);
@@ -227,14 +243,14 @@ export default function AdminLayout({
 								<Link key={item.href} href={item.href}>
 									<div
 										className={cn(
-											'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
+											'flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 my-2',
 											isActive
 												? 'bg-primary text-primary-foreground shadow-md'
 												: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 										)}
 									>
 										<item.icon className='w-5 h-5' />
-										<span className='font-medium'>{item.label}</span>
+										<span className='font-medium text-sm'>{item.label}</span>
 									</div>
 								</Link>
 							);

@@ -2,7 +2,10 @@ import { connectDB } from '@/lib/db/connection';
 import { Invoice } from '@/lib/models/Invoice';
 import { Client } from '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
-import { generateUniqueInvoiceNumber, calculateInvoiceStatus } from '@/lib/utils/invoiceUtils';
+import {
+	generateUniqueInvoiceNumber,
+	calculateInvoiceStatus,
+} from '@/lib/utils/invoiceUtils';
 import { invoiceSchema } from '@/lib/validations/crm';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -55,15 +58,15 @@ export async function GET(request: NextRequest) {
 					_id: null,
 					totalInvoices: { $sum: 1 },
 					paidInvoices: {
-						$sum: { $cond: [{ $eq: ['$transactionStatus', 'paid'] }, 1, 0] },
+						$sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] },
 					},
 					pendingInvoices: {
-						$sum: { $cond: [{ $eq: ['$transactionStatus', 'pending'] }, 1, 0] },
+						$sum: { $cond: [{ $eq: ['$status', 'due'] }, 1, 0] },
 					},
 					partialInvoices: {
-						$sum: { $cond: [{ $eq: ['$transactionStatus', 'partial'] }, 1, 0] },
+						$sum: { $cond: [{ $eq: ['$status', 'partial'] }, 1, 0] },
 					},
-					totalAmount: { $sum: '$amount' },
+					totalAmount: { $sum: '$grandTotal' },
 				},
 			},
 		]);
@@ -125,7 +128,9 @@ export async function POST(request: NextRequest) {
 
 		// Verify service exists if provided
 		if (validationResult.data.linkedServiceId) {
-			const serviceExists = await DailyService.findById(validationResult.data.linkedServiceId);
+			const serviceExists = await DailyService.findById(
+				validationResult.data.linkedServiceId,
+			);
 			if (!serviceExists) {
 				return NextResponse.json(
 					{ success: false, error: 'Service not found' },
@@ -144,7 +149,10 @@ export async function POST(request: NextRequest) {
 
 		const populatedInvoice = await invoice.populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			{ path: 'linkedServiceId', select: 'serviceTitle serviceCost serviceStatus' },
+			{
+				path: 'linkedServiceId',
+				select: 'serviceTitle serviceCost serviceStatus',
+			},
 		]);
 
 		return NextResponse.json(

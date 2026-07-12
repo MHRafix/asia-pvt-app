@@ -26,6 +26,7 @@ import {
 	getStatusLabel,
 } from '@/lib/utils/formatting';
 import { Edit, Eye, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import InvoiceDialog from './InvoiceDialog';
@@ -70,6 +71,8 @@ export default function InvoicesTable({
 	const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 	const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
 
+	const navigate = useRouter();
+
 	const handleDelete = async () => {
 		if (!deleteId) return;
 
@@ -94,16 +97,6 @@ export default function InvoicesTable({
 			setIsDeleting(false);
 			setDeleteId(null);
 		}
-	};
-
-	const handleViewInvoice = (invoice: Invoice) => {
-		setSelectedInvoice(invoice);
-		setShowInvoiceDialog(true);
-	};
-
-	const handleRowClick = (invoice: Invoice) => {
-		// Navigate to invoice detail page
-		window.location.href = `/admin/crm/invoices/${invoice._id}`;
 	};
 
 	return (
@@ -136,7 +129,6 @@ export default function InvoicesTable({
 								<TableRow
 									key={invoice._id}
 									className='hover:bg-muted/50 cursor-pointer'
-									onClick={() => handleRowClick(invoice)}
 								>
 									<TableCell className='font-mono text-sm font-semibold'>
 										{invoice.invoiceNumber}
@@ -174,7 +166,9 @@ export default function InvoicesTable({
 											<Button
 												variant='ghost'
 												size='sm'
-												onClick={() => handleViewInvoice(invoice)}
+												onClick={() =>
+													navigate.push(`/admin/crm/invoices/${invoice?._id}`)
+												}
 											>
 												<Eye className='w-4 h-4' />
 											</Button>
@@ -188,11 +182,11 @@ export default function InvoicesTable({
 												</Button>
 											)}
 											<Button
-												variant='ghost'
+												variant='destructive'
 												size='sm'
 												onClick={() => setDeleteId(invoice._id)}
 											>
-												<Trash2 className='w-4 h-4 text-red-500' />
+												<Trash2 className='w-4 h-4 text-white' />
 											</Button>
 										</div>
 									</TableCell>
