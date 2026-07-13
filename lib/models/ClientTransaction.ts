@@ -3,13 +3,11 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 export interface IClientTransaction extends Document {
 	clientId: Types.ObjectId;
 	invoiceId: Types.ObjectId;
-	transactionId: string;
+	transactionId?: string;
 	description?: string;
 	type: 'payment' | 'refund' | 'adjustment' | 'credit';
 	amount: number;
 	paymentMethod: 'cash' | 'check' | 'bank' | 'card' | 'bkash' | 'other';
-	notes?: string;
-	date: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -23,7 +21,6 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 		},
 		transactionId: {
 			type: String,
-			required: [true, 'Transaction id is required'],
 		},
 		invoiceId: {
 			type: Schema.Types.ObjectId,
@@ -48,13 +45,6 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 		paymentMethod: {
 			type: String,
 			enum: ['cash', 'check', 'bank', 'card', 'bkash', 'other'],
-		},
-		notes: {
-			type: String,
-		},
-		date: {
-			type: Date,
-			required: [true, 'Date is required'],
 		},
 	},
 	{

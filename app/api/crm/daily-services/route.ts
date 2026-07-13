@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
 		const service = await DailyService.create({
 			...validationResult.data,
 			serviceId,
-			serviceRefId: '6a2ad6540ca520dad963be9a',
+			// serviceRefId: '6a2ad6540ca520dad963be9a',
 		});
 
 		// Update client's total services count

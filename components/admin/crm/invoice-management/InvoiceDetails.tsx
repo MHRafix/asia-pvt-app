@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { formatDate } from '@/lib/utils/formatting';
-import { CheckCircle2 } from 'lucide-react';
+import { formatCurrency, formatDate } from '@/lib/utils/formatting';
+import { CheckCircle2, Printer, ReceiptText } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -11,39 +11,17 @@ import { Invoice } from './InvoicesTable';
 interface Transaction {
 	_id: string;
 	type: string;
+	invoiceId: {
+		invoiceNumber: string;
+	};
 	amount: number;
-	status: string;
 	paymentMethod?: string;
 	description: string;
-	notes?: string;
+	transactionId: string;
 	createdAt: string;
 }
 
 export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
-	const payments = [
-		{
-			date: '02 Jul 2026',
-			method: 'Cash',
-			note: 'Booking Advance',
-			amount: 50000,
-		},
-		{
-			date: '08 Jul 2026',
-			method: 'Bank Transfer',
-			note: 'Second Payment',
-			amount: 75000,
-		},
-		{
-			date: '12 Jul 2026',
-			method: 'Card',
-			note: 'Final Payment',
-			amount: 25000,
-		},
-	];
-
-	const totalPaid = payments.reduce((a, b) => a + b.amount, 0);
-	const totalCost = 170000;
-
 	const [invoice, setInvoice] = useState<Invoice | null>(null);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -122,7 +100,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 	return (
 		<div className='bg-gray-100 py-10'>
-			<div className='mx-auto w-[210mm] min-h-[297mm] bg-white shadow-2xl'>
+			<div className='mx-auto w-[250mm] min-h-[297Documentationmm] bg-white shadow-2xl'>
 				{/* Header */}
 
 				<div className='border-b'>
@@ -139,7 +117,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							</h2>
 
 							<div className='mt-5 text-sm space-y-1'>
-								<p>
+								<p className='font-mono text-sm font-semibold'>
 									<span className='font-semibold'>Invoice Number:</span>{' '}
 									{invoice?.invoiceNumber}
 								</p>
@@ -222,35 +200,91 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 						Payment History
 					</h3>
 
-					<table className='w-full border text-sm'>
-						<thead>
-							<tr className='bg-gray-800 text-white'>
-								<th className='p-3 text-left'>SL</th>
-								<th className='p-3 text-left'>Payment Date</th>
-								<th className='p-3 text-left'>Method</th>
-								<th className='p-3 text-left'>Description</th>
-								<th className='p-3 text-right'>Amount</th>
-							</tr>
-						</thead>
+					<div className='w-full overflow-hidden rounded-xl border border-slate-300'>
+						<div className='overflow-x-auto'>
+							<table className='w-full text-sm'>
+								<thead className='bg-gray-800 text-white'>
+									<tr>
+										<th className='px-4 py-3 text-left font-semibold'>SL</th>
+										<th className='px-4 py-3 text-left font-semibold'>
+											Payment Date
+										</th>
+										<th className='px-4 py-3 text-left font-semibold'>
+											Invoice Number
+										</th>
+										<th className='px-4 py-3 text-left font-semibold'>
+											Transaction ID
+										</th>
+										<th className='px-4 py-3 text-left font-semibold'>
+											Method
+										</th>
+										<th className='px-4 py-3 text-left font-semibold'>
+											Description
+										</th>
+										<th className='px-4 py-3 text-right font-semibold'>
+											Amount
+										</th>
+									</tr>
+								</thead>
 
-						<tbody>
-							{payments.map((payment, index) => (
-								<tr key={index} className='border-b even:bg-gray-50'>
-									<td className='p-3'>{index + 1}</td>
+								<tbody>
+									{transactions?.length ? (
+										transactions.map((payment, index) => (
+											<tr
+												key={index}
+												className='border-t hover:bg-slate-50 transition-colors'
+											>
+												<td className='px-4 py-3'>{index + 1}</td>
 
-									<td className='p-3'>{payment.date}</td>
+												<td className='px-4 py-3 whitespace-nowrap'>
+													{formatDate(new Date(payment.createdAt))}
+												</td>
 
-									<td className='p-3'>{payment.method}</td>
+												<td className='px-4 py-3 font-mono font-semibold whitespace-nowrap'>
+													{payment.invoiceId.invoiceNumber}
+												</td>
 
-									<td className='p-3'>{payment.note}</td>
+												<td className='px-4 py-3 font-mono whitespace-nowrap'>
+													{payment.transactionId || 'N/A'}
+												</td>
 
-									<td className='p-3 text-right font-medium'>
-										৳ {payment.amount.toLocaleString()}
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+												<td className='px-4 py-3 whitespace-nowrap font-mono font-semibold'>
+													{payment.paymentMethod}
+												</td>
+
+												<td className='px-4 py-3'>
+													{payment.description || 'N/A'}
+												</td>
+
+												<td className='px-4 py-3 text-right font-semibold font-mono whitespace-nowrap'>
+													{formatCurrency(payment.amount).replace('BDT', '৳')}
+												</td>
+											</tr>
+										))
+									) : (
+										<tr>
+											<td colSpan={7} className='py-5'>
+												<div className='flex flex-col items-center justify-center text-center'>
+													<div className='mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100'>
+														<ReceiptText className='w-5 h-5' />
+													</div>
+
+													<h3 className='text-base font-semibold text-slate-800'>
+														No payment records found
+													</h3>
+
+													<p className='mt-1 text-sm text-slate-500'>
+														Payment history will appear here once transactions
+														are available.
+													</p>
+												</div>
+											</td>
+										</tr>
+									)}
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 
 				{/* Bottom */}
@@ -269,18 +303,40 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 					<div className='w-80'>
 						<div className='space-y-3'>
 							<div className='flex justify-between'>
-								<span>Total Service Cost</span>
-								<span>৳ {invoice.grandTotal}</span>
+								<span>Sub Total (service cost)</span>
+								<span>
+									{formatCurrency(invoice?.subTotal).replace('BDT', '৳')}
+								</span>
 							</div>
 
-							<div className='flex justify-between'>
+							<div className='flex justify-between font-mono'>
+								<span>Discount</span>
+								<span>
+									({formatCurrency(invoice?.discount).replace('BDT', '৳')})
+								</span>
+							</div>
+
+							<hr />
+
+							<div className='flex justify-between font-mono font-semibold'>
+								<span>Grand Total</span>
+								<span>
+									{formatCurrency(invoice?.grandTotal).replace('BDT', '৳')}
+								</span>
+							</div>
+
+							<div className='flex justify-between font-mono'>
 								<span>Total Paid</span>
-								<span>৳ {invoice?.paidAmount}</span>
+								<span>
+									{formatCurrency(invoice?.paidAmount).replace('BDT', '৳')}
+								</span>
 							</div>
 
-							<div className='flex justify-between border-t pt-3 font-bold text-lg'>
+							<div className='flex justify-between border-t pt-3 font-bold font-mono text-lg'>
 								<span>Due</span>
-								<span>৳ {invoice?.dueAmount}</span>
+								<span>
+									{formatCurrency(invoice?.dueAmount).replace('BDT', '৳')}
+								</span>
 							</div>
 						</div>
 
@@ -288,8 +344,8 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							<div className='flex justify-between items-center'>
 								<span className='font-medium'>Outstanding Balance</span>
 
-								<span className='text-2xl font-bold'>
-									৳ {invoice?.dueAmount}
+								<span className='text-2xl font-mono font-bold'>
+									{formatCurrency(invoice?.dueAmount).replace('BDT', '৳')}
 								</span>
 							</div>
 						</div>
@@ -301,9 +357,15 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 				<div className='mt-20 px-12 pb-10'>
 					<div className='border-t pt-6 flex justify-between items-end'>
 						<div className='text-sm text-gray-500'>
-							+880 1700-000000 <br />
-							info@asiatours.com <br />
-							www.asiatours.com
+							+880 1700-000000+880 1726631567
+							<br />
+							asiatours2018@gmail.com <br />
+							www.asiapvt.com
+							<br /> <br />
+							<Button variant={'destructive'}>
+								{' '}
+								<Printer className='w-4 h-4' /> Print
+							</Button>
 						</div>
 
 						<div className='text-center'>

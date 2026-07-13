@@ -20,9 +20,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { DailyService } from '../daily-services/DailyServicesList';
+import DailyServicesTable from '../daily-services/DailyServicesTable';
 import ClientFormDialog from './ClientFormDialog';
-import { DailyService } from './DailyServicesList';
-import DailyServicesTable from './DailyServicesTable';
 
 interface Client {
 	_id: string;

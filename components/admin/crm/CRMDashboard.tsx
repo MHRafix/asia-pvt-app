@@ -15,7 +15,7 @@ import { Activity, Crown, Eye, Plus, Search, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import ClientFormDialog from './ClientFormDialog';
+import ClientFormDialog from './client-management/ClientFormDialog';
 
 interface Client {
 	_id: string;

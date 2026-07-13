@@ -1,6 +1,6 @@
 'use client';
 
-import ClientDetail from '@/components/admin/crm/ClientDetail';
+import ClientDetail from '@/components/admin/crm/client-management/ClientDetail';
 import { use } from 'react';
 
 export default function ClientDetailPage({

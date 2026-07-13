@@ -1,11 +1,8 @@
 import { connectDB } from '@/lib/db/connection';
-import { Invoice } from '@/lib/models/Invoice';
 import { Client } from '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
-import {
-	generateUniqueInvoiceNumber,
-	calculateInvoiceStatus,
-} from '@/lib/utils/invoiceUtils';
+import { Invoice } from '@/lib/models/Invoice';
+import { generateUniqueInvoiceNumber } from '@/lib/utils/invoiceUtils';
 import { invoiceSchema } from '@/lib/validations/crm';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -15,6 +12,7 @@ export async function GET(request: NextRequest) {
 
 		const { searchParams } = new URL(request.url);
 		const search = searchParams.get('search') || '';
+		const serviceId = searchParams.get('serviceId');
 		const status = searchParams.get('status') || '';
 		const clientId = searchParams.get('clientId') || '';
 		const page = parseInt(searchParams.get('page') || '1');
@@ -36,6 +34,10 @@ export async function GET(request: NextRequest) {
 
 		if (clientId) {
 			query.clientId = clientId;
+		}
+
+		if (serviceId) {
+			query.linkedServiceId = serviceId;
 		}
 
 		const [invoices, total] = await Promise.all([

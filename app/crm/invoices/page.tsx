@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import InvoicesTable from '@/components/admin/crm/invoice-management/InvoicesTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,9 +10,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import InvoicesTable from '@/components/admin/crm/InvoicesTable';
-import toast from 'react-hot-toast';
 import { Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Invoice {
 	_id: string;
@@ -79,7 +79,9 @@ export default function InvoicesPage() {
 			<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 				<div>
 					<h1 className='text-3xl font-bold'>Invoices</h1>
-					<p className='text-muted-foreground'>Manage and track your invoices</p>
+					<p className='text-muted-foreground'>
+						Manage and track your invoices
+					</p>
 				</div>
 				<Button disabled>
 					<Plus className='w-4 h-4 mr-2' />
@@ -91,20 +93,28 @@ export default function InvoicesPage() {
 			{stats && (
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 					<div className='border rounded-lg p-4 bg-card'>
-						<p className='text-sm font-medium text-muted-foreground'>Total Invoices</p>
+						<p className='text-sm font-medium text-muted-foreground'>
+							Total Invoices
+						</p>
 						<p className='text-2xl font-bold mt-1'>{stats.totalInvoices}</p>
 					</div>
 					<div className='border rounded-lg p-4 bg-card'>
 						<p className='text-sm font-medium text-muted-foreground'>Paid</p>
-						<p className='text-2xl font-bold mt-1 text-green-600'>{stats.paidInvoices}</p>
+						<p className='text-2xl font-bold mt-1 text-green-600'>
+							{stats.paidInvoices}
+						</p>
 					</div>
 					<div className='border rounded-lg p-4 bg-card'>
 						<p className='text-sm font-medium text-muted-foreground'>Pending</p>
-						<p className='text-2xl font-bold mt-1 text-yellow-600'>{stats.pendingInvoices}</p>
+						<p className='text-2xl font-bold mt-1 text-yellow-600'>
+							{stats.pendingInvoices}
+						</p>
 					</div>
 					<div className='border rounded-lg p-4 bg-card'>
 						<p className='text-sm font-medium text-muted-foreground'>Partial</p>
-						<p className='text-2xl font-bold mt-1 text-blue-600'>{stats.partialInvoices}</p>
+						<p className='text-2xl font-bold mt-1 text-blue-600'>
+							{stats.partialInvoices}
+						</p>
 					</div>
 				</div>
 			)}
@@ -120,10 +130,13 @@ export default function InvoicesPage() {
 					}}
 					className='md:w-64'
 				/>
-				<Select value={statusFilter} onValueChange={(value) => {
-					setStatusFilter(value);
-					setPage(1);
-				}}>
+				<Select
+					value={statusFilter}
+					onValueChange={(value) => {
+						setStatusFilter(value);
+						setPage(1);
+					}}
+				>
 					<SelectTrigger className='w-full md:w-48'>
 						<SelectValue />
 					</SelectTrigger>
@@ -139,10 +152,7 @@ export default function InvoicesPage() {
 			</div>
 
 			{/* Table */}
-			<InvoicesTable
-				invoices={invoices}
-				onRefresh={fetchInvoices}
-			/>
+			<InvoicesTable invoices={invoices} onRefresh={fetchInvoices} />
 
 			{/* Pagination */}
 			{pagination && pagination.pages > 1 && (

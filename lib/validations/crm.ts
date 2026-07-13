@@ -55,6 +55,7 @@ export const dailyServiceSchema = z.object({
 		.min(1, 'Service title is required')
 		.max(150, 'Service title cannot exceed 150 characters'),
 	serviceDescription: z.string().optional(),
+	passportNo: z.string().optional(),
 	serviceCost: z.number().min(0, 'Service cost cannot be negative'),
 	serviceStatus: z
 		.enum(['pending', 'in_progress', 'completed', 'cancelled', 'on_hold'])
@@ -79,7 +80,7 @@ export const invoiceSchema = z.object({
 });
 
 export const paymentTransactionSchema = z.object({
-	transactionId: z.string().min(1, 'Transaction id is required'),
+	transactionId: z.string().optional(),
 	invoiceId: z.string().min(1, 'Invoice ID is required'),
 	clientId: z.string().min(1, 'Client ID is required'),
 	type: z
@@ -88,8 +89,6 @@ export const paymentTransactionSchema = z.object({
 	amount: z.number().min(0.01, 'Amount must be greater than 0'),
 	paymentMethod: z.enum(['cash', 'card', 'bank', 'bkash', 'other']),
 	description: z.string().optional(),
-	notes: z.string().optional(),
-	date: z.string().optional(),
 });
 
 export const clientActivitySchema = z.object({

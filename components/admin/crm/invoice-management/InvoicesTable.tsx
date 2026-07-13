@@ -108,8 +108,10 @@ export default function InvoicesTable({
 							<TableHead>Invoice Number</TableHead>
 							<TableHead>Client</TableHead>
 							<TableHead>Service</TableHead>
-							<TableHead>Grand Total</TableHead>
 							<TableHead>Status</TableHead>
+							<TableHead>Due Amount</TableHead>
+							<TableHead>Paid Amount</TableHead>
+							<TableHead>Grand Total</TableHead>
 							<TableHead>Date</TableHead>
 							<TableHead className='text-right'>Actions</TableHead>
 						</TableRow>
@@ -148,13 +150,19 @@ export default function InvoicesTable({
 											{invoice.linkedServiceId?.serviceTitle || 'N/A'}
 										</div>
 									</TableCell>
-									<TableCell className='font-semibold'>
-										{formatCurrency(invoice.grandTotal)}
-									</TableCell>
 									<TableCell>
 										<Badge className={getStatusColor(invoice.status as any)}>
 											{getStatusLabel(invoice.status as any)}
 										</Badge>
+									</TableCell>
+									<TableCell className='font-semibold text-primary'>
+										{formatCurrency(invoice.dueAmount)}
+									</TableCell>
+									<TableCell className='font-semibold text-green-700'>
+										{formatCurrency(invoice.paidAmount)}
+									</TableCell>
+									<TableCell className='font-semibold'>
+										{formatCurrency(invoice.grandTotal)}
 									</TableCell>
 									<TableCell className='text-sm text-muted-foreground'>
 										{formatDateOnly(

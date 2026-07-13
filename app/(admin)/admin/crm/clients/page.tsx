@@ -1,6 +1,6 @@
 'use client';
 
-import ClientsList from '@/components/admin/crm/ClientsList';
+import ClientsList from '@/components/admin/crm/client-management/ClientsList';
 
 export default function ClientsPage() {
 	return (

@@ -1,6 +1,8 @@
 'use client';
 
-import InvoicesTable, { Invoice } from '@/components/admin/crm/InvoicesTable';
+import InvoicesTable, {
+	Invoice,
+} from '@/components/admin/crm/invoice-management/InvoicesTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

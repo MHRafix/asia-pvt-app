@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import TransactionFormDialog from '@/components/admin/crm/transactions/TransactionFormDialog';
+import TransactionsTable from '@/components/admin/crm/transactions/TransactionsTable';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -10,19 +12,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import TransactionsTable from '@/components/admin/crm/TransactionsTable';
-import TransactionFormDialog from '@/components/admin/crm/TransactionFormDialog';
-import toast from 'react-hot-toast';
-import { Plus, Search } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/formatting';
+import { Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Transaction {
 	_id: string;
@@ -104,7 +97,9 @@ export default function TransactionsPage() {
 			<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 				<div>
 					<h1 className='text-3xl font-bold'>Transactions</h1>
-					<p className='text-muted-foreground'>Manage and track all transactions</p>
+					<p className='text-muted-foreground'>
+						Manage and track all transactions
+					</p>
 				</div>
 				<Button onClick={() => setShowAddDialog(true)} className='gap-2'>
 					<Plus className='w-4 h-4' />
@@ -147,7 +142,9 @@ export default function TransactionsPage() {
 					</Card>
 					<Card className='border-0 shadow-soft'>
 						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>Failed</p>
+							<p className='text-sm font-medium text-muted-foreground'>
+								Failed
+							</p>
 							<p className='text-2xl font-bold mt-2 text-red-600'>
 								{stats.failedTransactions}
 							</p>

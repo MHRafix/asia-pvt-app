@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import TransactionsTable from '@/components/admin/crm/transactions/TransactionsTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,9 +10,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import TransactionsTable from '@/components/admin/crm/TransactionsTable';
-import toast from 'react-hot-toast';
 import { Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Transaction {
 	_id: string;
@@ -77,7 +77,9 @@ export default function TransactionsPage() {
 			<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 				<div>
 					<h1 className='text-3xl font-bold'>Transactions</h1>
-					<p className='text-muted-foreground'>View and manage all payment transactions</p>
+					<p className='text-muted-foreground'>
+						View and manage all payment transactions
+					</p>
 				</div>
 				<Button disabled>
 					<Plus className='w-4 h-4 mr-2' />
@@ -89,11 +91,15 @@ export default function TransactionsPage() {
 			{stats && (
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 					<div className='border rounded-lg p-4 bg-card'>
-						<p className='text-sm font-medium text-muted-foreground'>Total Transactions</p>
+						<p className='text-sm font-medium text-muted-foreground'>
+							Total Transactions
+						</p>
 						<p className='text-2xl font-bold mt-1'>{stats.totalTransactions}</p>
 					</div>
 					<div className='border rounded-lg p-4 bg-card'>
-						<p className='text-sm font-medium text-muted-foreground'>Total Amount</p>
+						<p className='text-sm font-medium text-muted-foreground'>
+							Total Amount
+						</p>
 						<p className='text-2xl font-bold mt-1'>
 							{stats.totalAmount.toLocaleString('en-US', {
 								style: 'currency',
@@ -102,7 +108,9 @@ export default function TransactionsPage() {
 						</p>
 					</div>
 					<div className='border rounded-lg p-4 bg-card'>
-						<p className='text-sm font-medium text-muted-foreground'>Completed</p>
+						<p className='text-sm font-medium text-muted-foreground'>
+							Completed
+						</p>
 						<p className='text-2xl font-bold mt-1 text-green-600'>
 							{stats.completedTransactions}
 						</p>
@@ -127,10 +135,13 @@ export default function TransactionsPage() {
 					}}
 					className='md:w-64'
 				/>
-				<Select value={statusFilter} onValueChange={(value) => {
-					setStatusFilter(value);
-					setPage(1);
-				}}>
+				<Select
+					value={statusFilter}
+					onValueChange={(value) => {
+						setStatusFilter(value);
+						setPage(1);
+					}}
+				>
 					<SelectTrigger className='w-full md:w-48'>
 						<SelectValue />
 					</SelectTrigger>

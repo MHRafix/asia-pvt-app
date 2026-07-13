@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = new URL(request.url);
 		const search = searchParams.get('search') || '';
 		const type = searchParams.get('type') || '';
-		// const invoiceId = searchParams.get('invoiceId') || '';
+		const invoiceId = searchParams.get('invoiceId') || '';
 		const clientId = searchParams.get('clientId') || '';
 		const page = parseInt(searchParams.get('page') || '1');
 		const limit = parseInt(searchParams.get('limit') || '20');
@@ -35,9 +35,14 @@ export async function GET(request: NextRequest) {
 			query.clientId = clientId;
 		}
 
+		if (invoiceId) {
+			query.invoiceId = invoiceId;
+		}
+
 		const [transactions, total] = await Promise.all([
 			ClientTransaction.find(query)
 				.populate('clientId', 'name email phone company')
+				.populate('invoiceId', 'invoiceNumber')
 				.sort({ createdAt: -1 })
 				.skip(skip)
 				.limit(limit),
@@ -136,11 +141,9 @@ export async function POST(request: NextRequest) {
 			type: validationResult?.data?.type,
 			description: validationResult?.data?.description,
 			transactionId: validationResult?.data?.transactionId,
-			date: validationResult?.data?.date,
 			invoiceId: validationResult?.data?.invoiceId,
 			amount: validationResult.data.amount,
 			paymentMethod: validationResult.data.paymentMethod,
-			notes: validationResult.data.notes,
 		});
 
 		// Update invoice with transaction link and calculate new status

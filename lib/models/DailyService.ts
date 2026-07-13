@@ -15,6 +15,7 @@ export interface IDailyService extends Document {
 		| 'cancelled'
 		| 'on_hold';
 	createdDate: Date;
+	passportNo: string;
 	completedDate?: Date;
 	notes?: string;
 	createdAt: Date;
@@ -49,6 +50,9 @@ const DailyServiceSchema = new Schema<IDailyService>(
 			required: [true, 'Service title is required'],
 			trim: true,
 			maxlength: [150, 'Service title cannot exceed 150 characters'],
+		},
+		passportNo: {
+			type: String,
 		},
 		serviceDescription: {
 			type: String,

@@ -1,6 +1,6 @@
 'use client';
 
-import InvoiceDetails from '@/components/admin/crm/InvoiceDemo';
+import InvoiceDetails from '@/components/admin/crm/invoice-management/InvoiceDetails';
 import { use } from 'react';
 
 export default function InvoicePage({

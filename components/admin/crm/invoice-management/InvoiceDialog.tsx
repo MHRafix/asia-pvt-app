@@ -16,8 +16,8 @@ import {
 } from '@/lib/utils/formatting';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import TransactionForm from '../transactions/TransactionForm';
 import { Invoice } from './InvoicesTable';
-import TransactionForm from './TransactionForm';
 
 interface InvoiceDialogProps {
 	invoice: Invoice;
