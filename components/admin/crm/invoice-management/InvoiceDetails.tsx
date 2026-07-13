@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/utils/formatting';
-import { CheckCircle2, Printer, ReceiptText } from 'lucide-react';
+import { CheckCircle2, Loader, Printer, ReceiptText } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -69,25 +69,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 		}
 	};
 
-	const handlePaymentSuccess = () => {
-		setShowPaymentDialog(false);
-		toast.success('Payment recorded successfully');
-		fetchInvoiceDetails();
-		fetchTransactions();
-	};
-
-	const canPayment =
-		invoice && (invoice.status === 'due' || invoice.status === 'partial');
-
-	if (isLoading && !invoice) {
-		return (
-			<div className='flex items-center justify-center min-h-screen'>
-				Loading...
-			</div>
-		);
-	}
-
-	if (!invoice) {
+	if (!isLoading && !invoice) {
 		return (
 			<div className='text-center py-12'>
 				<p className='text-muted-foreground'>Invoice not found</p>
@@ -95,6 +77,12 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 					<Button className='mt-4'>Back to Invoices</Button>
 				</Link>
 			</div>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<Loader className='text-primary w-8 animate-spin mx-auto h-[80vh]' />
 		);
 	}
 
@@ -124,7 +112,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 								<p>
 									<span className='font-semibold'>Date</span>{' '}
-									{formatDate(new Date(invoice?.createdAt))}
+									{/* {formatDate(new Date(invoice?.createdAt!))} */}
 								</p>
 							</div>
 						</div>
@@ -305,14 +293,14 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							<div className='flex justify-between'>
 								<span>Sub Total (service cost)</span>
 								<span>
-									{formatCurrency(invoice?.subTotal).replace('BDT', '৳')}
+									{formatCurrency(invoice?.subTotal!).replace('BDT', '৳')}
 								</span>
 							</div>
 
 							<div className='flex justify-between font-mono'>
 								<span>Discount</span>
 								<span>
-									({formatCurrency(invoice?.discount).replace('BDT', '৳')})
+									({formatCurrency(invoice?.discount!).replace('BDT', '৳')})
 								</span>
 							</div>
 
@@ -321,21 +309,21 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							<div className='flex justify-between font-mono font-semibold'>
 								<span>Grand Total</span>
 								<span>
-									{formatCurrency(invoice?.grandTotal).replace('BDT', '৳')}
+									{formatCurrency(invoice?.grandTotal!).replace('BDT', '৳')}
 								</span>
 							</div>
 
 							<div className='flex justify-between font-mono'>
 								<span>Total Paid</span>
 								<span>
-									{formatCurrency(invoice?.paidAmount).replace('BDT', '৳')}
+									{formatCurrency(invoice?.paidAmount!).replace('BDT', '৳')}
 								</span>
 							</div>
 
 							<div className='flex justify-between border-t pt-3 font-bold font-mono text-lg'>
 								<span>Due</span>
 								<span>
-									{formatCurrency(invoice?.dueAmount).replace('BDT', '৳')}
+									{formatCurrency(invoice?.dueAmount!).replace('BDT', '৳')}
 								</span>
 							</div>
 						</div>
@@ -345,7 +333,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 								<span className='font-medium'>Outstanding Balance</span>
 
 								<span className='text-2xl font-mono font-bold'>
-									{formatCurrency(invoice?.dueAmount).replace('BDT', '৳')}
+									{formatCurrency(invoice?.dueAmount!).replace('BDT', '৳')}
 								</span>
 							</div>
 						</div>
