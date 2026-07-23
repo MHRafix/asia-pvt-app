@@ -106,7 +106,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 							<div className='mt-5 text-sm space-y-1'>
 								<p className='font-mono text-sm font-semibold'>
-									<span className='font-semibold'>Invoice Number:</span>{' '}
+									<span className='font-semibold'>Invoice Number:</span>
 									{invoice?.invoiceNumber}
 								</p>
 

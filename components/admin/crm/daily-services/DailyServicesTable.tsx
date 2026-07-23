@@ -40,7 +40,10 @@ interface DailyService {
 	linkedClientId?: {
 		_id: string;
 		name: string;
+		phone: string;
+		email: string;
 	};
+	passportNo: string;
 	createdDate: string;
 	invoiceId?: string;
 }
@@ -220,7 +223,13 @@ const TableBodyRow = ({
 			<TableCell>
 				<div className='max-w-xs truncate'>{service.serviceTitle}</div>
 			</TableCell>
-			<TableCell>{service.linkedClientId?.name || 'N/A'}</TableCell>
+			<TableCell>
+				<div>
+					<p>{service.linkedClientId?.name || 'N/A'}</p>
+					<p>{service.linkedClientId?.phone || 'N/A'}</p>
+					{service.passportNo || 'N/A'}
+				</div>
+			</TableCell>
 			<TableCell className='font-semibold'>
 				{formatCurrency(service.serviceCost)}
 			</TableCell>

@@ -50,6 +50,7 @@ interface DailyService {
 	linkedClientId?: string;
 	serviceRefId: string;
 	assignedEmployeeId?: string;
+	passportNo?: string;
 }
 
 interface DailyServiceFormDialogProps {
@@ -84,6 +85,7 @@ export default function DailyServiceFormDialog({
 			serviceStatus: 'pending',
 			notes: '',
 			serviceRefId: '',
+			passportNo: '',
 		},
 	});
 
@@ -98,6 +100,7 @@ export default function DailyServiceFormDialog({
 				serviceStatus: service.serviceStatus,
 				notes: '',
 				serviceRefId: service?.serviceRefId || '',
+				passportNo: service?.passportNo || '',
 			});
 		} else {
 			form.reset({
@@ -168,12 +171,12 @@ export default function DailyServiceFormDialog({
 										<FormMessage />
 									</FormItem>
 								)}
-							/>{' '}
+							/>
 							<FormField
 								control={form.control}
 								name='serviceRefId'
 								render={({ field }) => (
-									<FormItem className='col-span-2'>
+									<FormItem className='col-span-1'>
 										<FormLabel>Select Service *</FormLabel>
 										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
@@ -189,6 +192,17 @@ export default function DailyServiceFormDialog({
 												))}
 											</SelectContent>
 										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name='passportNo'
+								render={({ field }) => (
+									<FormItem className='col-span-1'>
+										<FormLabel>Passport No *</FormLabel>
+										<Input placeholder='e.g. A1231231' {...field} />
 										<FormMessage />
 									</FormItem>
 								)}

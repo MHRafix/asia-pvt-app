@@ -25,7 +25,10 @@ export interface DailyService {
 	linkedClientId?: {
 		_id: string;
 		name: string;
+		phone: string;
+		email: string;
 	};
+	passportNo: string;
 	serviceDescription?: string;
 	createdDate: string;
 }
