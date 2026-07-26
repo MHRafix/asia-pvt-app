@@ -1,9 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -15,12 +11,12 @@ import {
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -28,39 +24,24 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { formatCurrency } from '@/lib/utils/formatting';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
-
-interface Client {
-	_id: string;
-	name: string;
-	email: string;
-}
-
-interface Invoice {
-	_id: string;
-	invoiceNumber: string;
-	amount: number;
-}
+import { z } from 'zod';
+import { Invoice } from '../invoice-management/InvoicesTable';
 
 const transactionSchema = z.object({
-	clientId: z.string().min(1, 'Client is required'),
-	invoiceId: z.string().optional(),
-	type: z.enum(['Payment', 'Refund', 'Adjustment', 'Credit']),
+	invoiceId: z.string().min(1, 'Invoice is reqiured'),
+	transactionId: z.string().min(1, 'Transaction id is reqiured'),
+	type: z.enum(['payment', 'refund', 'adjustment', 'credit']),
 	amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
 	paymentMethod: z.enum(['cash', 'card', 'bank', 'bkash', 'other']),
-	status: z.enum(['completed', 'pending', 'failed']).default('completed'),
-	description: z.string().min(1, 'Description is required'),
-	notes: z.string().optional(),
-	date: z.date(),
+	// status: z.enum(['completed', 'pending', 'failed']).default('completed'),
+	description: z.string(),
+	// date: z.date(),
 });
 
 type TransactionFormData = z.infer<typeof transactionSchema>;
@@ -69,15 +50,18 @@ interface TransactionFormDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess?: () => void;
+	invoiceId?: string;
+	amount?: number;
 }
 
 export default function TransactionFormDialog({
 	open,
 	onOpenChange,
 	onSuccess,
+	invoiceId,
+	amount,
 }: TransactionFormDialogProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [clients, setClients] = useState<Client[]>([]);
 	const [invoices, setInvoices] = useState<Invoice[]>([]);
 	const [selectedClientId, setSelectedClientId] = useState('');
 	const [loadingClients, setLoadingClients] = useState(false);
@@ -86,52 +70,23 @@ export default function TransactionFormDialog({
 	const form = useForm<TransactionFormData>({
 		resolver: zodResolver(transactionSchema),
 		defaultValues: {
-			clientId: '',
-			invoiceId: '',
-			type: 'Payment',
-			amount: undefined,
+			invoiceId,
+			transactionId: '',
+			type: 'payment',
+			amount: amount || 0,
 			paymentMethod: 'cash',
-			status: 'completed',
 			description: '',
-			notes: '',
-			date: new Date(),
 		},
 	});
 
 	useEffect(() => {
-		if (open) {
-			fetchClients();
-		}
-	}, [open]);
+		fetchInvoices();
+	}, []);
 
-	useEffect(() => {
-		if (selectedClientId) {
-			fetchInvoices(selectedClientId);
-		}
-	}, [selectedClientId]);
-
-	const fetchClients = async () => {
-		try {
-			setLoadingClients(true);
-			const response = await fetch('/api/crm/clients?limit=100');
-			const result = await response.json();
-
-			if (result.success) {
-				setClients(result.data || []);
-			}
-		} catch (error) {
-			console.error('Error fetching clients:', error);
-		} finally {
-			setLoadingClients(false);
-		}
-	};
-
-	const fetchInvoices = async (clientId: string) => {
+	const fetchInvoices = async () => {
 		try {
 			setLoadingInvoices(true);
-			const response = await fetch(
-				`/api/payment/invoices?clientId=${clientId}&limit=100`,
-			);
+			const response = await fetch(`/api/payment/invoices`);
 			const result = await response.json();
 
 			if (result.success) {
@@ -145,6 +100,7 @@ export default function TransactionFormDialog({
 	};
 
 	const handleFormSubmit = async (data: TransactionFormData) => {
+		console.log(data);
 		setIsSubmitting(true);
 		try {
 			const response = await fetch('/api/payment/transactions', {
@@ -154,7 +110,6 @@ export default function TransactionFormDialog({
 				},
 				body: JSON.stringify({
 					...data,
-					date: data.date.toISOString(),
 				}),
 			});
 
@@ -176,17 +131,9 @@ export default function TransactionFormDialog({
 		}
 	};
 
-	const watchClientId = form.watch('clientId');
-
-	const handleClientChange = (value: string) => {
-		form.setValue('clientId', value);
-		setSelectedClientId(value);
-		form.setValue('invoiceId', '');
-	};
-
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+			<DialogContent className='max-w-3xl overflow-y-auto'>
 				<DialogHeader>
 					<DialogTitle>Add New Transaction</DialogTitle>
 					<DialogDescription>
@@ -197,60 +144,31 @@ export default function TransactionFormDialog({
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(handleFormSubmit)}
-						className='space-y-6'
+						className='space-y-2 grid md:grid-cols-2 gap-5'
 					>
-						{/* Client Selection */}
-						<FormField
-							control={form.control}
-							name='clientId'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Client *</FormLabel>
-									<Select
-										onValueChange={handleClientChange}
-										value={field.value}
-									>
-										<FormControl>
-											<SelectTrigger disabled={loadingClients}>
-												<SelectValue placeholder='Select a client' />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{clients.map(client => (
-												<SelectItem key={client._id} value={client._id}>
-													{client.name} ({client.email})
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Invoice Selection (Optional) */}
-						{selectedClientId && (
+						{/* Invoice Selection */}
+						{!invoiceId && (
 							<FormField
 								control={form.control}
 								name='invoiceId'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Invoice (Optional)</FormLabel>
+										<FormLabel>Select Invoice *</FormLabel>
 										<Select
+											disabled={loadingInvoices}
 											onValueChange={field.onChange}
-											value={field.value || ''}
+											value={field.value}
 										>
-											<FormControl>
-												<SelectTrigger disabled={loadingInvoices}>
-													<SelectValue placeholder='Select an invoice' />
+											<FormControl className='w-full'>
+												<SelectTrigger disabled={loadingClients}>
+													<SelectValue placeholder='Select a invoice' />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value=''>No Invoice</SelectItem>
-												{invoices.map(invoice => (
+												{invoices.map((invoice) => (
 													<SelectItem key={invoice._id} value={invoice._id}>
 														{invoice.invoiceNumber} (
-														{invoice.amount.toFixed(2)})
+														{formatCurrency(invoice.grandTotal)})
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -260,7 +178,19 @@ export default function TransactionFormDialog({
 								)}
 							/>
 						)}
-
+						<FormField
+							control={form.control}
+							name='transactionId'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Transaction ID *</FormLabel>
+									<FormControl>
+										<Input placeholder='e.g: xxxxxxxxxx' {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						{/* Transaction Type */}
 						<FormField
 							control={form.control}
@@ -269,25 +199,22 @@ export default function TransactionFormDialog({
 								<FormItem>
 									<FormLabel>Transaction Type *</FormLabel>
 									<Select onValueChange={field.onChange} value={field.value}>
-										<FormControl>
+										<FormControl className='w-full'>
 											<SelectTrigger>
 												<SelectValue />
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											<SelectItem value='Payment'>Payment</SelectItem>
-											<SelectItem value='Refund'>Refund</SelectItem>
-											<SelectItem value='Adjustment'>
-												Adjustment
-											</SelectItem>
-											<SelectItem value='Credit'>Credit</SelectItem>
+											<SelectItem value='payment'>Payment</SelectItem>
+											<SelectItem value='refund'>Refund</SelectItem>
+											<SelectItem value='adjustment'>Adjustment</SelectItem>
+											<SelectItem value='credit'>Credit</SelectItem>
 										</SelectContent>
 									</Select>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-
 						{/* Amount */}
 						<FormField
 							control={form.control}
@@ -307,7 +234,6 @@ export default function TransactionFormDialog({
 								</FormItem>
 							)}
 						/>
-
 						{/* Payment Method */}
 						<FormField
 							control={form.control}
@@ -316,7 +242,7 @@ export default function TransactionFormDialog({
 								<FormItem>
 									<FormLabel>Payment Method *</FormLabel>
 									<Select onValueChange={field.onChange} value={field.value}>
-										<FormControl>
+										<FormControl className='w-full'>
 											<SelectTrigger>
 												<SelectValue />
 											</SelectTrigger>
@@ -333,16 +259,15 @@ export default function TransactionFormDialog({
 								</FormItem>
 							)}
 						/>
-
 						{/* Status */}
-						<FormField
+						{/* <FormField
 							control={form.control}
 							name='status'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Status *</FormLabel>
 									<Select onValueChange={field.onChange} value={field.value}>
-										<FormControl>
+										<FormControl className='w-full'>
 											<SelectTrigger>
 												<SelectValue />
 											</SelectTrigger>
@@ -356,48 +281,9 @@ export default function TransactionFormDialog({
 									<FormMessage />
 								</FormItem>
 							)}
-						/>
-
-						{/* Description */}
-						<FormField
-							control={form.control}
-							name='description'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Description *</FormLabel>
-									<FormControl>
-										<Textarea
-											placeholder='Enter transaction description'
-											className='resize-none'
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Notes */}
-						<FormField
-							control={form.control}
-							name='notes'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Notes (Optional)</FormLabel>
-									<FormControl>
-										<Textarea
-											placeholder='Add any additional notes'
-											className='resize-none'
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
+						/> */}
 						{/* Date */}
-						<FormField
+						{/* <FormField
 							control={form.control}
 							name='date'
 							render={({ field }) => (
@@ -419,9 +305,8 @@ export default function TransactionFormDialog({
 												mode='single'
 												selected={field.value}
 												onSelect={field.onChange}
-												disabled={date =>
-													date > new Date() ||
-													date < new Date('1900-01-01')
+												disabled={(date) =>
+													date > new Date() || date < new Date('1900-01-01')
 												}
 												initialFocus
 											/>
@@ -430,21 +315,30 @@ export default function TransactionFormDialog({
 									<FormMessage />
 								</FormItem>
 							)}
+						/> */}
+						{/* Notes */}
+						<FormField
+							control={form.control}
+							name='description'
+							render={({ field }) => (
+								<FormItem className='col-span-1'>
+									<FormLabel>Notes (Optional)</FormLabel>
+									<FormControl>
+										<Textarea
+											placeholder='Add any additional notes'
+											className='resize-none'
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-
+						<br />
 						{/* Submit Buttons */}
-						<div className='flex justify-end gap-3'>
-							<Button
-								type='button'
-								variant='outline'
-								onClick={() => onOpenChange(false)}
-							>
-								Cancel
-							</Button>
-							<Button type='submit' disabled={isSubmitting}>
-								{isSubmitting ? 'Adding...' : 'Add Transaction'}
-							</Button>
-						</div>
+						<Button className='ml-auto' type='submit' disabled={isSubmitting}>
+							{isSubmitting ? 'Adding...' : 'Add Transaction'}
+						</Button>
 					</form>
 				</Form>
 			</DialogContent>

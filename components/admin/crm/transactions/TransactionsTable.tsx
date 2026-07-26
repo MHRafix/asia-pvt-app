@@ -1,17 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,8 +9,20 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import { formatCurrency, formatDate } from '@/lib/utils/formatting';
+import { Edit, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils/formatting';
 
 interface Transaction {
 	_id: string;
@@ -32,10 +32,10 @@ interface Transaction {
 	paymentMethod?: string;
 	description: string;
 	notes?: string;
-	clientId?: {
+	invoiceId?: {
 		_id: string;
 		name: string;
-		email: string;
+		invoiceNumber: string;
 	};
 	createdAt: string;
 }
@@ -88,37 +88,44 @@ export default function TransactionsTable({
 				<Table>
 					<TableHeader>
 						<TableRow className='bg-muted'>
-							<TableHead>Client</TableHead>
+							<TableHead>Date</TableHead>
+							<TableHead>Invoice</TableHead>
 							<TableHead>Type</TableHead>
 							<TableHead>Amount</TableHead>
 							<TableHead>Method</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Date</TableHead>
 							<TableHead>Description</TableHead>
 							<TableHead className='text-right'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
-				<TableBody>
-					{isLoading ? (
-						<TableRow>
-							<TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
-								Loading transactions...
-							</TableCell>
-						</TableRow>
-					) : transactions.length === 0 ? (
-						<TableRow>
-							<TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
-								No transactions found
-							</TableCell>
-						</TableRow>
-					) : (
+					<TableBody>
+						{isLoading ? (
+							<TableRow>
+								<TableCell
+									colSpan={8}
+									className='text-center py-8 text-muted-foreground'
+								>
+									Loading transactions...
+								</TableCell>
+							</TableRow>
+						) : transactions.length === 0 ? (
+							<TableRow>
+								<TableCell
+									colSpan={8}
+									className='text-center py-8 text-muted-foreground'
+								>
+									No transactions found
+								</TableCell>
+							</TableRow>
+						) : (
 							transactions.map((transaction) => (
 								<TableRow key={transaction._id} className='hover:bg-muted/50'>
+									<TableCell className='text-sm text-muted-foreground'>
+										{formatDate(new Date(transaction.createdAt))}
+									</TableCell>{' '}
 									<TableCell>
 										<div>
-											<div className='font-medium'>{transaction.clientId?.name || 'N/A'}</div>
-											<div className='text-sm text-muted-foreground'>
-												{transaction.clientId?.email}
+											<div className='font-medium'>
+												{transaction?.invoiceId?.invoiceNumber || 'N/A'}
 											</div>
 										</div>
 									</TableCell>
@@ -132,15 +139,9 @@ export default function TransactionsTable({
 										{transaction.paymentMethod || 'N/A'}
 									</TableCell>
 									<TableCell>
-										<Badge className={getStatusColor(transaction.status as any)}>
-											{getStatusLabel(transaction.status as any)}
-										</Badge>
-									</TableCell>
-									<TableCell className='text-sm text-muted-foreground'>
-										{formatDate(new Date(transaction.createdAt))}
-									</TableCell>
-									<TableCell>
-										<div className='max-w-xs truncate'>{transaction.description}</div>
+										<div className='max-w-xs truncate'>
+											{transaction.description}
+										</div>
 									</TableCell>
 									<TableCell className='text-right'>
 										<div className='flex justify-end gap-2'>
@@ -174,7 +175,8 @@ export default function TransactionsTable({
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Transaction</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete this transaction? This action cannot be undone.
+							Are you sure you want to delete this transaction? This action
+							cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<div className='flex justify-end gap-3'>

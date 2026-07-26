@@ -30,23 +30,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Invoice } from '../invoice-management/InvoicesTable';
-
-interface DailyService {
-	_id: string;
-	serviceId: string;
-	serviceTitle: string;
-	serviceCost: number;
-	serviceStatus: string;
-	linkedClientId?: {
-		_id: string;
-		name: string;
-		phone: string;
-		email: string;
-	};
-	passportNo: string;
-	createdDate: string;
-	invoiceId?: string;
-}
+import { DailyService } from './DailyServicesList';
 
 interface DailyServicesTableProps {
 	services: DailyService[];

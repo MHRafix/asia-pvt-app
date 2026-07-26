@@ -21,14 +21,23 @@ export interface DailyService {
 	serviceId: string;
 	serviceTitle: string;
 	serviceCost: number;
-	serviceStatus: string;
+	serviceStatus: any;
 	linkedClientId?: {
 		_id: string;
 		name: string;
 		phone: string;
 		email: string;
 	};
+
+	assignedEmployeeId: {
+		_id: string;
+		name: string;
+	};
 	passportNo: string;
+	serviceRefId: {
+		_id: string;
+		name: string;
+	};
 	serviceDescription?: string;
 	createdDate: string;
 }

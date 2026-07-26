@@ -34,24 +34,7 @@ import { Loader } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-
-interface DailyService {
-	_id: string;
-	serviceId: string;
-	serviceTitle: string;
-	serviceDescription?: string;
-	serviceCost: number;
-	serviceStatus:
-		| 'pending'
-		| 'in_progress'
-		| 'completed'
-		| 'cancelled'
-		| 'on_hold';
-	linkedClientId?: string;
-	serviceRefId: string;
-	assignedEmployeeId?: string;
-	passportNo?: string;
-}
+import { DailyService } from './DailyServicesList';
 
 interface DailyServiceFormDialogProps {
 	open: boolean;
@@ -90,18 +73,16 @@ export default function DailyServiceFormDialog({
 	});
 
 	useEffect(() => {
+		console.log(form.getValues());
 		if (service) {
-			form.reset({
-				linkedClientId: service.linkedClientId || '',
-				assignedEmployeeId: service.assignedEmployeeId || '',
-				serviceTitle: service.serviceTitle,
-				serviceDescription: service.serviceDescription || '',
-				serviceCost: service.serviceCost,
-				serviceStatus: service.serviceStatus,
-				notes: '',
-				serviceRefId: service?.serviceRefId || '',
-				passportNo: service?.passportNo || '',
-			});
+			form.setValue('serviceTitle', service?.serviceTitle);
+			form.setValue('linkedClientId', service?.linkedClientId?._id!);
+			form.setValue('assignedEmployeeId', service?.assignedEmployeeId?._id);
+			form.setValue('serviceDescription', service?.serviceDescription!);
+			form.setValue('serviceCost', service?.serviceCost);
+			form.setValue('serviceStatus', service?.serviceStatus);
+			form.setValue('serviceRefId', service?.serviceRefId?._id);
+			form.setValue('passportNo', service?.passportNo);
 		} else {
 			form.reset({
 				linkedClientId: '',
@@ -114,7 +95,7 @@ export default function DailyServiceFormDialog({
 				serviceRefId: '',
 			});
 		}
-	}, [service, form]);
+	}, [service]);
 
 	const onSubmit = async (data: DailyServiceFormData) => {
 		try {
@@ -178,7 +159,10 @@ export default function DailyServiceFormDialog({
 								render={({ field }) => (
 									<FormItem className='col-span-1'>
 										<FormLabel>Select Service *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={form.watch('serviceRefId')}
+										>
 											<FormControl>
 												<SelectTrigger className='w-full'>
 													<SelectValue placeholder='Select a service' />
@@ -255,7 +239,10 @@ export default function DailyServiceFormDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Assign employee *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={form.watch('assignedEmployeeId')}
+										>
 											<FormControl>
 												<SelectTrigger className='w-full'>
 													<SelectValue placeholder='Select an employee' />
@@ -279,7 +266,10 @@ export default function DailyServiceFormDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Select Client *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={form.watch('linkedClientId')}
+										>
 											<FormControl>
 												<SelectTrigger className='w-full'>
 													<SelectValue placeholder='Select a client' />

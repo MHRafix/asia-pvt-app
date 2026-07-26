@@ -1,5 +1,4 @@
 import { connectDB } from '@/lib/db/connection';
-import { Client } from '@/lib/models/Client';
 import { ClientTransaction } from '@/lib/models/ClientTransaction';
 import { Invoice } from '@/lib/models/Invoice';
 import { calculateInvoiceStatus } from '@/lib/utils/invoiceUtils';
@@ -31,17 +30,12 @@ export async function GET(request: NextRequest) {
 			query.type = type;
 		}
 
-		if (clientId) {
-			query.clientId = clientId;
-		}
-
 		if (invoiceId) {
 			query.invoiceId = invoiceId;
 		}
 
 		const [transactions, total] = await Promise.all([
 			ClientTransaction.find(query)
-				.populate('clientId', 'name email phone company')
 				.populate('invoiceId', 'invoiceNumber')
 				.sort({ createdAt: -1 })
 				.skip(skip)
@@ -95,7 +89,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-	console.log('object');
 	try {
 		await connectDB();
 
@@ -125,25 +118,14 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Verify client exists
-		const clientExists = await Client.findById(validationResult.data.clientId);
-
-		if (!clientExists) {
-			return NextResponse.json(
-				{ success: false, error: 'Client not found' },
-				{ status: 404 },
-			);
-		}
-
 		// Create transaction
-		const transaction = await ClientTransaction.create({
-			clientId: validationResult.data.clientId,
+		await ClientTransaction.create({
 			type: validationResult?.data?.type,
-			description: validationResult?.data?.description,
 			transactionId: validationResult?.data?.transactionId,
 			invoiceId: validationResult?.data?.invoiceId,
 			amount: validationResult.data.amount,
 			paymentMethod: validationResult.data.paymentMethod,
+			description: validationResult?.data?.description,
 		});
 
 		// Update invoice with transaction link and calculate new status
@@ -160,25 +142,15 @@ export async function POST(request: NextRequest) {
 			},
 			{ new: true },
 		).populate([
-			{ path: 'clientId', select: 'name email phone company' },
 			{
 				path: 'linkedServiceId',
 				select: 'serviceTitle serviceCost serviceStatus',
 			},
 		]);
 
-		const populatedTransaction = await transaction.populate(
-			'clientId',
-			'name email phone company',
-		);
-
 		return NextResponse.json(
 			{
 				success: true,
-				data: {
-					transaction: populatedTransaction,
-					invoice: updatedInvoice,
-				},
 			},
 			{ status: 201 },
 		);

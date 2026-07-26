@@ -181,27 +181,10 @@ export default function TransactionsPage() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value='all'>All Types</SelectItem>
-								<SelectItem value='Payment'>Payment</SelectItem>
-								<SelectItem value='Refund'>Refund</SelectItem>
-								<SelectItem value='Adjustment'>Adjustment</SelectItem>
-								<SelectItem value='Credit'>Credit</SelectItem>
-							</SelectContent>
-						</Select>
-						<Select
-							value={statusFilter}
-							onValueChange={(value) => {
-								setStatusFilter(value);
-								setPage(1);
-							}}
-						>
-							<SelectTrigger className='w-full md:w-48'>
-								<SelectValue placeholder='Status' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='all'>All Status</SelectItem>
-								<SelectItem value='completed'>Completed</SelectItem>
-								<SelectItem value='pending'>Pending</SelectItem>
-								<SelectItem value='failed'>Failed</SelectItem>
+								<SelectItem value='payment'>Payment</SelectItem>
+								<SelectItem value='refund'>Refund</SelectItem>
+								<SelectItem value='adjustment'>Adjustment</SelectItem>
+								<SelectItem value='credit'>Credit</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

@@ -82,7 +82,6 @@ export const invoiceSchema = z.object({
 export const paymentTransactionSchema = z.object({
 	transactionId: z.string().optional(),
 	invoiceId: z.string().min(1, 'Invoice ID is required'),
-	clientId: z.string().min(1, 'Client ID is required'),
 	type: z
 		.enum(['payment', 'refund', 'adjustment', 'credit'])
 		.default('payment'),

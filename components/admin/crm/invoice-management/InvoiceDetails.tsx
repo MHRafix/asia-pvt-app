@@ -2,10 +2,17 @@
 
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/utils/formatting';
-import { CheckCircle2, Loader, Printer, ReceiptText } from 'lucide-react';
+import {
+	BanknoteArrowUp,
+	CheckCircle2,
+	Loader,
+	Printer,
+	ReceiptText,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import TransactionFormDialog from '../transactions/TransactionFormDialog';
 import { Invoice } from './InvoicesTable';
 
 interface Transaction {
@@ -90,7 +97,6 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 		<div className='bg-gray-100 py-10'>
 			<div className='mx-auto w-[250mm] min-h-[297Documentationmm] bg-white shadow-2xl'>
 				{/* Header */}
-
 				<div className='border-b'>
 					<div className='flex justify-between items-start px-12 pt-10'>
 						<div>
@@ -112,7 +118,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 								<p>
 									<span className='font-semibold'>Date</span>{' '}
-									{/* {formatDate(new Date(invoice?.createdAt!))} */}
+									{formatDate(new Date(invoice?.createdAt!))}
 								</p>
 							</div>
 						</div>
@@ -120,9 +126,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 					<div className='mt-8 h-3 bg-red-600' />
 				</div>
-
 				{/* Client & Service */}
-
 				<div className='grid grid-cols-2 gap-8 px-12 py-10'>
 					{/* Client */}
 
@@ -180,9 +184,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 						</div>
 					</div>
 				</div>
-
 				{/* Payment List */}
-
 				<div className='px-12'>
 					<h3 className='text-xl font-semibold text-red-600 mb-4'>
 						Payment History
@@ -274,9 +276,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 						</div>
 					</div>
 				</div>
-
 				{/* Bottom */}
-
 				<div className='flex justify-between px-12 mt-12'>
 					<div className='w-1/2'>
 						<h4 className='font-semibold mb-2'>Terms & Conditions</h4>
@@ -328,20 +328,30 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							</div>
 						</div>
 
-						<div className='mt-5 bg-red-600 text-white rounded-lg p-4'>
-							<div className='flex justify-between items-center'>
-								<span className='font-medium'>Outstanding Balance</span>
+						{invoice?.status === 'paid' ? (
+							<div className='mt-5 bg-green-600 text-white rounded-lg p-4'>
+								<div className='flex justify-between items-center'>
+									<span className='font-bold font-mono'>Invoice Paid</span>
 
-								<span className='text-2xl font-mono font-bold'>
-									{formatCurrency(invoice?.dueAmount!).replace('BDT', '৳')}
-								</span>
+									<span className='text-2xl font-mono font-bold'>
+										{formatCurrency(invoice?.paidAmount!).replace('BDT', '৳')}
+									</span>
+								</div>
 							</div>
-						</div>
+						) : (
+							<div className='mt-5 bg-red-600 text-white rounded-lg p-4'>
+								<div className='flex justify-between items-center'>
+									<span className='font-medium'>Outstanding Balance</span>
+
+									<span className='text-2xl font-mono font-bold'>
+										{formatCurrency(invoice?.dueAmount!).replace('BDT', '৳')}
+									</span>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
-
 				{/* Footer */}
-
 				<div className='mt-20 px-12 pb-10'>
 					<div className='border-t pt-6 flex justify-between items-end'>
 						<div className='text-sm text-gray-500'>
@@ -353,7 +363,16 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							<Button variant={'destructive'}>
 								{' '}
 								<Printer className='w-4 h-4' /> Print
-							</Button>
+							</Button>{' '}
+							{invoice?.status !== 'paid' && (
+								<Button
+									variant={'secondary'}
+									onClick={() => setShowPaymentDialog(true)}
+								>
+									{' '}
+									<BanknoteArrowUp className='w-4 h-4' /> Pay now
+								</Button>
+							)}
 						</div>
 
 						<div className='text-center'>
@@ -362,7 +381,17 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							<p className='text-sm'>Authorized Signature</p>
 						</div>
 					</div>
-				</div>
+				</div>{' '}
+				<TransactionFormDialog
+					open={showPaymentDialog}
+					onOpenChange={setShowPaymentDialog}
+					onSuccess={() => {
+						fetchTransactions();
+						fetchInvoiceDetails();
+					}}
+					invoiceId={invoice?._id}
+					amount={invoice?.grandTotal! - invoice?.paidAmount!}
+				/>
 			</div>
 		</div>
 	);
