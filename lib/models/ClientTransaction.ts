@@ -2,6 +2,7 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 
 export interface IClientTransaction extends Document {
 	invoiceId: Types.ObjectId;
+	clientId: Types.ObjectId;
 	transactionId?: string;
 	description?: string;
 	type: 'payment' | 'refund' | 'adjustment' | 'credit';
@@ -17,6 +18,12 @@ const ClientTransactionSchema = new Schema<IClientTransaction>(
 			type: Schema.Types.ObjectId,
 			ref: 'Invoice',
 			required: [true, 'Invoice is required'],
+		},
+
+		clientId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Client',
+			required: [true, 'Client is required'],
 		},
 
 		transactionId: {

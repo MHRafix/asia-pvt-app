@@ -34,9 +34,14 @@ export async function GET(request: NextRequest) {
 			query.invoiceId = invoiceId;
 		}
 
+		if (clientId) {
+			query.clientId = clientId;
+		}
+
 		const [transactions, total] = await Promise.all([
 			ClientTransaction.find(query)
 				.populate('invoiceId', 'invoiceNumber')
+				.populate('clientId', 'name email phone')
 				.sort({ createdAt: -1 })
 				.skip(skip)
 				.limit(limit),
@@ -94,8 +99,14 @@ export async function POST(request: NextRequest) {
 
 		const body = await request.json();
 
+		// Verify invoice exists
+		const invoice = await Invoice.findById(body.invoiceId);
+
 		// Validate with Zod
-		const validationResult = paymentTransactionSchema.safeParse(body);
+		const validationResult = paymentTransactionSchema.safeParse({
+			...body,
+			clientId: invoice?.clientId.toString(),
+		});
 
 		if (!validationResult.success) {
 			return NextResponse.json(
@@ -107,9 +118,6 @@ export async function POST(request: NextRequest) {
 				{ status: 400 },
 			);
 		}
-
-		// Verify invoice exists
-		const invoice = await Invoice.findById(validationResult.data.invoiceId);
 
 		if (!invoice) {
 			return NextResponse.json(
@@ -123,6 +131,7 @@ export async function POST(request: NextRequest) {
 			type: validationResult?.data?.type,
 			transactionId: validationResult?.data?.transactionId,
 			invoiceId: validationResult?.data?.invoiceId,
+			clientId: invoice?.clientId,
 			amount: validationResult.data.amount,
 			paymentMethod: validationResult.data.paymentMethod,
 			description: validationResult?.data?.description,

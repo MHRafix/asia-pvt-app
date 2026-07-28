@@ -13,7 +13,6 @@ import {
 	MapPin,
 	Package,
 	Phone,
-	Plus,
 	Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -22,6 +21,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { DailyService } from '../daily-services/DailyServicesList';
 import DailyServicesTable from '../daily-services/DailyServicesTable';
+import TransactionsTable from '../transactions/TransactionsTable';
 import ClientFormDialog from './ClientFormDialog';
 
 interface Client {
@@ -65,16 +65,12 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 	const [activities, setActivities] = useState<DailyService[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
-	const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
-	const [activityDialogOpen, setActivityDialogOpen] = useState(false);
 
 	useEffect(() => {
 		fetchClientData();
-	}, [clientId]);
-
-	useEffect(() => {
 		fetchServices();
-	}, []);
+		fetchTransactionsByClient();
+	}, [clientId]);
 
 	const fetchClientData = async () => {
 		try {
@@ -116,7 +112,25 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 		}
 	};
 
-	console.log({ activities });
+	const fetchTransactionsByClient = async () => {
+		try {
+			const response = await fetch(
+				`/api/payment/transactions/client/${clientId}`,
+			);
+			const result = await response.json();
+
+			if (result.success) {
+				setTransactions(result.data);
+			} else {
+				toast.error(result.error || 'Failed to fetch transactions');
+			}
+		} catch (error) {
+			console.error('Error fetching transactions:', error);
+			toast.error('Failed to fetch transactions');
+		} finally {
+			// setIsLoading(false);
+		}
+	};
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -355,14 +369,6 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 					<Card className='border-0 shadow-soft'>
 						<CardHeader className='flex flex-row items-center justify-between'>
 							<CardTitle className='text-lg'>Recent Transactions</CardTitle>
-							<Button
-								size='sm'
-								onClick={() => setTransactionDialogOpen(true)}
-								className='gap-2'
-							>
-								<Plus className='w-4 h-4' />
-								Add Transaction
-							</Button>
 						</CardHeader>
 						<CardContent>
 							{transactions.length === 0 ? (
@@ -370,56 +376,11 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 									No transactions yet
 								</p>
 							) : (
-								<div className='space-y-3'>
-									{transactions.slice(0, 5).map((transaction) => (
-										<div
-											key={transaction._id}
-											className='flex items-center justify-between p-3 rounded-lg bg-muted/50'
-										>
-											<div className='flex items-center gap-3'>
-												<Badge
-													className={getTransactionColor(transaction.type)}
-												>
-													{transaction.type}
-												</Badge>
-												<div>
-													<p className='font-medium'>
-														{transaction.description}
-													</p>
-													<p className='text-sm text-muted-foreground'>
-														{formatDate(transaction.createdAt)}
-													</p>
-												</div>
-											</div>
-											<div className='text-right'>
-												<p
-													className={`font-semibold ${
-														transaction.type === 'payment'
-															? 'text-green-600'
-															: transaction.type === 'refund'
-																? 'text-red-600'
-																: 'text-foreground'
-													}`}
-												>
-													{transaction.type === 'payment' ? '-' : '+'}
-													{formatCurrency(Math.abs(transaction.amount))}
-												</p>
-												<Badge
-													variant='outline'
-													className={
-														transaction.status === 'completed'
-															? 'border-green-500 text-green-600'
-															: transaction.status === 'cancelled'
-																? 'border-red-500 text-red-600'
-																: 'border-amber-500 text-amber-600'
-													}
-												>
-													{transaction.status}
-												</Badge>
-											</div>
-										</div>
-									))}
-								</div>
+								<TransactionsTable
+									transactions={transactions}
+									onRefresh={() => {}}
+									isLoading={loading}
+								/>
 							)}
 						</CardContent>
 					</Card>
@@ -429,72 +390,13 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 					<Card className='border-0 shadow-soft'>
 						<CardHeader className='flex flex-row items-center justify-between'>
 							<CardTitle className='text-lg'>All Transactions</CardTitle>
-							<Button
-								size='sm'
-								onClick={() => setTransactionDialogOpen(true)}
-								className='gap-2'
-							>
-								<Plus className='w-4 h-4' />
-								Add Transaction
-							</Button>
 						</CardHeader>
 						<CardContent>
-							{transactions.length === 0 ? (
-								<p className='text-muted-foreground text-center py-8'>
-									No transactions yet
-								</p>
-							) : (
-								<div className='space-y-3'>
-									{transactions.map((transaction) => (
-										<div
-											key={transaction._id}
-											className='flex items-center justify-between p-3 rounded-lg bg-muted/50'
-										>
-											<div className='flex items-center gap-3'>
-												<Badge
-													className={getTransactionColor(transaction.type)}
-												>
-													{transaction.type}
-												</Badge>
-												<div>
-													<p className='font-medium'>
-														{transaction.description}
-													</p>
-													<p className='text-sm text-muted-foreground'>
-														{formatDate(transaction.createdAt)}
-													</p>
-												</div>
-											</div>
-											<div className='text-right'>
-												<p
-													className={`font-semibold ${
-														transaction.type === 'payment'
-															? 'text-green-600'
-															: transaction.type === 'refund'
-																? 'text-red-600'
-																: 'text-foreground'
-													}`}
-												>
-													{transaction.type === 'payment' ? '-' : '+'}
-													{formatCurrency(Math.abs(transaction.amount))}
-												</p>
-												<Badge
-													variant='outline'
-													className={
-														transaction.status === 'completed'
-															? 'border-green-500 text-green-600'
-															: transaction.status === 'cancelled'
-																? 'border-red-500 text-red-600'
-																: 'border-amber-500 text-amber-600'
-													}
-												>
-													{transaction.status}
-												</Badge>
-											</div>
-										</div>
-									))}
-								</div>
-							)}
+							<TransactionsTable
+								transactions={transactions}
+								onRefresh={() => {}}
+								isLoading={loading}
+							/>
 						</CardContent>
 					</Card>
 				</TabsContent>
@@ -505,14 +407,6 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 							<CardTitle className='text-lg'>
 								Taken Services ({activities?.length})
 							</CardTitle>
-							<Button
-								size='sm'
-								onClick={() => setActivityDialogOpen(true)}
-								className='gap-2'
-							>
-								<Plus className='w-4 h-4' />
-								Add Service
-							</Button>
 						</CardHeader>
 						<CardContent>
 							{activities.length === 0 ? (

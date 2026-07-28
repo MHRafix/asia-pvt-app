@@ -10,7 +10,6 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
 	Table,
 	TableBody,
@@ -20,7 +19,6 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { formatCurrency, formatDate } from '@/lib/utils/formatting';
-import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -94,7 +92,6 @@ export default function TransactionsTable({
 							<TableHead>Amount</TableHead>
 							<TableHead>Method</TableHead>
 							<TableHead>Description</TableHead>
-							<TableHead className='text-right'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -135,32 +132,12 @@ export default function TransactionsTable({
 									<TableCell className='font-semibold'>
 										{formatCurrency(transaction.amount)}
 									</TableCell>
-									<TableCell className='capitalize'>
+									<TableCell className='capitalize font-mono font-semibold'>
 										{transaction.paymentMethod || 'N/A'}
 									</TableCell>
 									<TableCell>
 										<div className='max-w-xs truncate'>
-											{transaction.description}
-										</div>
-									</TableCell>
-									<TableCell className='text-right'>
-										<div className='flex justify-end gap-2'>
-											{onEdit && (
-												<Button
-													variant='ghost'
-													size='sm'
-													onClick={() => onEdit(transaction)}
-												>
-													<Edit className='w-4 h-4' />
-												</Button>
-											)}
-											<Button
-												variant='ghost'
-												size='sm'
-												onClick={() => setDeleteId(transaction._id)}
-											>
-												<Trash2 className='w-4 h-4 text-red-500' />
-											</Button>
+											{transaction.description || 'N/A'}
 										</div>
 									</TableCell>
 								</TableRow>
