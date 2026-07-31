@@ -9,23 +9,6 @@ export const metadata: Metadata = {
 	description:
 		'Discover and book amazing travel packages to destinations around the world',
 	generator: '',
-	icons: {
-		// icon: [
-		// 	{
-		// 		url: '/icon-light-32x32.png',
-		// 		media: '(prefers-color-scheme: light)',
-		// 	},
-		// 	{
-		// 		url: '/icon-dark-32x32.png',
-		// 		media: '(prefers-color-scheme: dark)',
-		// 	},
-		// 	{
-		// 		url: '/icon.svg',
-		// 		type: 'image/svg+xml',
-		// 	},
-		// ],
-		// apple: '/apple-icon.png',
-	},
 };
 
 export const viewport: Viewport = {
@@ -49,24 +32,17 @@ export default function RootLayout({
 			<head>
 				<Script id='gtm' strategy='afterInteractive'>
 					{`
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-N39CGPBV');
+           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="https://asia.asiapvt.com/5bzvrbnni.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','b75h=AApTJSY7VyxaVy0lIjQsRB9TXExDUB4MVA8dCxMGDBZHDQEP');
           `}
 				</Script>
 			</head>
 			<body className='font-sans antialiased'>
 				<noscript>
 					<iframe
-						src='https://www.googletagmanager.com/ns.html?id=GTM-N39CGPBV'
+						src='https://asia.asiapvt.com/ns.html?id=GTM-N39CGPBV'
 						height='0'
 						width='0'
-						style={{
-							display: 'none',
-							visibility: 'hidden',
-						}}
+						style={{ display: 'none', visibility: 'hidden' }}
 					></iframe>
 				</noscript>
 				<AuthProvider>

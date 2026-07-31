@@ -77,7 +77,6 @@ export default function ServiceTracking() {
 				toast.error(data.error || 'Service not found');
 			}
 		} catch (error) {
-			console.error('Error searching service:', error);
 			setError('Failed to search service');
 			setResult(null);
 			toast.error('Failed to search service');
