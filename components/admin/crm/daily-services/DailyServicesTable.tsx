@@ -214,8 +214,8 @@ const TableBodyRow = ({
 					{service.passportNo || 'N/A'}
 				</div>
 			</TableCell>
-			<TableCell className='font-semibold'>
-				{formatCurrency(service.serviceCost)}
+			<TableCell className='font-semibold font-mono'>
+				{formatCurrency(service.serviceCost).replace('BDT', '৳')}
 			</TableCell>
 			<TableCell>
 				<Badge className={getStatusColor(service.serviceStatus as any)}>

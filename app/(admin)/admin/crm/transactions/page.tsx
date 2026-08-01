@@ -164,7 +164,10 @@ export default function TransactionsPage() {
 									<p className='text-sm text-gray-500'>Transaction Received</p>
 
 									<p className='truncate text-xl font-semibold text-black'>
-										{formatCurrency(stats?.totalAmount!)}
+										{formatCurrency(stats?.totalAmount! || 0).replace(
+											'BDT',
+											'৳',
+										)}
 									</p>
 								</div>
 							</div>

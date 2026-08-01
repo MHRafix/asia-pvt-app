@@ -129,8 +129,8 @@ export default function TransactionsTable({
 									<TableCell className='capitalize'>
 										<Badge variant='outline'>{transaction.type}</Badge>
 									</TableCell>
-									<TableCell className='font-semibold'>
-										{formatCurrency(transaction.amount)}
+									<TableCell className='font-mono font-semibold'>
+										{formatCurrency(transaction.amount).replace('BDT', '৳')}
 									</TableCell>
 									<TableCell className='capitalize font-mono font-semibold'>
 										{transaction.paymentMethod || 'N/A'}

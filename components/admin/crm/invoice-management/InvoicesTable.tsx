@@ -155,14 +155,14 @@ export default function InvoicesTable({
 											{getStatusLabel(invoice.status as any)}
 										</Badge>
 									</TableCell>
-									<TableCell className='font-semibold text-primary'>
-										{formatCurrency(invoice.dueAmount)}
+									<TableCell className='font-mono font-semibold text-primary'>
+										{formatCurrency(invoice.dueAmount).replace('BDT', '৳')}
 									</TableCell>
-									<TableCell className='font-semibold text-green-700'>
-										{formatCurrency(invoice.paidAmount)}
+									<TableCell className='font-mono font-semibold text-green-700'>
+										{formatCurrency(invoice.paidAmount).replace('BDT', '৳')}
 									</TableCell>
-									<TableCell className='font-semibold'>
-										{formatCurrency(invoice.grandTotal)}
+									<TableCell className='font-mono font-semibold'>
+										{formatCurrency(invoice.grandTotal).replace('BDT', '৳')}
 									</TableCell>
 									<TableCell className='text-sm text-muted-foreground'>
 										{formatDateOnly(
