@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		if (status && status !== 'all') {
-			query.transactionStatus = status;
+			query.status = status;
 		}
 
 		if (clientId) {
@@ -62,13 +62,34 @@ export async function GET(request: NextRequest) {
 					paidInvoices: {
 						$sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] },
 					},
-					pendingInvoices: {
+					dueInvoices: {
 						$sum: { $cond: [{ $eq: ['$status', 'due'] }, 1, 0] },
 					},
 					partialInvoices: {
 						$sum: { $cond: [{ $eq: ['$status', 'partial'] }, 1, 0] },
 					},
 					totalAmount: { $sum: '$grandTotal' },
+					paidAmount: {
+						$sum: {
+							$cond: [{ $eq: ['$status', 'paid'] }, '$paidAmount', 0],
+						},
+					},
+					dueAmount: {
+						$sum: {
+							$cond: [{ $eq: ['$status', 'due'] }, '$dueAmount', 0],
+						},
+					},
+					partialPaidAmount: {
+						$sum: {
+							$cond: [{ $eq: ['$status', 'partial'] }, '$paidAmount', 0],
+						},
+					},
+
+					partialDueAmount: {
+						$sum: {
+							$cond: [{ $eq: ['$status', 'partial'] }, '$dueAmount', 0],
+						},
+					},
 				},
 			},
 		]);
@@ -78,8 +99,9 @@ export async function GET(request: NextRequest) {
 			data: invoices,
 			stats: stats[0] || {
 				totalInvoices: 0,
+				paidAmount: 0,
 				paidInvoices: 0,
-				pendingInvoices: 0,
+				dueInvoices: 0,
 				partialInvoices: 0,
 				totalAmount: 0,
 			},

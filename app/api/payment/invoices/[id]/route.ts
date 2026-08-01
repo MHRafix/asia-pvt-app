@@ -12,10 +12,10 @@ export async function GET(
 
 		const invoice = await Invoice.findById(id).populate([
 			{ path: 'clientId', select: 'name email phone company' },
-			// {
-			// 	path: 'linkedServiceId',
-			// 	select: 'serviceTitle',
-			// },
+			{
+				path: 'linkedServiceId',
+				select: 'serviceTitle',
+			},
 		]);
 
 		if (!invoice) {

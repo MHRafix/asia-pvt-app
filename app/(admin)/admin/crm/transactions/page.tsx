@@ -13,7 +13,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { formatCurrency } from '@/lib/utils/formatting';
-import { Plus, Search } from 'lucide-react';
+import { ArrowLeftRight, Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -107,86 +107,68 @@ export default function TransactionsPage() {
 				</Button>
 			</div>
 
-			{/* Stats */}
-			{stats && (
-				<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Total Transactions
-							</p>
-							<p className='text-2xl font-bold mt-2'>
-								{stats.totalTransactions}
-							</p>
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Total Amount
-							</p>
-							<p className='text-2xl font-bold mt-2 text-green-600'>
-								{formatCurrency(stats.totalAmount)}
-							</p>
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Successful
-							</p>
-							<p className='text-2xl font-bold mt-2'>
-								{stats.successfulTransactions}
-							</p>
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Failed
-							</p>
-							<p className='text-2xl font-bold mt-2 text-red-600'>
-								{stats.failedTransactions}
-							</p>
-						</CardContent>
-					</Card>
-				</div>
-			)}
-
 			{/* Filters */}
 			<Card className='border-0 shadow-soft'>
-				<CardContent className='p-6'>
-					<div className='flex flex-col gap-4 md:flex-row md:items-center md:gap-4'>
-						<div className='relative flex-1 max-w-md'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
-							<Input
-								placeholder='Search transactions...'
-								value={search}
-								onChange={(e) => {
-									setSearch(e.target.value);
+				<CardContent className='px-4 py-2'>
+					<div className='grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center'>
+						{/* Left Side */}
+						<div className='flex flex-col md:flex-row gap-3 w-full'>
+							<div className='relative flex-1'>
+								<Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+
+								<Input
+									placeholder='Search transactions...'
+									value={search}
+									onChange={(e) => {
+										setSearch(e.target.value);
+										setPage(1);
+									}}
+									className='pl-10 w-full'
+								/>
+							</div>
+
+							<Select
+								value={typeFilter}
+								onValueChange={(value) => {
+									setTypeFilter(value);
 									setPage(1);
 								}}
-								className='pl-10'
-							/>
+							>
+								<SelectTrigger className='w-full md:w-56 shrink-0'>
+									<SelectValue placeholder='Transaction Type' />
+								</SelectTrigger>
+
+								<SelectContent>
+									<SelectItem value='all'>All Types</SelectItem>
+									<SelectItem value='payment'>Payment</SelectItem>
+									<SelectItem value='refund'>Refund</SelectItem>
+									<SelectItem value='adjustment'>Adjustment</SelectItem>
+									<SelectItem value='credit'>Credit</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
-						<Select
-							value={typeFilter}
-							onValueChange={(value) => {
-								setTypeFilter(value);
-								setPage(1);
-							}}
-						>
-							<SelectTrigger className='w-full md:w-48'>
-								<SelectValue placeholder='Transaction Type' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='all'>All Types</SelectItem>
-								<SelectItem value='payment'>Payment</SelectItem>
-								<SelectItem value='refund'>Refund</SelectItem>
-								<SelectItem value='adjustment'>Adjustment</SelectItem>
-								<SelectItem value='credit'>Credit</SelectItem>
-							</SelectContent>
-						</Select>
+
+						{/* Right Side */}
+						<div className='w-full lg:w-80'>
+							<div className='flex items-center gap-4 rounded-xl border border-green-400 bg-white px-5 py-5'>
+								<div
+									className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full'
+									style={{ backgroundColor: 'rgba(74, 222, 128, 0.12)' }}
+								>
+									<span className='text-green-500'>
+										<ArrowLeftRight size={22} />
+									</span>
+								</div>
+
+								<div className='min-w-0'>
+									<p className='text-sm text-gray-500'>Transaction Received</p>
+
+									<p className='truncate text-xl font-semibold text-black'>
+										{formatCurrency(stats?.totalAmount!)}
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</CardContent>
 			</Card>

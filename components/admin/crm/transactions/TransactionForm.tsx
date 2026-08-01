@@ -53,8 +53,7 @@ export default function TransactionForm({
 			type: 'payment',
 			amount: undefined,
 			paymentMethod: 'cash',
-			notes: '',
-			date: new Date().toDateString(),
+			description: '',
 		},
 	});
 
@@ -178,7 +177,7 @@ export default function TransactionForm({
 
 				<FormField
 					control={form.control}
-					name='notes'
+					name='description'
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Notes (Optional)</FormLabel>

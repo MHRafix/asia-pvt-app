@@ -133,7 +133,7 @@ export default function TransactionFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className='max-w-3xl overflow-y-auto'>
+			<DialogContent className='!max-w-4xl overflow-y-auto'>
 				<DialogHeader>
 					<DialogTitle>Add New Transaction</DialogTitle>
 					<DialogDescription>

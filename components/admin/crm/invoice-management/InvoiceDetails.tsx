@@ -102,7 +102,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 	}
 
 	return (
-		<div className='bg-gray-100 py-5'>
+		<div className='py-5'>
 			<div className='mx-auto w-[250mm] min-h-[297Documentationmm] bg-white shadow-2xl'>
 				<div ref={printRef}>
 					{/* Header */}

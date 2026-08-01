@@ -14,17 +14,27 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { formatCurrency } from '@/lib/utils/formatting';
-import { Plus, Search } from 'lucide-react';
+import {
+	CheckCircle,
+	Clock3,
+	PieChart,
+	Plus,
+	Search,
+	Wallet,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface Stats {
 	totalInvoices: number;
 	paidInvoices: number;
-	pendingInvoices: number;
+	dueInvoices: number;
 	partialInvoices: number;
 	totalAmount?: number;
 	paidAmount?: number;
+	dueAmount: number;
+	partialPaidAmount: number;
+	partialDueAmount: number;
 }
 
 export default function AdminInvoicesPage() {
@@ -87,50 +97,85 @@ export default function AdminInvoicesPage() {
 			{/* Stats */}
 			{stats && (
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Total Invoices
-							</p>
+					<div className='flex items-center gap-4 rounded-xl border border-green-400 bg-white px-4 py-2'>
+						<div
+							className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full'
+							style={{ backgroundColor: 'rgba(74, 222, 128, 0.12)' }}
+						>
+							<span className='text-green-500'>
+								<Wallet size={22} />
+							</span>
+						</div>
+
+						<div className='min-w-0'>
+							<p className='text-sm text-gray-500'>Total Invoices</p>{' '}
 							<p className='text-2xl font-bold mt-2'>{stats.totalInvoices}</p>
-							{stats.totalAmount && (
-								<p className='text-sm text-muted-foreground font-semibold mt-1'>
-									{formatCurrency(stats.totalAmount)}
-								</p>
-							)}
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>Paid</p>
-							<p className='text-2xl font-bold mt-2 text-green-600'>
-								{stats.paidInvoices}
+							<p className='truncate text-lg font-mono font-semibold text-black'>
+								{formatCurrency(stats?.totalAmount!).replace('BDT', '৳')}
 							</p>
-							{stats.paidAmount && (
-								<p className='text-sm text-green-600 mt-1'>
-									{formatCurrency(stats.paidAmount)}
-								</p>
-							)}
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>Due</p>
-							<p className='text-2xl font-bold mt-2 text-primary'>
-								{stats.pendingInvoices}
+						</div>
+					</div>
+					<div className='flex items-center gap-4 rounded-xl border border-green-400 bg-white px-5 py-5'>
+						<div
+							className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full'
+							style={{ backgroundColor: 'rgba(74, 222, 128, 0.12)' }}
+						>
+							<span className='text-green-500'>
+								<CheckCircle size={22} />
+							</span>
+						</div>
+
+						<div className='min-w-0'>
+							<p className='text-sm text-gray-500'>Paid</p>{' '}
+							<p className='text-2xl font-bold mt-2'>{stats.paidInvoices}</p>
+							<p className='truncate text-lg font-mono font-semibold text-green-500'>
+								{formatCurrency(stats?.paidAmount! || 0).replace('BDT', '৳')}
 							</p>
-						</CardContent>
-					</Card>
-					<Card className='border-0 shadow-soft'>
-						<CardContent className='p-6'>
-							<p className='text-sm font-medium text-muted-foreground'>
-								Partial
+						</div>
+					</div>
+
+					<div className='flex items-center gap-4 rounded-xl border border-red-400 bg-white px-5 py-5'>
+						<div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100'>
+							<span className='text-red-500'>
+								<Clock3 size={22} />
+							</span>
+						</div>
+
+						<div className='min-w-0 font-mono font-semibold'>
+							<p className='text-sm text-gray-500'>Due</p>{' '}
+							<p className='text-2xl font-bold mt-2'>{stats.dueInvoices}</p>
+							<p className='truncate text-lg c text-red-500'>
+								{formatCurrency(stats?.dueAmount! || 0).replace('BDT', '৳')}
 							</p>
-							<p className='text-2xl font-bold mt-2 text-blue-600'>
-								{stats.partialInvoices}
+						</div>
+					</div>
+
+					<div className='flex items-center gap-4 rounded-xl border border-orange-400 bg-white px-5 py-5'>
+						<div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-100'>
+							<span className='text-orange-500'>
+								<PieChart size={22} />
+							</span>
+						</div>
+
+						<div className='min-w-0 font-mono font-semibold'>
+							<p className='text-sm text-gray-500'>Partial</p>{' '}
+							<p className='text-2xl font-bold mt-2'>{stats.partialInvoices}</p>
+							<p className='truncate text-lg font-semibold text-orange-500'>
+								<span className='text-green-500'>
+									{' '}
+									{formatCurrency(stats?.partialPaidAmount! || 0).replace(
+										'BDT',
+										'৳',
+									)}
+								</span>{' '}
+								-{' '}
+								{formatCurrency(stats?.partialDueAmount! || 0).replace(
+									'BDT',
+									'৳',
+								)}
 							</p>
-						</CardContent>
-					</Card>
+						</div>
+					</div>
 				</div>
 			)}
 
@@ -165,8 +210,6 @@ export default function AdminInvoicesPage() {
 								<SelectItem value='paid'>Paid</SelectItem>
 								<SelectItem value='due'>Due</SelectItem>
 								<SelectItem value='partial'>Partial</SelectItem>
-								<SelectItem value='failed'>Failed</SelectItem>
-								<SelectItem value='refunded'>Refunded</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
