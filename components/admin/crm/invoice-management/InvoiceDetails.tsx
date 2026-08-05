@@ -119,18 +119,21 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							</div>
 
 							<div className='text-right'>
-								<h2 className='text-5xl font-light tracking-widest uppercase'>
+								<h2 className='text-5xl font-mono font-semibold tracking-widest uppercase'>
 									Invoice
 								</h2>
 
 								<div className='mt-5 text-sm space-y-1'>
 									<p className='font-mono text-sm font-semibold'>
-										<span className='font-semibold'>Invoice Number:</span>
+										<span className='font-semibold mr-2'>Invoice Number:</span>
 										{invoice?.invoiceNumber}
+									</p>{' '}
+									<p className='font-mono text-sm font-semibold'>
+										<span className='font-semibold mr-2'>Service ID:</span>
+										{invoice?.linkedServiceId?.serviceId}
 									</p>
-
 									<p>
-										<span className='font-semibold'>Date</span>{' '}
+										<span className='font-semibold mr-2'>Date: </span>{' '}
 										{formatDate(new Date(invoice?.createdAt!))}
 									</p>
 								</div>
@@ -172,7 +175,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 								<div className='flex items-center gap-2'>
 									<CheckCircle2 size={16} className='text-red-600' />
 									{invoice?.linkedServiceId?.serviceTitle || 'Visa Processing'}
-								</div>
+								</div>{' '}
 							</div>
 						</div>
 					</div>
@@ -275,8 +278,8 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 
 						<div className='ml-auto mx-2'>
 							<div className='space-y-3'>
-								<div className='flex justify-between'>
-									<span>Sub Total (service cost)</span>
+								<div className='flex justify-between font-mono'>
+									<span>Sub Total</span>
 									<span>
 										{formatCurrency(invoice?.subTotal!).replace('BDT', '৳')}
 									</span>
@@ -316,9 +319,8 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							{invoice?.status === 'paid' ? (
 								<div className='mt-5 bg-green-600 text-white rounded-lg p-4'>
 									<div className='flex justify-between items-center'>
-										<span className='font-bold font-mono'>Invoice Paid</span>
-
-										<span className='text-2xl font-mono font-bold'>
+										<span className='font-bold font-mono'>Invoice Paid:</span>
+										<span className='ml-2 text-2xl font-mono font-semibold'>
 											{formatCurrency(invoice?.paidAmount!).replace('BDT', '৳')}
 										</span>
 									</div>
@@ -326,9 +328,9 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							) : (
 								<div className='mt-5 bg-red-600 text-white rounded-lg p-4'>
 									<div className='flex justify-between items-center'>
-										<span className='font-medium'>Outstanding Balance</span>
+										<span className='font-medium'>Outstanding Balance:</span>
 
-										<span className='text-2xl font-mono font-bold'>
+										<span className='ml-2 text-2xl font-mono font-bold'>
 											{formatCurrency(invoice?.dueAmount!).replace('BDT', '৳')}
 										</span>
 									</div>
