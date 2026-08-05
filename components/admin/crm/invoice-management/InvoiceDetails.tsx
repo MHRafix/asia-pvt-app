@@ -263,7 +263,7 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 						<div className='grid h-full'>
 							<div className='self-start'>
 								<QRCodeTracking
-									url={`${process.env.NEXT_PUBLIC_APP_URL}/service-tracking/${invoice?.linkedServiceId?.serviceId}`}
+									url={`${process.env.NEXT_PUBLIC_APP_URL}/service-tracking?serviceId=${invoice?.linkedServiceId?.serviceId}`}
 								/>
 							</div>
 
