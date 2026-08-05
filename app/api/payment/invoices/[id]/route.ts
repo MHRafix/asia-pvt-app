@@ -14,7 +14,7 @@ export async function GET(
 			{ path: 'clientId', select: 'name email phone company' },
 			{
 				path: 'linkedServiceId',
-				select: 'serviceTitle',
+				select: 'serviceTitle serviceId',
 			},
 		]);
 

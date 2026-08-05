@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { useReactToPrint } from 'react-to-print';
 import TransactionFormDialog from '../transactions/TransactionFormDialog';
 import { Invoice } from './InvoicesTable';
+import QRCodeTracking from './QRCodeTracking';
 
 interface Transaction {
 	_id: string;
@@ -258,16 +259,21 @@ export default function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
 							</div>
 						</div>
 					</div>
-					{/* Bottom */}
-					<div className='flex justify-between px-12 mt-12 items-end'>
-						<div className='flex items-center gap-5 justify-between'>
-							<div className='text-center'>
-								<div className='w-52 border-t mb-2' />
+					<div className='grid grid-cols-2 justify-between px-12 mt-12 items-start'>
+						<div className='grid h-full'>
+							<div className='self-start'>
+								<QRCodeTracking
+									url={`${process.env.NEXT_PUBLIC_APP_URL}/service-tracking/${invoice?.linkedServiceId?.serviceId}`}
+								/>
+							</div>
 
+							<div className='self-end text-center w-45'>
+								<div className='border-t mb-2' />
 								<p className='text-sm'>Authorized Signature</p>
 							</div>
 						</div>
-						<div className='w-80'>
+
+						<div className='ml-auto mx-2'>
 							<div className='space-y-3'>
 								<div className='flex justify-between'>
 									<span>Sub Total (service cost)</span>

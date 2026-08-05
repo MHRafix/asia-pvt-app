@@ -51,6 +51,7 @@ export interface Invoice {
 	linkedServiceId?: {
 		_id: string;
 		serviceTitle: string;
+		serviceId: string;
 	};
 	createdAt: string;
 }

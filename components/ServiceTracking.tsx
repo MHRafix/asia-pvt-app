@@ -1,7 +1,6 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,7 +10,8 @@ import {
 	getStatusLabel,
 } from '@/lib/utils/formatting';
 import { AlertCircle, Loader, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface ServiceData {
@@ -49,15 +49,25 @@ interface ServiceData {
 }
 
 export default function ServiceTracking() {
-	const [serviceId, setServiceId] = useState('');
+	const searchParams = useSearchParams();
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [result, setResult] = useState<ServiceData | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [serviceId, setServiceId] = useState(
+		searchParams.get('serviceId') || '',
+	);
+
+	useEffect(() => {
+		if (serviceId) {
+			fetchService();
+		}
+	}, []);
 
 	const handleSearch = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!serviceId.trim()) {
+		if (!serviceId) {
 			toast.error('Please enter a service ID');
 			return;
 		}
@@ -65,8 +75,14 @@ export default function ServiceTracking() {
 		setIsLoading(true);
 		setError(null);
 
+		fetchService();
+	};
+
+	const fetchService = async () => {
 		try {
-			const response = await fetch(`/api/crm/service-tracking/${serviceId}`);
+			const response = await fetch(
+				`/api/crm/service-tracking?serviceId=${serviceId}`,
+			);
 			const data = await response.json();
 
 			if (data.success) {
@@ -84,7 +100,6 @@ export default function ServiceTracking() {
 			setIsLoading(false);
 		}
 	};
-
 	return (
 		<div className='space-y-8'>
 			<div className='text-center'>
@@ -94,21 +109,24 @@ export default function ServiceTracking() {
 				</p>
 			</div>
 
-			<div className='max-w-2xl mx-auto'>
+			<div className='max-w-4xl mx-auto'>
 				<form onSubmit={handleSearch} className='flex gap-2'>
 					<Input
-						placeholder='Enter service ID (e.g., AB123)'
+						placeholder='Enter service ID: 3MGUY'
 						value={serviceId}
 						onChange={(e) => setServiceId(e.target.value.toUpperCase())}
 						className='flex-1 text-lg'
 						disabled={isLoading}
-						// maxLength={5}
+						required
 					/>
-					<Button type='submit' disabled={isLoading} className='gap-2'>
+					<button
+						type='submit'
+						disabled={isLoading}
+						className='flex gap-2 items-center bg-primary text-white rounded-md p-3'
+					>
 						{isLoading ? (
 							<>
 								<Loader className='w-4 h-4 animate-spin' />
-								Searching...
 							</>
 						) : (
 							<>
@@ -116,12 +134,12 @@ export default function ServiceTracking() {
 								Search
 							</>
 						)}
-					</Button>
+					</button>
 				</form>
 			</div>
 
 			{error && (
-				<Card className='border-red-200 bg-red-50 p-6 max-w-2xl mx-auto'>
+				<Card className='border-red-200 bg-red-50 p-6 mx-auto'>
 					<div className='flex items-start gap-3'>
 						<AlertCircle className='w-5 h-5 text-red-600 mt-0.5' />
 						<p className='text-red-800'>{error}</p>
@@ -244,41 +262,6 @@ export default function ServiceTracking() {
 									</p>
 								</div>
 							</div>
-						</Card>
-					)}
-
-					{/* Activity Timeline */}
-					{result.activities.length > 0 && (
-						<Card className='p-6'>
-							<h3 className='text-lg font-semibold mb-4'>Activity Timeline</h3>
-							<div className='space-y-4'>
-								{result.activities.map((activity) => (
-									<div
-										key={activity._id}
-										className='border-l-2 border-muted pl-4'
-									>
-										<div className='flex items-start justify-between gap-4'>
-											<div className='flex-1'>
-												<p className='font-semibold'>{activity.title}</p>
-												{activity.description && (
-													<p className='text-sm text-muted-foreground mt-1'>
-														{activity.description}
-													</p>
-												)}
-											</div>
-											<p className='text-xs text-muted-foreground whitespace-nowrap'>
-												{formatDate(new Date(activity.createdAt))}
-											</p>
-										</div>
-									</div>
-								))}
-							</div>
-						</Card>
-					)}
-
-					{result.activities.length === 0 && (
-						<Card className='p-6 text-center text-muted-foreground'>
-							No activity history available
 						</Card>
 					)}
 				</div>
