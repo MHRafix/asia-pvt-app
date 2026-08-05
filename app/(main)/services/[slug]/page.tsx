@@ -147,7 +147,7 @@ const ServiceDetail = () => {
 											key={f}
 											className='flex items-center gap-3 p-3 rounded-xl bg-primary/5'
 										>
-											<Check className='w-5 h-5 text-primary flex-shrink-0' />
+											<Check className='w-5 h-5 text-primary shrink-0' />
 											<span className='font-body text-foreground'>{f}</span>
 										</div>
 									))}

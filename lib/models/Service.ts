@@ -9,6 +9,7 @@ export interface IService extends Document {
 	process: { step: number; title: string; description: string }[];
 	createdAt: Date;
 	updatedAt: Date;
+	duration: any;
 }
 
 const ServiceSchema = new Schema<IService>(

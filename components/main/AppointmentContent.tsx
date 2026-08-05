@@ -44,7 +44,7 @@ type FormData = yup.InferType<typeof schema>;
 
 const AppointmentContent = () => {
 	const [packages, setPackages] = useState<TravelPackage[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [, setLoading] = useState(true);
 	const searchParams = useSearchParams();
 
 	const packageId = searchParams.get('package');
@@ -341,7 +341,7 @@ const AppointmentContent = () => {
 													href={`/services/${s.slug}`}
 													className='flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group'
 												>
-													<div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition-colors'>
+													<div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors'>
 														<ServiceIcon className='w-5 h-5 text-primary' />
 													</div>
 													<div>
