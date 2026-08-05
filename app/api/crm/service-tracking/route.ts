@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
+		console.log(serviceId);
+
 		// Search by service ID
 		const service = await DailyService.findOne({ serviceId })
 			.populate('linkedClientId', 'name email phone company')
