@@ -1,4 +1,7 @@
 import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import { Client } from './Client';
+import { Employee } from './Employee';
+import { Service } from './Service';
 
 export interface IDailyService extends Document {
 	serviceId: string; // 5-character unique ID
@@ -32,17 +35,17 @@ const DailyServiceSchema = new Schema<IDailyService>(
 		},
 		linkedClientId: {
 			type: Schema.Types.ObjectId,
-			ref: 'Client',
+			ref: Client.name,
 			required: [true, 'Client ID is required'],
 		},
 		assignedEmployeeId: {
 			type: Schema.Types.ObjectId,
-			ref: 'Employee',
+			ref: Employee.name,
 			required: [true, 'Employee ID is required'],
 		},
 		serviceRefId: {
 			type: Schema.Types.ObjectId,
-			ref: 'Service',
+			ref: Service.name,
 			required: [true, 'Service reference is required'],
 		},
 		serviceTitle: {
