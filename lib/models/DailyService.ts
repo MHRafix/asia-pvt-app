@@ -1,10 +1,7 @@
 import mongoose, { Document, Model, Schema, Types } from 'mongoose';
-import { Client } from './Client';
-import { Employee } from './Employee';
-import { Service } from './Service';
 
 export interface IDailyService extends Document {
-	serviceId: string; // 5-character unique ID
+	serviceId: string;
 	linkedClientId: Types.ObjectId;
 	assignedEmployeeId: Types.ObjectId;
 	serviceRefId: Types.ObjectId;
@@ -29,56 +26,67 @@ const DailyServiceSchema = new Schema<IDailyService>(
 	{
 		serviceId: {
 			type: String,
-			required: [true, 'Service ID is required'],
+			required: true,
 			unique: true,
 			index: true,
 		},
+
 		linkedClientId: {
 			type: Schema.Types.ObjectId,
-			ref: Client.name,
-			required: [true, 'Client ID is required'],
+			ref: 'Client',
+			required: true,
 		},
+
 		assignedEmployeeId: {
 			type: Schema.Types.ObjectId,
-			ref: Employee.name,
-			required: [true, 'Employee ID is required'],
+			ref: 'Employee',
+			required: true,
 		},
+
 		serviceRefId: {
 			type: Schema.Types.ObjectId,
-			ref: Service.name,
-			required: [true, 'Service reference is required'],
+			ref: 'Service',
+			required: true,
 		},
+
 		serviceTitle: {
 			type: String,
-			required: [true, 'Service title is required'],
+			required: true,
 			trim: true,
-			maxlength: [150, 'Service title cannot exceed 150 characters'],
+			maxlength: 150,
 		},
+
 		passportNo: {
 			type: String,
 		},
+
 		serviceDescription: {
 			type: String,
 			trim: true,
 		},
+
 		serviceCost: {
 			type: Number,
-			required: [true, 'Service cost is required'],
+			required: true,
 			default: 0,
 		},
+
 		serviceStatus: {
 			type: String,
 			enum: ['pending', 'in_progress', 'completed', 'cancelled', 'on_hold'],
 			default: 'pending',
 		},
+
 		createdDate: {
 			type: Date,
 			required: true,
 			default: Date.now,
 		},
+
 		completedDate: {
 			type: Date,
 		},
+
 		notes: {
 			type: String,
 		},
@@ -88,7 +96,6 @@ const DailyServiceSchema = new Schema<IDailyService>(
 	},
 );
 
-// Index for efficient queries
 DailyServiceSchema.index({ linkedClientId: 1, createdDate: -1 });
 DailyServiceSchema.index({ assignedEmployeeId: 1, serviceStatus: 1 });
 DailyServiceSchema.index({ serviceRefId: 1, serviceStatus: 1 });

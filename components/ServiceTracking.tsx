@@ -9,10 +9,11 @@ import {
 	getStatusColor,
 	getStatusLabel,
 } from '@/lib/utils/formatting';
-import { AlertCircle, Loader, Search } from 'lucide-react';
+import { Loader, Search } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import EmptyState from './common/visa/EmptyState';
 
 interface ServiceData {
 	service: {
@@ -53,7 +54,6 @@ export default function ServiceTracking() {
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [result, setResult] = useState<ServiceData | null>(null);
-	const [error, setError] = useState<string | null>(null);
 	const [serviceId, setServiceId] = useState(
 		searchParams.get('serviceId') || '',
 	);
@@ -73,12 +73,12 @@ export default function ServiceTracking() {
 		}
 
 		setIsLoading(true);
-		setError(null);
 
 		fetchService();
 	};
 
 	const fetchService = async () => {
+		setIsLoading(true);
 		try {
 			const response = await fetch(
 				`/api/crm/service-tracking?serviceId=${serviceId}`,
@@ -86,14 +86,15 @@ export default function ServiceTracking() {
 			const data = await response.json();
 
 			if (data.success) {
+				setIsLoading(false);
 				setResult(data.data);
 			} else {
-				setError(data.error || 'Service not found');
+				setIsLoading(false);
 				setResult(null);
 				toast.error(data.error || 'Service not found');
 			}
 		} catch (error) {
-			setError('Failed to search service');
+			setIsLoading(false);
 			setResult(null);
 			toast.error('Failed to search service');
 		} finally {
@@ -122,7 +123,7 @@ export default function ServiceTracking() {
 					<button
 						type='submit'
 						disabled={isLoading}
-						className='flex gap-2 items-center bg-primary text-white rounded-md p-3'
+						className='cursor-pointer flex gap-2 items-center bg-primary text-white rounded-md p-3'
 					>
 						{isLoading ? (
 							<>
@@ -136,136 +137,125 @@ export default function ServiceTracking() {
 						)}
 					</button>
 				</form>
-			</div>
-
-			{error && (
-				<Card className='border-red-200 bg-red-50 p-6 mx-auto'>
-					<div className='flex items-start gap-3'>
-						<AlertCircle className='w-5 h-5 text-red-600 mt-0.5' />
-						<p className='text-red-800'>{error}</p>
-					</div>
-				</Card>
-			)}
-
-			{result && (
-				<div className='max-w-4xl mx-auto space-y-6'>
-					{/* Service Card */}
-					<Card className='p-6'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>Service ID</p>
-								<p className='text-2xl font-mono font-bold'>
-									{result.service.serviceId}
-								</p>
-							</div>
-
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>Status</p>
-								<Badge
-									className={`text-base py-1 px-3 ${getStatusColor(result.service.serviceStatus as any)}`}
-								>
-									{getStatusLabel(result.service.serviceStatus as any)}
-								</Badge>
-							</div>
-
-							<div className='md:col-span-2'>
-								<p className='text-sm text-muted-foreground mb-2'>
-									Service Title
-								</p>
-								<p className='text-xl font-semibold'>
-									{result.service.serviceTitle}
-								</p>
-								{result.service.serviceDescription && (
-									<p className='text-muted-foreground mt-2'>
-										{result.service.serviceDescription}
-									</p>
-								)}
-							</div>
-
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>Cost</p>
-								<p className='text-xl font-bold'>
-									{formatCurrency(result.service.serviceCost)}
-								</p>
-							</div>
-
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>
-									Created Date
-								</p>
-								<p className='text-sm'>
-									{formatDate(new Date(result.service.createdDate))}
-								</p>
-							</div>
-
-							{result.service.completedDate && (
-								<div>
-									<p className='text-sm text-muted-foreground mb-1'>
-										Completed Date
-									</p>
-									<p className='text-sm'>
-										{formatDate(new Date(result.service.completedDate))}
-									</p>
-								</div>
-							)}
-						</div>
-					</Card>
-
-					{/* Client Information */}
-					{result.service.linkedClientId && (
-						<Card className='p-6'>
-							<h3 className='text-lg font-semibold mb-4'>Client Information</h3>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<div>
-									<p className='text-sm text-muted-foreground mb-1'>Name</p>
-									<p className='font-semibold'>
-										{result.service.linkedClientId.name}
-									</p>
-								</div>
-								<div>
-									<p className='text-sm text-muted-foreground mb-1'>Email</p>
-									<p className='text-sm'>
-										{result.service.linkedClientId.email}
-									</p>
-								</div>
-								<div>
-									<p className='text-sm text-muted-foreground mb-1'>Phone</p>
-									<p className='text-sm'>
-										{result.service.linkedClientId.phone}
-									</p>
-								</div>
-								{result.service.linkedClientId.company && (
-									<div>
-										<p className='text-sm text-muted-foreground mb-1'>
-											Company
-										</p>
-										<p className='text-sm'>
-											{result.service.linkedClientId.company}
-										</p>
+				<br /> <br />
+				{isLoading ? (
+					<Loader className='w-8 h-8 text-primary mt-20 animate-spin mx-auto' />
+				) : (
+					<>
+						{result && (
+							<div className='max-w-4xl mx-auto space-y-6'>
+								{/* Service Card */}
+								<Card className='p-6'>
+									<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+										<div>
+											<p className='text-sm text-muted-foreground mb-1'>
+												Service ID
+											</p>
+											<p className='text-2xl font-mono font-bold'>
+												{result.service.serviceId}
+											</p>
+										</div>
+										<div>
+											<p className='text-sm text-muted-foreground mb-2'>
+												Service Title
+											</p>
+											<p className='text-xl font-semibold'>
+												{result.service.serviceTitle}
+											</p>
+										</div>
+										<div>
+											<p className='text-sm text-muted-foreground mb-1'>
+												Amount
+											</p>
+											<p className='text-xl font-bold'>
+												{formatCurrency(result.service.serviceCost)}
+											</p>
+										</div>{' '}
+										<div>
+											<p className='text-sm text-muted-foreground mb-1'>
+												Status
+											</p>
+											<Badge
+												className={`text-base py-1 px-3 ${getStatusColor(result.service.serviceStatus as any)}`}
+											>
+												{getStatusLabel(result.service.serviceStatus as any)}
+											</Badge>
+										</div>
+										{result.service.completedDate && (
+											<div>
+												<p className='text-sm text-muted-foreground mb-1'>
+													Completed Date
+												</p>
+												<p className='text-sm'>
+													{formatDate(new Date(result.service.completedDate))}
+												</p>
+											</div>
+										)}
 									</div>
+								</Card>
+
+								{/* Client Information */}
+								{result.service.linkedClientId && (
+									<Card className='p-6'>
+										<h3 className='text-lg font-semibold'>
+											Client Information
+										</h3>
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+											<div>
+												<p className='text-sm text-muted-foreground mb-1'>
+													Name
+												</p>
+												<p className='font-semibold'>
+													{result.service.linkedClientId.name}
+												</p>
+											</div>
+											<div>
+												<p className='text-sm text-muted-foreground mb-1'>
+													Email
+												</p>
+												<p className='text-sm'>
+													{result.service.linkedClientId.email}
+												</p>
+											</div>
+											<div>
+												<p className='text-sm text-muted-foreground mb-1'>
+													Phone
+												</p>
+												<p className='text-sm'>
+													{result.service.linkedClientId.phone}
+												</p>
+											</div>
+										</div>
+									</Card>
+								)}
+
+								{/* Assigned Employee */}
+								{result.service.assignedEmployeeId && (
+									<Card className='p-6'>
+										<h3 className='text-lg font-semibold'>Assigned To</h3>
+										<div className='flex items-center gap-4'>
+											<div>
+												<p className='font-semibold'>
+													{result.service.assignedEmployeeId.name}
+												</p>
+												<p className='text-sm text-muted-foreground'>
+													{result.service.assignedEmployeeId.phone}
+												</p>
+											</div>
+										</div>
+									</Card>
 								)}
 							</div>
-						</Card>
-					)}
-
-					{/* Assigned Employee */}
-					{result.service.assignedEmployeeId && (
-						<Card className='p-6'>
-							<h3 className='text-lg font-semibold mb-4'>Assigned To</h3>
-							<div className='flex items-center gap-4'>
-								<div>
-									<p className='font-semibold'>
-										{result.service.assignedEmployeeId.name}
-									</p>
-									<p className='text-sm text-muted-foreground'>
-										{result.service.assignedEmployeeId.phone}
-									</p>
-								</div>
-							</div>
-						</Card>
-					)}
-				</div>
-			)}
+						)}
+					</>
+				)}
+				{!isLoading && !result?.service?._id && (
+					<EmptyState
+						title='No service found'
+						desc='Please check your service id'
+					/>
+				)}
+			</div>
 		</div>
 	);
 }

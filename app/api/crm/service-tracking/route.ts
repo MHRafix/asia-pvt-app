@@ -1,5 +1,7 @@
 import { connectDB } from '@/lib/db/connection';
+import { Client } from '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
+import { Employee } from '@/lib/models/Employee';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -18,22 +20,9 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		const service = await DailyService.findOne({ serviceId })
-			.select(
-				'serviceId serviceStatus createdAt serviceCost createdDate linkedClientId assignedEmployeeId',
-			)
-			.populate({
-				path: 'linkedClientId',
-				select: 'name email phone',
-			})
-			.populate({
-				path: 'assignedEmployeeId',
-				select: 'name phone',
-			})
-			.lean()
-			.exec();
+		const dailyService = await DailyService.findOne({ serviceId });
 
-		if (!service) {
+		if (!dailyService) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -43,11 +32,31 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
+		const employee = await Employee.findById(dailyService?.assignedEmployeeId);
+		const client = await Client.findById(dailyService?.linkedClientId);
+
 		return NextResponse.json(
 			{
 				success: true,
 				data: {
-					service,
+					service: {
+						_id: dailyService?._id,
+						serviceId: dailyService?.serviceId,
+						serviceTitle: dailyService?.serviceTitle,
+						passportNo: dailyService?.passportNo,
+						serviceCost: dailyService?.serviceCost,
+						serviceStatus: dailyService?.serviceStatus,
+						createdDate: '2026-07-28T18:08:06.225Z',
+						assignedEmployeeId: {
+							name: employee?.name,
+							phone: employee?.phone,
+						},
+						linkedClientId: {
+							name: client?.name,
+							phone: client?.phone,
+							email: client?.email,
+						},
+					},
 				},
 			},
 			{
