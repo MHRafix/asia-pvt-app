@@ -216,169 +216,162 @@ export default function ClientsList() {
 				</CardContent>
 			</Card>
 
-			{/* Table */}
-			<Card className='border-0 shadow-soft'>
-				<CardContent className='p-0'>
-					{loading ? (
-						<div className='text-center py-12 text-muted-foreground'>
-							Loading clients...
-						</div>
-					) : clients.length === 0 ? (
-						<div className='text-center py-12'>
-							<p className='text-muted-foreground'>No clients found</p>
-						</div>
-					) : (
-						<>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Client</TableHead>
-										<TableHead>Contact</TableHead>
-										<TableHead>Status</TableHead>
-										<TableHead className='text-right'>Balance</TableHead>
-										<TableHead className='text-right'>Total Spent</TableHead>
-										<TableHead className='text-right'>Services</TableHead>
-										<TableHead></TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{clients.map((client) => (
-										<TableRow key={client._id}>
-											<TableCell>
-												<div className='flex items-center gap-3'>
-													<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
-														<span className='text-sm font-semibold text-primary'>
-															{client.name.charAt(0).toUpperCase()}
-														</span>
-													</div>
-													<div>
-														<p className='font-medium text-foreground'>
-															{client.name}
-														</p>
-														{client.company && (
-															<p className='text-sm text-muted-foreground'>
-																{client.company}
-															</p>
-														)}
-													</div>
+			{loading ? (
+				<div className='text-center py-12 text-muted-foreground'>
+					Loading clients...
+				</div>
+			) : clients.length === 0 ? (
+				<div className='text-center py-12'>
+					<p className='text-muted-foreground'>No clients found</p>
+				</div>
+			) : (
+				<>
+					<div className='border rounded-lg overflow-hidden'>
+						<Table>
+							<TableHeader>
+								<TableRow className='bg-muted'>
+									<TableHead>Client</TableHead>
+									<TableHead>Contact</TableHead>
+									<TableHead>Status</TableHead>
+									<TableHead className='text-right'>Balance</TableHead>
+									<TableHead className='text-right'>Total Spent</TableHead>
+									<TableHead className='text-right'>Services</TableHead>
+									<TableHead></TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{clients.map((client) => (
+									<TableRow key={client._id} className='hover:bg-muted/50'>
+										<TableCell>
+											<div className='flex items-center gap-3'>
+												<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
+													<span className='text-sm font-semibold text-primary'>
+														{client.name.charAt(0).toUpperCase()}
+													</span>
 												</div>
-											</TableCell>
-											<TableCell>
 												<div>
-													<p className='text-sm'>{client.email}</p>
-													<p className='text-sm text-muted-foreground'>
-														{client.phone}
+													<p className='font-medium text-foreground'>
+														{client.name}
 													</p>
+													{client.company && (
+														<p className='text-sm text-muted-foreground'>
+															{client.company}
+														</p>
+													)}
 												</div>
-											</TableCell>
-											<TableCell>
-												<Badge className={getStatusColor(client.status)}>
-													{client.status}
-												</Badge>
-											</TableCell>
-											<TableCell className='text-right'>
-												<span
-													className={
-														client.balance > 0
-															? 'text-amber-600'
-															: 'text-green-600'
-													}
-												>
-													{formatCurrency(client.balance)}
-												</span>
-											</TableCell>
-											<TableCell className='text-right'>
-												{formatCurrency(client.totalSpent)}
-											</TableCell>
-											<TableCell className='text-right'>
-												{client.totalServices + client.totalPackages}
-											</TableCell>
-											<TableCell>
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant='ghost' size='icon'>
-															<MoreHorizontal className='w-4 h-4' />
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align='end'>
-														<Link href={`/admin/crm/clients/${client._id}`}>
-															<DropdownMenuItem>
-																<Eye className='w-4 h-4 mr-2' />
-																View Details
-															</DropdownMenuItem>
-														</Link>
-														<DropdownMenuItem
-															onClick={() => {
-																setEditingClient(client);
-																setDialogOpen(true);
-															}}
-														>
-															<Edit className='w-4 h-4 mr-2' />
-															Edit
+											</div>
+										</TableCell>
+										<TableCell>
+											<div>
+												<p className='text-sm'>{client.email}</p>
+												<p className='text-sm text-muted-foreground'>
+													{client.phone}
+												</p>
+											</div>
+										</TableCell>
+										<TableCell>
+											<Badge className={getStatusColor(client.status)}>
+												{client.status}
+											</Badge>
+										</TableCell>
+										<TableCell className='text-right'>
+											<span
+												className={
+													client.balance > 0
+														? 'text-amber-600'
+														: 'text-green-600'
+												}
+											>
+												{formatCurrency(client.balance)}
+											</span>
+										</TableCell>
+										<TableCell className='text-right'>
+											{formatCurrency(client.totalSpent)}
+										</TableCell>
+										<TableCell className='text-right'>
+											{client.totalServices + client.totalPackages}
+										</TableCell>
+										<TableCell>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant='ghost' size='icon'>
+														<MoreHorizontal className='w-4 h-4' />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align='end'>
+													<Link href={`/admin/crm/clients/${client._id}`}>
+														<DropdownMenuItem>
+															<Eye className='w-4 h-4 mr-2' />
+															View Details
 														</DropdownMenuItem>
-														<DropdownMenuItem
-															className='text-destructive'
-															onClick={() => {
-																setDeletingId(client._id);
-																setDeleteDialogOpen(true);
-															}}
-														>
-															<Trash2 className='w-4 h-4 mr-2' />
-															Delete
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-
-							{/* Pagination */}
-							{pagination.pages > 1 && (
-								<div className='flex items-center justify-between px-6 py-4 border-t border-border'>
-									<p className='text-sm text-muted-foreground'>
-										Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-										{Math.min(
-											pagination.page * pagination.limit,
-											pagination.total,
-										)}{' '}
-										of {pagination.total} clients
-									</p>
-									<div className='flex items-center gap-2'>
-										<Button
-											variant='outline'
-											size='icon'
-											onClick={() =>
-												setPagination((prev) => ({
-													...prev,
-													page: prev.page - 1,
-												}))
-											}
-											disabled={pagination.page === 1}
-										>
-											<ChevronLeft className='w-4 h-4' />
-										</Button>
-										<Button
-											variant='outline'
-											size='icon'
-											onClick={() =>
-												setPagination((prev) => ({
-													...prev,
-													page: prev.page + 1,
-												}))
-											}
-											disabled={pagination.page === pagination.pages}
-										>
-											<ChevronRight className='w-4 h-4' />
-										</Button>
-									</div>
-								</div>
-							)}
-						</>
+													</Link>
+													<DropdownMenuItem
+														onClick={() => {
+															setEditingClient(client);
+															setDialogOpen(true);
+														}}
+													>
+														<Edit className='w-4 h-4 mr-2' />
+														Edit
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														className='text-destructive'
+														onClick={() => {
+															setDeletingId(client._id);
+															setDeleteDialogOpen(true);
+														}}
+													>
+														<Trash2 className='w-4 h-4 mr-2' />
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
+					{/* Pagination */}
+					{pagination.pages > 1 && (
+						<div className='flex items-center justify-between px-6 py-4 border-t border-border'>
+							<p className='text-sm text-muted-foreground'>
+								Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+								{Math.min(pagination.page * pagination.limit, pagination.total)}{' '}
+								of {pagination.total} clients
+							</p>
+							<div className='flex items-center gap-2'>
+								<Button
+									variant='outline'
+									size='icon'
+									onClick={() =>
+										setPagination((prev) => ({
+											...prev,
+											page: prev.page - 1,
+										}))
+									}
+									disabled={pagination.page === 1}
+								>
+									<ChevronLeft className='w-4 h-4' />
+								</Button>
+								<Button
+									variant='outline'
+									size='icon'
+									onClick={() =>
+										setPagination((prev) => ({
+											...prev,
+											page: prev.page + 1,
+										}))
+									}
+									disabled={pagination.page === pagination.pages}
+								>
+									<ChevronRight className='w-4 h-4' />
+								</Button>
+							</div>
+						</div>
 					)}
-				</CardContent>
-			</Card>
+				</>
+			)}
 
 			{/* Client Form Dialog */}
 			<ClientFormDialog

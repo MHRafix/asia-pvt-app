@@ -10,9 +10,8 @@ export default function MainLayout({
 }) {
 	return (
 		<>
-			<Navbar /> <br />
-			<br />
-			{children}
+			<Navbar />
+			<div className='mt-20'>{children}</div>
 			<Footer />
 			<Toaster position='top-right' />
 			{process.env.NODE_ENV === 'production' && <Analytics />}
