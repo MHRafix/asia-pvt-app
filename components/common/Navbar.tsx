@@ -111,7 +111,7 @@ export function Navbar() {
 						>
 							Book Now
 						</Button>
-						{user?.role !== 'user' && (
+						{(user?.role === 'employee' || user?.role === 'admin') && (
 							<Button
 								variant='ghost'
 								size='sm'
@@ -166,7 +166,7 @@ export function Navbar() {
 										<LogOut className='w-4 h-4' />
 										Logout
 									</Button>{' '}
-									{user?.role !== 'user' && (
+									{(user?.role === 'employee' || user?.role === 'admin') && (
 										<Button
 											variant='ghost'
 											size='sm'
