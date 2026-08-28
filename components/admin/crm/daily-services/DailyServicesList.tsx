@@ -33,6 +33,12 @@ export interface DailyService {
 		_id: string;
 		name: string;
 	};
+	createdBy?: {
+		_id: string;
+		name: string;
+		email: string;
+		phone: string;
+	};
 	passportNo: string;
 	serviceRefId: {
 		_id: string;

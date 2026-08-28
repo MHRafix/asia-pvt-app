@@ -24,6 +24,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/lib/auth/AuthContext';
 import { Service } from '@/lib/types';
 import {
 	dailyServiceSchema,
@@ -55,6 +56,8 @@ export default function DailyServiceFormDialog({
 	service,
 	asiaServices,
 }: DailyServiceFormDialogProps) {
+	const { user } = useAuth();
+
 	const isEditing = !!service;
 
 	const form = useForm<DailyServiceFormData>({
@@ -107,7 +110,7 @@ export default function DailyServiceFormDialog({
 			const response = await fetch(url, {
 				method,
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data),
+				body: JSON.stringify({ ...data, createdBy: user?.id! || '' }),
 			});
 
 			const result = await response.json();
