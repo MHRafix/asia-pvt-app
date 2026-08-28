@@ -53,6 +53,7 @@ const navItems = [
 		],
 	},
 	{ label: 'Employees', href: '/admin/employees', icon: UserCog },
+		{ label: 'Users', href: '/admin/users', icon: Users },
 	{ label: 'Packages', href: '/admin/packages', icon: Blocks },
 	{ label: 'Services', href: '/admin/services', icon: Combine },
 	{ label: 'Blog', href: '/admin/blog', icon: FileText },
