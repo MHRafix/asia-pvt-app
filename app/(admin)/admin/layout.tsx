@@ -53,7 +53,7 @@ const navItems = [
 		],
 	},
 	{ label: 'Employees', href: '/admin/employees', icon: UserCog },
-		{ label: 'Users', href: '/admin/users', icon: Users },
+	{ label: 'Users', href: '/admin/users', icon: Users },
 	{ label: 'Packages', href: '/admin/packages', icon: Blocks },
 	{ label: 'Services', href: '/admin/services', icon: Combine },
 	{ label: 'Blog', href: '/admin/blog', icon: FileText },
@@ -74,7 +74,7 @@ export default function AdminLayout({
 	const [expandedMenus, setExpandedMenus] = useState<string[]>(['CRM']);
 
 	useEffect(() => {
-		if (!isLoading && (!user || user.role !== 'admin')) {
+		if (!isLoading && (!user || user.role === 'user')) {
 			router.push('/');
 		}
 	}, [user, isLoading, router]);
@@ -101,7 +101,7 @@ export default function AdminLayout({
 		);
 	}
 
-	if (!user || user.role !== 'admin') {
+	if (!user || user.role === 'user') {
 		return null;
 	}
 
