@@ -45,12 +45,14 @@ export async function GET(request: NextRequest) {
 				.populate('linkedClientId', 'name email phone company')
 				.populate('assignedEmployeeId', 'name email')
 				.populate('serviceRefId', 'title')
+				.populate('createdBy', 'name email phone')
 				.sort({ createdDate: -1 })
 				.skip(skip)
 				.limit(limit),
 			DailyService.countDocuments(query),
 		]);
 
+		console.log({ services });
 		// Get stats
 		const stats = await DailyService.aggregate([
 			{

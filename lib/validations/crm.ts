@@ -50,6 +50,7 @@ export const clientTransactionSchema = z.object({
 export const dailyServiceSchema = z.object({
 	linkedClientId: z.string().min(1, 'Client ID is required'),
 	assignedEmployeeId: z.string().min(1, 'Must have to assign employee'),
+	createdBy: z.string().optional(),
 	serviceTitle: z
 		.string()
 		.min(1, 'Service title is required')

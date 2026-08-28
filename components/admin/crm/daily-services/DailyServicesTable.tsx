@@ -111,9 +111,10 @@ export default function DailyServicesTable({
 							<TableHead>Service ID</TableHead>
 							<TableHead>Title</TableHead>
 							<TableHead>Client</TableHead>
+							<TableHead>Created By</TableHead>
 							<TableHead>Cost</TableHead>
 							<TableHead>Status</TableHead>
-							<TableHead>Created</TableHead>
+							<TableHead>Created At</TableHead>
 							<TableHead className='text-right w-32'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -212,6 +213,12 @@ const TableBodyRow = ({
 					<p>{service.linkedClientId?.name || 'N/A'}</p>
 					<p>{service.linkedClientId?.phone || 'N/A'}</p>
 					{service.passportNo || 'N/A'}
+				</div>
+			</TableCell>{' '}
+			<TableCell>
+				<div>
+					<p>{service.createdBy?.name || 'N/A'}</p>
+					<p>{service.createdBy?.phone || 'N/A'}</p>
 				</div>
 			</TableCell>
 			<TableCell className='font-semibold font-mono'>

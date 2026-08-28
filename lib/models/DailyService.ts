@@ -4,6 +4,7 @@ export interface IDailyService extends Document {
 	serviceId: string;
 	linkedClientId: Types.ObjectId;
 	assignedEmployeeId: Types.ObjectId;
+	createdBy: Types.ObjectId;
 	serviceRefId: Types.ObjectId;
 	serviceTitle: string;
 	serviceDescription?: string;
@@ -41,6 +42,12 @@ const DailyServiceSchema = new Schema<IDailyService>(
 			type: Schema.Types.ObjectId,
 			ref: 'Employee',
 			required: true,
+		},
+
+		createdBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: false,
 		},
 
 		serviceRefId: {
