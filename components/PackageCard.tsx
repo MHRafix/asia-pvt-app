@@ -20,7 +20,7 @@ interface PackageCardProps {
 	price: number;
 	discountedPrice?: number;
 	duration: number;
-	difficulty: 'Easy' | 'Moderate' | 'Hard';
+	difficulty: 'Easy' | 'moderator' | 'Hard';
 	maxGroupSize?: number;
 	rating: number;
 	reviewCount: number;
@@ -43,7 +43,7 @@ export function PackageCard({
 }: PackageCardProps) {
 	const difficultyColors = {
 		Easy: 'bg-green-100 text-green-800',
-		Moderate: 'bg-yellow-100 text-yellow-800',
+		moderator: 'bg-yellow-100 text-yellow-800',
 		Hard: 'bg-red-100 text-red-800',
 	};
 

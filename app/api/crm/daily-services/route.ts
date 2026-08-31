@@ -1,4 +1,5 @@
 import { connectDB } from '@/lib/db/connection';
+import { sendMail } from '@/lib/mail-service/mail';
 import { Client } from '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
 import { Employee } from '@/lib/models/Employee';
@@ -52,7 +53,6 @@ export async function GET(request: NextRequest) {
 			DailyService.countDocuments(query),
 		]);
 
-		console.log({ services });
 		// Get stats
 		const stats = await DailyService.aggregate([
 			{
@@ -151,6 +151,41 @@ export async function POST(request: NextRequest) {
 			serviceId,
 			// serviceRefId: '6a2ad6540ca520dad963be9a',
 		});
+
+		await sendMail(
+			clientExists?.email,
+			`You booked a new service: ${validationResult?.data?.serviceTitle}`,
+			`<div>
+		
+				<div>
+		<h1 style="
+				margin:0;
+				font-size:30px;
+				color:#111827;
+				font-weight:700;
+		">
+				Service Booked
+		</h1>
+		
+		<p style="
+				margin:15px 0 0;
+				color:#6b7280;
+				font-size:16px;
+				line-height:1.8;
+		">
+				Hey <strong>${clientExists?.name}</strong>,
+				<br><br>
+				Thank you for choosing our service. Your service has been successfully booked. Currently your service is <strong style="color: blue;">in-progress</strong>, we'll complete it as soon as possible.
+		</p>
+		
+		<p style="color: blue;">Thank You</p>
+		<strong style="color: #ccc;">Team Asia Tours</strong>
+		
+				</div>
+		
+		</div>
+		`,
+		);
 
 		// Update client's total services count
 		await Client.findByIdAndUpdate(validationResult.data.linkedClientId, {

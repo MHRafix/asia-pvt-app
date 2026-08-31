@@ -23,7 +23,7 @@ export const userUpdateSchema = z.object({
 		.string()
 		.regex(/^[+]?[\d\s-()]+$/)
 		.optional(),
-	role: z.enum(['admin', 'user', 'employee']).optional(),
+	role: z.enum(['admin', 'user', 'moderator', 'employee']).optional(),
 });
 
 export type UserProfileFormData = z.infer<typeof userProfileSchema>;

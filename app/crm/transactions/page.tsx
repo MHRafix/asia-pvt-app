@@ -1,6 +1,6 @@
 'use client';
 
-import TransactionsTable from '@/components/admin/crm/transactions/TransactionsTable';
+import TransactionsTable from '@/components/dashboard/crm/transactions/TransactionsTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

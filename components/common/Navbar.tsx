@@ -111,11 +111,13 @@ export function Navbar() {
 						>
 							Book Now
 						</Button>
-						{(user?.role === 'employee' || user?.role === 'admin') && (
+						{(user?.role === 'employee' ||
+							user?.role === 'admin' ||
+							user?.role === 'moderator') && (
 							<Button
 								variant='ghost'
 								size='sm'
-								onClick={() => router.push('/admin')}
+								onClick={() => router.push('/dashboard')}
 							>
 								<LayoutGrid className='w-4 h-4' />
 								Dashboard
@@ -166,11 +168,13 @@ export function Navbar() {
 										<LogOut className='w-4 h-4' />
 										Logout
 									</Button>{' '}
-									{(user?.role === 'employee' || user?.role === 'admin') && (
+									{(user?.role === 'employee' ||
+										user?.role === 'admin' ||
+										user?.role === 'moderator') && (
 										<Button
 											variant='ghost'
 											size='sm'
-											onClick={() => router.push('/admin')}
+											onClick={() => router.push('/dashboard')}
 										>
 											<LayoutGrid className='w-4 h-4' />
 											Dashboard
