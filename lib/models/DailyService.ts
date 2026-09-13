@@ -1,4 +1,6 @@
 import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import './Client';
+import './Employee';
 
 export interface IDailyService extends Document {
 	serviceId: string;
