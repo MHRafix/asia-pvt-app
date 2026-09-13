@@ -127,8 +127,8 @@ export default function TransactionForm({
 							<FormControl>
 								<Input
 									type='number'
-									step='0.01'
 									placeholder='0.00'
+									max={invoiceAmount}
 									{...field}
 									onChange={(e) =>
 										field.onChange(parseFloat(e.target.value) || 0)

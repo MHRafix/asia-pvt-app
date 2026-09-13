@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+import '@/lib/models/index';
+
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 declare global {

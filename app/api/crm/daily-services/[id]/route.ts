@@ -4,6 +4,9 @@ import { DailyService } from '@/lib/models/DailyService';
 import { dailyServiceSchema } from '@/lib/validations/crm';
 import { NextRequest, NextResponse } from 'next/server';
 
+import '@/lib/models/Client';
+import '@/lib/models/Employee';
+
 export async function GET(
 	request: NextRequest,
 	{ params }: { params: { id: string } },

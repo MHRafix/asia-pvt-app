@@ -1,5 +1,7 @@
 import { connectDB } from '@/lib/db/connection';
+import '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
+import '@/lib/models/Employee';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 

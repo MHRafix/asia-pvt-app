@@ -98,7 +98,7 @@ const ClientSchema = new Schema<IClient>(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 // Index for search

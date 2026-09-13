@@ -76,7 +76,6 @@ export default function DailyServiceFormDialog({
 	});
 
 	useEffect(() => {
-		console.log(form.getValues());
 		if (service) {
 			form.setValue('serviceTitle', service?.serviceTitle);
 			form.setValue('linkedClientId', service?.linkedClientId?._id!);
