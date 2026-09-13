@@ -8,13 +8,12 @@ import { dailyServiceSchema } from '@/lib/validations/crm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
+	await connectDB();
 	try {
-		await connectDB();
-
 		const { searchParams } = new URL(request.url);
 		const search = searchParams.get('search') || '';
 		const status = searchParams.get('status') || '';
-		const clientId = searchParams.get('clientId') || '';
+		const clientPhone = searchParams.get('clientPhone') || '';
 		const employeeId = searchParams.get('employeeId') || '';
 		const page = parseInt(searchParams.get('page') || '1');
 		const limit = parseInt(searchParams.get('limit') || '20');
@@ -33,20 +32,16 @@ export async function GET(request: NextRequest) {
 			query.serviceStatus = status;
 		}
 
-		if (clientId) {
-			query.linkedClientId = clientId;
-		}
-
 		if (employeeId) {
 			query.assignedEmployeeId = employeeId;
 		}
 
 		const [services, total] = await Promise.all([
 			DailyService.find(query)
-				.populate('linkedClientId', 'name email phone company')
-				.populate('assignedEmployeeId', 'name email')
+				.populate('linkedClientId', 'name email phone')
+				.populate('assignedEmployeeId', 'name phone')
 				.populate('serviceRefId', 'title')
-				.populate('createdBy', 'name email phone')
+				.populate('createdBy', 'name')
 				.sort({ createdDate: -1 })
 				.skip(skip)
 				.limit(limit),
@@ -75,7 +70,12 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
-			data: services,
+			data: clientPhone
+				? services?.filter(
+						// @ts-ignore
+						(service) => service?.linkedClientId?.phone.includes(clientPhone),
+					)
+				: services,
 			stats: stats[0] || {
 				totalServices: 0,
 				pendingServices: 0,
@@ -193,8 +193,8 @@ export async function POST(request: NextRequest) {
 		});
 
 		const populatedService = await service.populate([
-			{ path: 'linkedClientId', select: 'name email phone company' },
-			{ path: 'assignedEmployeeId', select: 'name email' },
+			{ path: 'linkedClientId', select: 'name email phone' },
+			{ path: 'assignedEmployeeId', select: 'name phone' },
 			{
 				path: 'serviceRefId',
 				select: 'title',

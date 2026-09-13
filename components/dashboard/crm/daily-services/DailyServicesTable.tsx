@@ -9,8 +9,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -22,7 +28,6 @@ import {
 import {
 	formatCurrency,
 	formatDateOnly,
-	getStatusColor,
 	getStatusLabel,
 } from '@/lib/utils/formatting';
 import { Edit, FileInput, Loader, ReceiptText, Trash2 } from 'lucide-react';
@@ -112,6 +117,7 @@ export default function DailyServicesTable({
 							<TableHead>Title</TableHead>
 							<TableHead>Client</TableHead>
 							<TableHead>Created By</TableHead>
+							<TableHead>Assign Employee</TableHead>
 							<TableHead>Cost</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Created At</TableHead>
@@ -137,6 +143,7 @@ export default function DailyServicesTable({
 									onEdit={onEdit}
 									setDeleteId={setDeleteId}
 									service={service}
+									onRefresh={onRefresh}
 								/>
 							))
 						)}
@@ -175,6 +182,7 @@ interface TableRowPropType {
 	generatingInvoiceId: string;
 	onEdit: (service: DailyService) => void;
 	setDeleteId: (serviceId: string) => void;
+	onRefresh: CallableFunction;
 }
 const TableBodyRow = ({
 	service,
@@ -182,6 +190,7 @@ const TableBodyRow = ({
 	handleGenerateInvoice,
 	onEdit,
 	setDeleteId,
+	onRefresh,
 }: TableRowPropType) => {
 	const [isExist, setIsExist] = useState<boolean>(false);
 	const [invoice, setInvoice] = useState<Invoice>();
@@ -200,6 +209,38 @@ const TableBodyRow = ({
 		checkInvoiceAvailability();
 	}, [service?._id]);
 
+	const updateStatus = async (status: string) => {
+		try {
+			const url = `/api/crm/daily-services/${service._id}`;
+			const method = 'PUT';
+
+			const response = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ serviceStatus: status }),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success('Status updated!');
+				onRefresh();
+			} else {
+				toast.error(result.error || 'Failed to update status');
+			}
+		} catch (error) {
+			toast.error('Failed to update status');
+		}
+	};
+
+	const statuses = [
+		'pending',
+		'in_progress',
+		'completed',
+		'on_hold',
+		'cancelled',
+	] as const;
+
 	return (
 		<TableRow key={service._id} className='hover:bg-muted/50'>
 			<TableCell className='font-mono text-sm font-semibold'>
@@ -209,7 +250,7 @@ const TableBodyRow = ({
 				<div className='max-w-xs truncate'>{service.serviceTitle}</div>
 			</TableCell>
 			<TableCell>
-				<div>
+				<div className='font-mono font-bold'>
 					<p>{service.linkedClientId?.name || 'N/A'}</p>
 					<p>{service.linkedClientId?.phone || 'N/A'}</p>
 					{service.passportNo || 'N/A'}
@@ -218,16 +259,31 @@ const TableBodyRow = ({
 			<TableCell>
 				<div>
 					<p>{service.createdBy?.name || 'N/A'}</p>
-					<p>{service.createdBy?.phone || 'N/A'}</p>
+				</div>
+			</TableCell>
+			<TableCell>
+				<div className='font-mono font-bold'>
+					<p>{service.assignedEmployeeId?.name || 'N/A'}</p>
+					<p>{service.assignedEmployeeId?.phone || 'N/A'}</p>
 				</div>
 			</TableCell>
 			<TableCell className='font-semibold font-mono'>
 				{formatCurrency(service.serviceCost).replace('BDT', '৳')}
 			</TableCell>
 			<TableCell>
-				<Badge className={getStatusColor(service.serviceStatus as any)}>
-					{getStatusLabel(service.serviceStatus as any)}
-				</Badge>
+				<Select value={service.serviceStatus} onValueChange={updateStatus}>
+					<SelectTrigger>
+						<SelectValue placeholder='Select status' />
+					</SelectTrigger>
+
+					<SelectContent>
+						{statuses?.map((status) => (
+							<SelectItem key={status} value={status}>
+								{getStatusLabel(status)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</TableCell>
 			<TableCell className='text-sm text-muted-foreground'>
 				{formatDateOnly(new Date(service.createdDate))}
@@ -237,7 +293,7 @@ const TableBodyRow = ({
 					{isExist ? (
 						<Link href={`/dashboard/crm/invoices/${invoice?._id}`}>
 							<Button variant='ghost' size='sm'>
-								<FileInput className='w-4 h-4' />
+								<FileInput className='w-4 h-4' /> View Invoice
 							</Button>
 						</Link>
 					) : (
@@ -253,6 +309,7 @@ const TableBodyRow = ({
 							) : (
 								<ReceiptText className='w-5 h-5' />
 							)}
+							Generate Invoice
 						</Button>
 					)}
 					<Button variant='ghost' size='sm' onClick={() => onEdit(service)}>

@@ -1,0 +1,12 @@
+import '@/lib/models/Appointment';
+import '@/lib/models/BlogCategory.model';
+import '@/lib/models/BlogPost';
+import '@/lib/models/Client';
+import '@/lib/models/ClientTransaction';
+import '@/lib/models/Contact';
+import '@/lib/models/Employee';
+import '@/lib/models/Invoice';
+import '@/lib/models/Package';
+import '@/lib/models/Service';
+import '@/lib/models/User';
+import '@/lib/models/VisaCountry';

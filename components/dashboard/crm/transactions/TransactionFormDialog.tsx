@@ -35,7 +35,7 @@ import { Invoice } from '../invoice-management/InvoicesTable';
 
 const transactionSchema = z.object({
 	invoiceId: z.string().min(1, 'Invoice is reqiured'),
-	transactionId: z.string().min(1, 'Transaction id is reqiured'),
+	transactionId: z.string().optional(),
 	type: z.enum(['payment', 'refund', 'adjustment', 'credit']),
 	amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
 	paymentMethod: z.enum(['cash', 'card', 'bank', 'bkash', 'other']),
@@ -225,8 +225,8 @@ export default function TransactionFormDialog({
 									<FormControl>
 										<Input
 											type='number'
-											step='0.01'
 											placeholder='0.00'
+											max={amount}
 											{...field}
 										/>
 									</FormControl>

@@ -32,12 +32,11 @@ export interface DailyService {
 	assignedEmployeeId: {
 		_id: string;
 		name: string;
+		phone: string;
 	};
 	createdBy?: {
 		_id: string;
 		name: string;
-		email: string;
-		phone: string;
 	};
 	passportNo: string;
 	serviceRefId: {
@@ -62,6 +61,7 @@ export default function DailyServicesList() {
 	const [services, setServices] = useState<DailyService[]>([]);
 	const [asiaServices, setAsiaServices] = useState<Service[]>([]);
 	const [clients, setClients] = useState<Client[]>([]);
+	const [clientPhone, setClientPhone] = useState('');
 	const [employees, setEmployees] = useState<Employee[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -70,12 +70,14 @@ export default function DailyServicesList() {
 	>(null);
 	const [search, setSearch] = useState('');
 	const [status, setStatus] = useState('all');
+	const [filter, setFilter] = useState('today');
 
 	const fetchServices = async () => {
 		setIsLoading(true);
 		try {
 			const query = new URLSearchParams({
 				...(search && { search }),
+				...(clientPhone && { clientPhone }),
 				...(status !== 'all' && { status }),
 				limit: '100',
 			});
@@ -141,7 +143,7 @@ export default function DailyServicesList() {
 		fetchAsiaServices();
 		fetchClients();
 		fetchEmployees();
-	}, [search, status]);
+	}, [search, status, clientPhone]);
 
 	const handleEdit = (service: DailyService) => {
 		setSelectedService(service);
@@ -173,26 +175,49 @@ export default function DailyServicesList() {
 				</Button>
 			</div>
 
-			<div className='flex gap-4'>
-				<Input
-					placeholder='Search services by ID or title...'
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					className='flex-1'
-				/>
-				<Select value={status} onValueChange={setStatus}>
-					<SelectTrigger className='w-40'>
-						<SelectValue placeholder='Filter by status' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Status</SelectItem>
-						<SelectItem value='pending'>Pending</SelectItem>
-						<SelectItem value='in_progress'>In Progress</SelectItem>
-						<SelectItem value='completed'>Completed</SelectItem>
-						<SelectItem value='on_hold'>On Hold</SelectItem>
-						<SelectItem value='cancelled'>Cancelled</SelectItem>
-					</SelectContent>
-				</Select>
+			<div className='grid grid-cols-2 gap-5'>
+				<div className='flex items-center justify-between gap-2'>
+					<Input
+						placeholder='Search by service ID or title...'
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						className='flex-1'
+						type='search'
+					/>
+					<Input
+						placeholder='Search by client phone...'
+						value={clientPhone}
+						onChange={(e) => setClientPhone(e.target.value)}
+						className='flex-1'
+						type='search'
+					/>
+				</div>
+				<div className='flex items-center justify-end gap-2'>
+					{' '}
+					<Select value={status} onValueChange={setStatus}>
+						<SelectTrigger className='w-40'>
+							<SelectValue placeholder='Filter by status' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Status</SelectItem>
+							<SelectItem value='pending'>Pending</SelectItem>
+							<SelectItem value='in_progress'>In Progress</SelectItem>
+							<SelectItem value='completed'>Completed</SelectItem>
+							<SelectItem value='on_hold'>On Hold</SelectItem>
+							<SelectItem value='cancelled'>Cancelled</SelectItem>
+						</SelectContent>
+					</Select>
+					<Select value={filter} onValueChange={setFilter}>
+						<SelectTrigger className='w-40'>
+							<SelectValue placeholder='Filter by status' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='today'>Today</SelectItem>
+							<SelectItem value='week'>This Week</SelectItem>
+							<SelectItem value='month'>This Month</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 
 			{isLoading ? (
