@@ -21,6 +21,8 @@ export interface IDailyService extends Document {
 	passportNo: string;
 	completedDate?: Date;
 	notes?: string;
+	isInvoiceGenerated?: boolean;
+	invoiceId?: string;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -78,6 +80,14 @@ const DailyServiceSchema = new Schema<IDailyService>(
 			type: Number,
 			required: true,
 			default: 0,
+		},
+
+		isInvoiceGenerated: {
+			type: String,
+		},
+
+		invoiceId: {
+			type: String,
 		},
 
 		serviceStatus: {

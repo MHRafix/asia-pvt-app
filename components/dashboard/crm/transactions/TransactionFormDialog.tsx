@@ -63,8 +63,7 @@ export default function TransactionFormDialog({
 }: TransactionFormDialogProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [invoices, setInvoices] = useState<Invoice[]>([]);
-	const [selectedClientId, setSelectedClientId] = useState('');
-	const [loadingClients, setLoadingClients] = useState(false);
+	const [loadingClients] = useState(false);
 	const [loadingInvoices, setLoadingInvoices] = useState(false);
 
 	const form = useForm<TransactionFormData>({
@@ -92,15 +91,14 @@ export default function TransactionFormDialog({
 			if (result.success) {
 				setInvoices(result.data || []);
 			}
-		} catch (error) {
-			console.error('Error fetching invoices:', error);
+		} catch (error: any) {
+			toast.error(error.message);
 		} finally {
 			setLoadingInvoices(false);
 		}
 	};
 
 	const handleFormSubmit = async (data: TransactionFormData) => {
-		console.log(data);
 		setIsSubmitting(true);
 		try {
 			const response = await fetch('/api/payment/transactions', {
@@ -120,11 +118,11 @@ export default function TransactionFormDialog({
 				form.reset();
 				onOpenChange(false);
 				onSuccess?.();
+				location.reload();
 			} else {
 				toast.error(result.error || 'Failed to add transaction');
 			}
 		} catch (error) {
-			console.error('Error adding transaction:', error);
 			toast.error('Failed to add transaction');
 		} finally {
 			setIsSubmitting(false);
@@ -259,63 +257,7 @@ export default function TransactionFormDialog({
 								</FormItem>
 							)}
 						/>
-						{/* Status */}
-						{/* <FormField
-							control={form.control}
-							name='status'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Status *</FormLabel>
-									<Select onValueChange={field.onChange} value={field.value}>
-										<FormControl className='w-full'>
-											<SelectTrigger>
-												<SelectValue />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value='completed'>Completed</SelectItem>
-											<SelectItem value='pending'>Pending</SelectItem>
-											<SelectItem value='failed'>Failed</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
-						{/* Date */}
-						{/* <FormField
-							control={form.control}
-							name='date'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Transaction Date *</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<Button
-												variant='outline'
-												className='w-full justify-start text-left font-normal'
-											>
-												{field.value
-													? format(field.value, 'MMM dd, yyyy')
-													: 'Pick a date'}
-											</Button>
-										</PopoverTrigger>
-										<PopoverContent className='w-auto p-0' align='start'>
-											<Calendar
-												mode='single'
-												selected={field.value}
-												onSelect={field.onChange}
-												disabled={(date) =>
-													date > new Date() || date < new Date('1900-01-01')
-												}
-												initialFocus
-											/>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
+
 						{/* Notes */}
 						<FormField
 							control={form.control}

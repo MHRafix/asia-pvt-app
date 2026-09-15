@@ -253,7 +253,7 @@ export default function DailyServiceFormDialog({
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{clients.map((client) => (
+												{clients?.map((client) => (
 													<SelectItem key={client._id} value={client._id}>
 														{client.name}
 													</SelectItem>

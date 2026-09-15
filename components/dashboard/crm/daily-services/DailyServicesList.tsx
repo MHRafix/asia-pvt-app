@@ -55,6 +55,9 @@ export interface DailyService {
 		_id: string;
 		name: string;
 	};
+
+	invoiceId?: string;
+	isInvoiceGenerated?: boolean;
 	serviceDescription?: string;
 	createdDate: string;
 }
@@ -69,8 +72,14 @@ interface Employee {
 	name: string;
 }
 
+interface DailyServicesResult {
+	data: DailyService[];
+	todaysServices: DailyService[];
+	thisWeekServices: DailyService[];
+	thisMonthServices: DailyService[];
+}
 export default function DailyServicesList() {
-	const [services, setServices] = useState<DailyService[]>([]);
+	const [services, setServices] = useState<DailyServicesResult>();
 	const [asiaServices, setAsiaServices] = useState<Service[]>([]);
 	const [clients, setClients] = useState<Client[]>([]);
 	const [clientPhone, setClientPhone] = useState('');
@@ -98,12 +107,11 @@ export default function DailyServicesList() {
 			const result = await response.json();
 
 			if (result.success) {
-				setServices(result.data);
+				setServices(result);
 			} else {
 				toast.error(result.error || 'Failed to fetch services');
 			}
 		} catch (error) {
-			console.error('Error fetching services:', error);
 			toast.error('Failed to fetch services');
 		} finally {
 			setIsLoading(false);
@@ -116,10 +124,10 @@ export default function DailyServicesList() {
 			const result = await response.json();
 
 			if (result.success) {
-				setClients(result.data);
+				setClients(result.allClients);
 			}
-		} catch (error) {
-			console.error('Error fetching clients:', error);
+		} catch (error: any) {
+			toast.error(error?.message);
 		}
 	};
 
@@ -131,8 +139,8 @@ export default function DailyServicesList() {
 			if (result.success) {
 				setEmployees(result.data);
 			}
-		} catch (error) {
-			console.error('Error fetching employees:', error);
+		} catch (error: any) {
+			toast.error(error?.message);
 		}
 	};
 
@@ -144,7 +152,6 @@ export default function DailyServicesList() {
 				setAsiaServices(data.data);
 			}
 		} catch (error) {
-			console.error('[v0] Error fetching services:', error);
 			toast.error('Failed to fetch services');
 		} finally {
 		}
@@ -247,7 +254,7 @@ export default function DailyServicesList() {
 
 						<TabsContent value='todays' className='space-y-6'>
 							<DailyServicesTable
-								services={services}
+								services={services?.todaysServices!}
 								onEdit={handleEdit}
 								onRefresh={fetchServices}
 							/>
@@ -255,7 +262,7 @@ export default function DailyServicesList() {
 
 						<TabsContent value='weekly' className='space-y-6'>
 							<DailyServicesTable
-								services={services}
+								services={services?.thisWeekServices!}
 								onEdit={handleEdit}
 								onRefresh={fetchServices}
 							/>
@@ -263,7 +270,7 @@ export default function DailyServicesList() {
 
 						<TabsContent value='monthly' className='space-y-6'>
 							<DailyServicesTable
-								services={services}
+								services={services?.thisMonthServices!}
 								onEdit={handleEdit}
 								onRefresh={fetchServices}
 							/>

@@ -32,9 +32,8 @@ import {
 } from '@/lib/utils/formatting';
 import { Edit, FileInput, Loader, ReceiptText, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Invoice } from '../invoice-management/InvoicesTable';
 import { DailyService } from './DailyServicesList';
 
 interface DailyServicesTableProps {
@@ -192,23 +191,6 @@ const TableBodyRow = ({
 	setDeleteId,
 	onRefresh,
 }: TableRowPropType) => {
-	const [isExist, setIsExist] = useState<boolean>(false);
-	const [invoice, setInvoice] = useState<Invoice>();
-
-	const checkInvoiceAvailability = async () => {
-		const res = await fetch(
-			`/api/payment/invoices/check-availability?serviceId=${service?._id}`,
-		);
-
-		const data = await res.json();
-		setIsExist(data?.exist);
-		setInvoice(data?.data);
-	};
-
-	useEffect(() => {
-		checkInvoiceAvailability();
-	}, [service?._id]);
-
 	const updateStatus = async (status: string) => {
 		try {
 			const url = `/api/crm/daily-services/${service._id}`;
@@ -290,8 +272,8 @@ const TableBodyRow = ({
 			</TableCell>
 			<TableCell className='text-right'>
 				<div className='flex justify-end gap-1'>
-					{isExist ? (
-						<Link href={`/dashboard/crm/invoices/${invoice?._id}`}>
+					{service?.isInvoiceGenerated ? (
+						<Link href={`/dashboard/crm/invoices/${service?.invoiceId}`}>
 							<Button variant='default' size='sm'>
 								<FileInput className='w-4 h-4' /> View Invoice
 							</Button>

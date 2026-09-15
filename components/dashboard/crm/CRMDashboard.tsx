@@ -69,7 +69,7 @@ export default function CRMDashboard() {
 			const data = await response.json();
 
 			if (data.success) {
-				setClients(data.data);
+				setClients(data.allClients);
 				setStats(data.stats);
 			}
 		} catch (error) {
@@ -247,7 +247,7 @@ export default function CRMDashboard() {
 						<div className='text-center py-8 text-muted-foreground'>
 							Loading clients...
 						</div>
-					) : clients.length === 0 ? (
+					) : clients?.length === 0 ? (
 						<div className='text-center py-8'>
 							<Users className='w-12 h-12 mx-auto text-muted-foreground/50 mb-4' />
 							<p className='text-muted-foreground'>No clients found</p>
@@ -261,7 +261,7 @@ export default function CRMDashboard() {
 						</div>
 					) : (
 						<div className='space-y-4'>
-							{clients.map((client) => (
+							{clients?.map((client) => (
 								<div
 									key={client._id}
 									className='flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors'

@@ -77,6 +77,13 @@ export async function POST(request: NextRequest) {
 			status: 'due',
 		});
 
+		if (invoice._id) {
+			await DailyService.findByIdAndUpdate(serviceId, {
+				invoiceId: invoice?._id,
+				isInvoiceGenerated: true,
+			});
+		}
+
 		const populatedInvoice = await invoice.populate([
 			{ path: 'clientId', select: 'name email phone company' },
 			{

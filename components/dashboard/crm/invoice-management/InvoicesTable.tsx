@@ -181,7 +181,7 @@ export default function InvoicesTable({
 													)
 												}
 											>
-												<Eye className='w-4 h-4' />
+												<Eye className='w-4 h-4' /> View Invoice
 											</Button>
 											{onEdit && (
 												<Button
@@ -196,6 +196,7 @@ export default function InvoicesTable({
 												variant='destructive'
 												size='sm'
 												onClick={() => setDeleteId(invoice._id)}
+												disabled
 											>
 												<Trash2 className='w-4 h-4 text-white' />
 											</Button>

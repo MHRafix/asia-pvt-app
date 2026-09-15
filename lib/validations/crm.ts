@@ -51,6 +51,8 @@ export const dailyServiceSchema = z.object({
 	serviceDescription: z.string().optional(),
 	passportNo: z.string().optional(),
 	serviceCost: z.number().min(0, 'Service cost cannot be negative'),
+	isInvoiceGenerated: z.boolean().optional(),
+	invoiceId: z.string().optional(),
 	serviceStatus: z
 		.enum(['pending', 'in_progress', 'completed', 'cancelled', 'on_hold'])
 		.default('pending'),

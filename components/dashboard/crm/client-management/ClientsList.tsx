@@ -35,6 +35,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
 	ArrowLeft,
 	ChevronLeft,
@@ -72,8 +73,15 @@ interface Pagination {
 	pages: number;
 }
 
+interface ClientsResult {
+	tabName: string;
+	tabValue: string;
+	tabData: Client[];
+}
+
 export default function ClientsList() {
-	const [clients, setClients] = useState<Client[]>([]);
+	const [tabsContent, setTabsContent] = useState<ClientsResult[]>([]);
+
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
@@ -107,11 +115,27 @@ export default function ClientsList() {
 			const data = await response.json();
 
 			if (data.success) {
-				setClients(data.data);
 				setPagination(data.pagination);
+
+				setTabsContent([
+					{
+						tabName: "Today's Clients",
+						tabValue: 'todays',
+						tabData: data?.todaysClients,
+					},
+					{
+						tabName: 'This Week Clients',
+						tabValue: 'weekly',
+						tabData: data?.thisWeekClients,
+					},
+					{
+						tabName: 'This Month Clients',
+						tabValue: 'monthly',
+						tabData: data?.thisMonthClients,
+					},
+				]);
 			}
 		} catch (error) {
-			console.error('Error fetching clients:', error);
 			toast.error('Failed to fetch clients');
 		} finally {
 			setLoading(false);
@@ -134,7 +158,6 @@ export default function ClientsList() {
 				toast.error(data.error || 'Failed to delete client');
 			}
 		} catch (error) {
-			console.error('Error deleting client:', error);
 			toast.error('Failed to delete client');
 		} finally {
 			setDeleteDialogOpen(false);
@@ -228,108 +251,129 @@ export default function ClientsList() {
 				<div className='text-center py-12 text-muted-foreground'>
 					Loading clients...
 				</div>
-			) : clients.length === 0 ? (
-				<div className='text-center py-12'>
-					<p className='text-muted-foreground'>No clients found</p>
-				</div>
 			) : (
 				<>
-					<div className='border rounded-lg overflow-hidden'>
-						<Table>
-							<TableHeader>
-								<TableRow className='bg-muted'>
-									<TableHead>Client</TableHead>
-									<TableHead>Contact</TableHead>
-									<TableHead>Status</TableHead>
-									<TableHead className='text-right'>
-										Service Taken Amount
-									</TableHead>
-									<TableHead className='text-right'>Service Taken</TableHead>
-									<TableHead></TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{clients.map((client) => (
-									<TableRow key={client._id} className='hover:bg-muted/50'>
-										<TableCell>
-											<div className='flex items-center gap-3'>
-												<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
-													<span className='text-sm font-semibold text-primary'>
-														{client.name.charAt(0).toUpperCase()}
-													</span>
-												</div>
-												<div>
-													<p className='font-medium text-foreground'>
-														{client.name}
-													</p>
-												</div>
-											</div>
-										</TableCell>
-										<TableCell>
-											<div>
-												<p className='text-sm font-mono font-bold'>
-													{client.email}
-												</p>
-												<p className='text-sm text-muted-foreground font-mono font-bold'>
-													{client.phone}
-												</p>
-											</div>
-										</TableCell>
-										<TableCell>
-											<Badge
-												className={`${getStatusColor(client.status)} font-mono font-bold text-md`}
-											>
-												{client.status}
-											</Badge>
-										</TableCell>
+					<Tabs defaultValue='todays' className='space-y-2'>
+						<TabsList className='bg-primary/20 flex items-center gap-5'>
+							<TabsTrigger value='todays'>Today's Clients</TabsTrigger>
+							<TabsTrigger value='weekly'>This Week Clients</TabsTrigger>
+							<TabsTrigger value='monthly'>This Month Clients</TabsTrigger>
+						</TabsList>
+						<div className='border rounded-lg overflow-hidden'>
+							{tabsContent?.map((content, idx) => (
+								<TabsContent value={content?.tabValue} key={idx}>
+									<Table>
+										<TableHeader>
+											<TableRow className='bg-muted'>
+												<TableHead>Client</TableHead>
+												<TableHead>Contact</TableHead>
+												<TableHead>Status</TableHead>
+												<TableHead className='text-right'>
+													Service Taken Amount
+												</TableHead>
+												<TableHead className='text-right'>
+													Service Taken
+												</TableHead>
+												<TableHead></TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{content?.tabData?.map((client: Client) => (
+												<TableRow
+													key={client._id}
+													className='hover:bg-muted/50'
+												>
+													<TableCell>
+														<div className='flex items-center gap-3'>
+															<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
+																<span className='text-sm font-semibold text-primary'>
+																	{client.name.charAt(0).toUpperCase()}
+																</span>
+															</div>
+															<div>
+																<p className='font-medium text-foreground'>
+																	{client.name}
+																</p>
+															</div>
+														</div>
+													</TableCell>
+													<TableCell>
+														<div>
+															<p className='text-sm font-mono font-bold'>
+																{client.email}
+															</p>
+															<p className='text-sm text-muted-foreground font-mono font-bold'>
+																{client.phone}
+															</p>
+														</div>
+													</TableCell>
+													<TableCell>
+														<Badge
+															className={`${getStatusColor(client.status)} font-mono font-bold text-md`}
+														>
+															{client.status}
+														</Badge>
+													</TableCell>
 
-										<TableCell className='text-right'>
-											{formatCurrency(client.totalSpent)}
-										</TableCell>
-										<TableCell className='text-right'>
-											{client.totalServices}
-										</TableCell>
-										<TableCell>
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant='ghost' size='icon'>
-														<MoreHorizontal className='w-4 h-4' />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align='end'>
-													<Link href={`/dashboard/crm/clients/${client._id}`}>
-														<DropdownMenuItem>
-															<Eye className='w-4 h-4 mr-2' />
-															View Details
-														</DropdownMenuItem>
-													</Link>
-													<DropdownMenuItem
-														onClick={() => {
-															setEditingClient(client);
-															setDialogOpen(true);
-														}}
-													>
-														<Edit className='w-4 h-4 mr-2' />
-														Edit
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														className='text-destructive'
-														onClick={() => {
-															setDeletingId(client._id);
-															setDeleteDialogOpen(true);
-														}}
-													>
-														<Trash2 className='w-4 h-4 mr-2' />
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</div>
+													<TableCell className='text-right'>
+														{formatCurrency(client.totalSpent)}
+													</TableCell>
+													<TableCell className='text-right'>
+														{client.totalServices}
+													</TableCell>
+													<TableCell>
+														<DropdownMenu>
+															<DropdownMenuTrigger asChild>
+																<Button variant='ghost' size='icon'>
+																	<MoreHorizontal className='w-4 h-4' />
+																</Button>
+															</DropdownMenuTrigger>
+															<DropdownMenuContent align='end'>
+																<Link
+																	href={`/dashboard/crm/clients/${client._id}`}
+																>
+																	<DropdownMenuItem>
+																		<Eye className='w-4 h-4 mr-2' />
+																		View Details
+																	</DropdownMenuItem>
+																</Link>
+																<DropdownMenuItem
+																	onClick={() => {
+																		setEditingClient(client);
+																		setDialogOpen(true);
+																	}}
+																>
+																	<Edit className='w-4 h-4 mr-2' />
+																	Edit
+																</DropdownMenuItem>
+																<DropdownMenuItem
+																	className='text-destructive'
+																	onClick={() => {
+																		setDeletingId(client._id);
+																		setDeleteDialogOpen(true);
+																	}}
+																>
+																	<Trash2 className='w-4 h-4 mr-2' />
+																	Delete
+																</DropdownMenuItem>
+															</DropdownMenuContent>
+														</DropdownMenu>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+
+									{content?.tabData?.length === 0 ? (
+										<div className='text-center py-12'>
+											<p className='text-muted-foreground'>No clients found</p>
+										</div>
+									) : null}
+								</TabsContent>
+							))}
+						</div>
+					</Tabs>
+
 					{/* Pagination */}
 					{pagination.pages > 1 && (
 						<div className='flex items-center justify-between px-6 py-4 border-t border-border'>

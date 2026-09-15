@@ -30,14 +30,20 @@ export async function GET(request: NextRequest) {
 		}
 
 		const now = new Date();
-		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const startOfToday = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+		);
 		const startOfTomorrow = new Date(startOfToday);
 		startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
 		const startOfWeek = new Date(startOfToday);
 		startOfWeek.setDate(startOfWeek.getDate() - 6);
 		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 		const findClients = (range?: { $gte: Date; $lt: Date }) =>
-			Client.find(range ? { ...query, createdAt: range } : query).sort({ createdAt: -1 });
+			Client.find(range ? { ...query, createdAt: range } : query).sort({
+				createdAt: -1,
+			});
 
 		const [clients, total, groupedClients] = await Promise.all([
 			findClients().skip(skip).limit(limit),
@@ -70,7 +76,6 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
-			data: clients,
 			todaysClients: groupedClients[0],
 			thisWeekClients: groupedClients[1],
 			thisMonthClients: groupedClients[2],
