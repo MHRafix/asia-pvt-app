@@ -117,7 +117,11 @@ export function Navbar() {
 							<Button
 								variant='ghost'
 								size='sm'
-								onClick={() => router.push('/dashboard')}
+								onClick={() =>
+									router.push(
+										user?.role === 'admin' ? '/dashboard' : '/dashboard/crm',
+									)
+								}
 							>
 								<LayoutGrid className='w-4 h-4' />
 								Dashboard
@@ -174,7 +178,13 @@ export function Navbar() {
 										<Button
 											variant='ghost'
 											size='sm'
-											onClick={() => router.push('/dashboard')}
+											onClick={() =>
+												router.push(
+													user?.role === 'admin'
+														? '/dashboard'
+														: '/dashboard/crm',
+												)
+											}
 										>
 											<LayoutGrid className='w-4 h-4' />
 											Dashboard

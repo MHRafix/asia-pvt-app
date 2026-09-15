@@ -147,23 +147,6 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 		}
 	};
 
-	const getTransactionColor = (type: string) => {
-		switch (type) {
-			case 'service':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-			case 'package':
-				return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
-			case 'payment':
-				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-			case 'refund':
-				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-			case 'adjustment':
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
-			default:
-				return 'bg-gray-100 text-gray-800';
-		}
-	};
-
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
@@ -240,9 +223,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 							</div>
 							<div>
 								<p className='text-sm text-muted-foreground'>Balance Due</p>
-								<p className='text-lg font-bold text-foreground'>
-									{formatCurrency(client.balance)}
-								</p>
+								<p className='text-lg font-bold text-foreground'>{0}</p>
 							</div>
 						</div>
 					</CardContent>

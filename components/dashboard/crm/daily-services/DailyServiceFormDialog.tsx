@@ -67,7 +67,7 @@ export default function DailyServiceFormDialog({
 			assignedEmployeeId: '',
 			serviceTitle: '',
 			serviceDescription: '',
-			serviceCost: 0,
+			// serviceCost: 1,
 			serviceStatus: 'pending',
 			notes: '',
 			serviceRefId: '',
@@ -91,8 +91,6 @@ export default function DailyServiceFormDialog({
 				assignedEmployeeId: '',
 				serviceTitle: '',
 				serviceDescription: '',
-				serviceCost: 0,
-				serviceStatus: 'pending',
 				notes: '',
 				serviceRefId: '',
 			});
@@ -129,7 +127,7 @@ export default function DailyServiceFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className='sm:max-w-2xl'>
+			<DialogContent className='sm:max-w-4xl'>
 				<DialogHeader>
 					<DialogTitle>
 						{isEditing ? 'Edit Service' : 'Add New Service'}
@@ -143,7 +141,7 @@ export default function DailyServiceFormDialog({
 								control={form.control}
 								name='serviceTitle'
 								render={({ field }) => (
-									<FormItem className='col-span-2'>
+									<FormItem>
 										<FormLabel>Service Title *</FormLabel>
 										<FormControl>
 											<Input
@@ -198,7 +196,7 @@ export default function DailyServiceFormDialog({
 								name='serviceCost'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Service Cost *</FormLabel>
+										<FormLabel>Amount *</FormLabel>
 										<FormControl>
 											<Input
 												type='number'
@@ -211,30 +209,7 @@ export default function DailyServiceFormDialog({
 									</FormItem>
 								)}
 							/>
-							<FormField
-								control={form.control}
-								name='serviceStatus'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Status</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
-											<FormControl>
-												<SelectTrigger className='w-full'>
-													<SelectValue placeholder='Select status' />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent className='w-full'>
-												<SelectItem value='pending'>Pending</SelectItem>
-												<SelectItem value='in_progress'>In Progress</SelectItem>
-												<SelectItem value='completed'>Completed</SelectItem>
-												<SelectItem value='on_hold'>On Hold</SelectItem>
-												<SelectItem value='cancelled'>Cancelled</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+
 							<FormField
 								control={form.control}
 								name='assignedEmployeeId'

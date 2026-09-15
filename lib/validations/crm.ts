@@ -5,22 +5,15 @@ export const clientSchema = z.object({
 		.string()
 		.min(1, 'Client name is required')
 		.max(100, 'Name cannot exceed 100 characters'),
-	email: z
-		.string()
-		.min(1, 'Email is required')
-		.email('Please enter a valid email address'),
+	email: z.string().optional(),
 	phone: z
 		.string()
 		.min(1, 'Phone number is required')
 		.regex(/^[+]?[\d\s-()]+$/, 'Please enter a valid phone number'),
-	address: z.string().optional(),
-	company: z.string().optional(),
 	profession: z.string().optional(),
 	notes: z.string().optional(),
-	status: z.enum(['active', 'inactive', 'prospect', 'vip']).default('prospect'),
-	customStatus: z.array(z.string()).optional().default([]),
+	status: z.enum(['new', 'follow up', 'active', 'star']).default('new'),
 	source: z.string().optional(),
-	tags: z.array(z.string()).optional().default([]),
 });
 
 export const clientTransactionSchema = z.object({

@@ -98,10 +98,10 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Check if client with email already exists
-		const existingClient = await Client.findOne({ email: body.email });
+		const existingClient = await Client.findOne({ phone: body.phone });
 		if (existingClient) {
 			return NextResponse.json(
-				{ success: false, error: 'A client with this email already exists' },
+				{ success: false, error: 'A client with this phone already exists' },
 				{ status: 400 },
 			);
 		}
@@ -109,10 +109,9 @@ export async function POST(request: NextRequest) {
 		const client = await Client.create(validationResult.data);
 
 		return NextResponse.json({ success: true, data: client }, { status: 201 });
-	} catch (error) {
-		console.error('Error creating client:', error);
+	} catch (error: any) {
 		return NextResponse.json(
-			{ success: false, error: 'Failed to create client' },
+			{ success: false, error: error?.message || 'Failed to create client' },
 			{ status: 500 },
 		);
 	}

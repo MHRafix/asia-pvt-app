@@ -53,17 +53,10 @@ export const navItemsForEmployee = [
 		href: '/dashboard/crm',
 		icon: Users,
 		submenu: [
-			{ label: 'CRM Dashboard', href: '/dashboard/crm', icon: Grid2X2Plus },
 			{
 				label: 'Daily Services',
 				href: '/dashboard/crm/daily-services',
 				icon: Grid2X2Check,
-			},
-			{ label: 'Invoices', href: '/dashboard/crm/invoices', icon: Notebook },
-			{
-				label: 'Transactions',
-				href: '/dashboard/crm/transactions',
-				icon: Repeat2,
 			},
 		],
 	},
@@ -80,7 +73,6 @@ export const navItemsForModerator = [
 		icon: Users,
 		submenu: [
 			{ label: 'CRM Dashboard', href: '/dashboard/crm', icon: Grid2X2Plus },
-			// { label: 'Clients', href: '/dashboard/crm/clients', icon: UserPlus2 },
 			{
 				label: 'Daily Services',
 				href: '/dashboard/crm/daily-services',

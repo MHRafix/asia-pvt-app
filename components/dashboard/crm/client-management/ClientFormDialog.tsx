@@ -29,21 +29,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface Client {
 	_id: string;
 	name: string;
-	email: string;
+	email?: string;
 	phone: string;
-	address?: string;
-	company?: string;
 	profession?: string;
 	notes?: string;
-	status: 'active' | 'inactive' | 'prospect' | 'vip';
-	customStatus?: string[];
+	status: 'new' | 'follow up' | 'active' | 'star';
 	source?: string;
-	// tags: string[];
 }
 
 interface ClientFormDialogProps {
@@ -67,14 +63,10 @@ export default function ClientFormDialog({
 			name: '',
 			email: '',
 			phone: '',
-			address: '',
-			company: '',
 			profession: '',
 			notes: '',
-			status: 'prospect',
-			customStatus: [],
+			status: 'new',
 			source: '',
-			tags: [],
 		},
 	});
 
@@ -84,28 +76,20 @@ export default function ClientFormDialog({
 				name: client.name,
 				email: client.email,
 				phone: client.phone,
-				address: client.address || '',
-				company: client.company || '',
 				profession: client.profession || '',
 				notes: client.notes || '',
 				status: client.status,
-				customStatus: client.customStatus || [],
 				source: client.source || '',
-				// tags: client.tags || [],
 			});
 		} else {
 			form.reset({
 				name: '',
 				email: '',
 				phone: '',
-				address: '',
-				company: '',
 				profession: '',
 				notes: '',
-				status: 'prospect',
-				customStatus: [],
+				status: 'new',
 				source: '',
-				tags: [],
 			});
 		}
 	}, [client, form]);
@@ -133,7 +117,6 @@ export default function ClientFormDialog({
 				toast.error(result.error || 'Failed to save client');
 			}
 		} catch (error) {
-			console.error('Error saving client:', error);
 			toast.error('Failed to save client');
 		}
 	};
@@ -163,6 +146,19 @@ export default function ClientFormDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name='phone'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Phone</FormLabel>
+										<FormControl>
+											<Input placeholder='+880 1722330099' {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
 							<FormField
 								control={form.control}
@@ -184,34 +180,6 @@ export default function ClientFormDialog({
 
 							<FormField
 								control={form.control}
-								name='phone'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Phone</FormLabel>
-										<FormControl>
-											<Input placeholder='+1 234 567 8900' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='company'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Company</FormLabel>
-										<FormControl>
-											<Input placeholder='Company name' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
 								name='profession'
 								render={({ field }) => (
 									<FormItem>
@@ -223,7 +191,6 @@ export default function ClientFormDialog({
 									</FormItem>
 								)}
 							/>
-
 							<FormField
 								control={form.control}
 								name='status'
@@ -237,17 +204,16 @@ export default function ClientFormDialog({
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value='prospect'>Prospect</SelectItem>
+												<SelectItem value='new'>New</SelectItem>
+												<SelectItem value='follow up'>Follow Up</SelectItem>
 												<SelectItem value='active'>Active</SelectItem>
-												<SelectItem value='vip'>VIP</SelectItem>
-												<SelectItem value='inactive'>Inactive</SelectItem>
+												<SelectItem value='star'>Star</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
-
 							<FormField
 								control={form.control}
 								name='source'
@@ -256,20 +222,6 @@ export default function ClientFormDialog({
 										<FormLabel>Source</FormLabel>
 										<FormControl>
 											<Input placeholder='e.g. Website, Referral' {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name='address'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Address</FormLabel>
-										<FormControl>
-											<Input placeholder='Street address' {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

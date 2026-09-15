@@ -26,7 +26,6 @@ export function AdminNavbar() {
 			await logout();
 			toast.success('Logged out successfully');
 		} catch (error) {
-			console.error('Logout error:', error);
 			toast.error('Logout failed');
 		}
 	};

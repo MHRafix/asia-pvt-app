@@ -110,7 +110,7 @@ export default function DailyServicesTable({
 	return (
 		<>
 			<div className='border rounded-lg overflow-hidden'>
-				<Table>
+				<Table className='px-3'>
 					<TableHeader>
 						<TableRow className='bg-muted'>
 							<TableHead>Service ID</TableHead>
@@ -118,7 +118,7 @@ export default function DailyServicesTable({
 							<TableHead>Client</TableHead>
 							<TableHead>Created By</TableHead>
 							<TableHead>Assign Employee</TableHead>
-							<TableHead>Cost</TableHead>
+							<TableHead>Amount</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Created At</TableHead>
 							<TableHead className='text-right w-32'>Actions</TableHead>
@@ -285,20 +285,20 @@ const TableBodyRow = ({
 					</SelectContent>
 				</Select>
 			</TableCell>
-			<TableCell className='text-sm text-muted-foreground'>
+			<TableCell className='text-sm text-black font-bold'>
 				{formatDateOnly(new Date(service.createdDate))}
 			</TableCell>
 			<TableCell className='text-right'>
 				<div className='flex justify-end gap-1'>
 					{isExist ? (
 						<Link href={`/dashboard/crm/invoices/${invoice?._id}`}>
-							<Button variant='ghost' size='sm'>
+							<Button variant='default' size='sm'>
 								<FileInput className='w-4 h-4' /> View Invoice
 							</Button>
 						</Link>
 					) : (
 						<Button
-							variant='ghost'
+							variant='secondary'
 							size='sm'
 							onClick={() => handleGenerateInvoice(service._id)}
 							disabled={generatingInvoiceId === service._id}
@@ -312,7 +312,7 @@ const TableBodyRow = ({
 							Generate Invoice
 						</Button>
 					)}
-					<Button variant='ghost' size='sm' onClick={() => onEdit(service)}>
+					<Button variant='outline' size='sm' onClick={() => onEdit(service)}>
 						<Edit className='w-4 h-4' />
 					</Button>
 					<Button

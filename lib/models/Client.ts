@@ -4,19 +4,12 @@ export interface IClient extends Document {
 	name: string;
 	email: string;
 	phone: string;
-	address?: string;
-	company?: string;
 	profession?: string;
 	notes?: string;
-	status: 'active' | 'inactive' | 'prospect' | 'vip';
-	customStatus?: string[];
+	status: 'new' | 'follow up' | 'active' | 'star';
 	source?: string;
-	tags: string[];
-	balance: number;
 	totalSpent: number;
 	totalServices: number;
-	totalPackages: number;
-	lastActivityDate?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -31,7 +24,6 @@ const ClientSchema = new Schema<IClient>(
 		},
 		email: {
 			type: String,
-			required: [true, 'Email is required'],
 			unique: true,
 			lowercase: true,
 			match: [
@@ -44,14 +36,7 @@ const ClientSchema = new Schema<IClient>(
 			required: [true, 'Phone number is required'],
 			trim: true,
 		},
-		address: {
-			type: String,
-			trim: true,
-		},
-		company: {
-			type: String,
-			trim: true,
-		},
+
 		profession: {
 			type: String,
 			trim: true,
@@ -59,27 +44,18 @@ const ClientSchema = new Schema<IClient>(
 		notes: {
 			type: String,
 		},
+
 		status: {
 			type: String,
-			enum: ['active', 'inactive', 'prospect', 'vip'],
-			default: 'prospect',
+			enum: ['new', 'follow up', 'active', 'star'],
+			default: 'new',
 		},
-		customStatus: {
-			type: [String],
-			default: [],
-		},
+
 		source: {
 			type: String,
 			trim: true,
 		},
-		tags: {
-			type: [String],
-			default: [],
-		},
-		balance: {
-			type: Number,
-			default: 0,
-		},
+
 		totalSpent: {
 			type: Number,
 			default: 0,
@@ -88,13 +64,6 @@ const ClientSchema = new Schema<IClient>(
 			type: Number,
 			default: 0,
 		},
-		totalPackages: {
-			type: Number,
-			default: 0,
-		},
-		lastActivityDate: {
-			type: Date,
-		},
 	},
 	{
 		timestamps: true,
@@ -102,7 +71,7 @@ const ClientSchema = new Schema<IClient>(
 );
 
 // Index for search
-ClientSchema.index({ name: 'text', email: 'text', company: 'text' });
+ClientSchema.index({ name: 'text', email: 'text', phone: 'text' });
 
 export const Client: Model<IClient> =
 	mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema);

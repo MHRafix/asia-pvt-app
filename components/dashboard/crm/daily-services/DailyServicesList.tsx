@@ -1,6 +1,16 @@
 'use client';
 
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover';
+
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -9,7 +19,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Service } from '@/lib/types';
+import { Tabs } from '@radix-ui/react-tabs';
 import { Loader, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -160,6 +172,8 @@ export default function DailyServicesList() {
 		handleFormClose();
 	};
 
+	const [date, setDate] = useState<Date>();
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex justify-between items-center'>
@@ -175,8 +189,8 @@ export default function DailyServicesList() {
 				</Button>
 			</div>
 
-			<div className='grid grid-cols-2 gap-5'>
-				<div className='flex items-center justify-between gap-2'>
+			<div className='w-full grid lg:grid-cols-2 gap-5'>
+				<div className='grid lg:flex items-center lg:justify-between gap-2'>
 					<Input
 						placeholder='Search by service ID or title...'
 						value={search}
@@ -192,10 +206,9 @@ export default function DailyServicesList() {
 						type='search'
 					/>
 				</div>
-				<div className='flex items-center justify-end gap-2'>
-					{' '}
+				<div className='grid lg:flex items-center lg:justify-end gap-2'>
 					<Select value={status} onValueChange={setStatus}>
-						<SelectTrigger className='w-40'>
+						<SelectTrigger className='w-full lg:w-50'>
 							<SelectValue placeholder='Filter by status' />
 						</SelectTrigger>
 						<SelectContent>
@@ -207,16 +220,15 @@ export default function DailyServicesList() {
 							<SelectItem value='cancelled'>Cancelled</SelectItem>
 						</SelectContent>
 					</Select>
-					<Select value={filter} onValueChange={setFilter}>
-						<SelectTrigger className='w-40'>
-							<SelectValue placeholder='Filter by status' />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='today'>Today</SelectItem>
-							<SelectItem value='week'>This Week</SelectItem>
-							<SelectItem value='month'>This Month</SelectItem>
-						</SelectContent>
-					</Select>
+					<Popover>
+						<PopoverTrigger className='bg-primary/20 p-3 rounded-md w-full lg:w-64 flex items-center gap-2 hover:bg-primary/25 duration-300 font-mono font-bold'>
+							<CalendarIcon className='w-5 h-5' />
+							{date ? format(date, 'PPP') : <span>Pick a date</span>}
+						</PopoverTrigger>
+						<PopoverContent className='w-auto p-0'>
+							<Calendar mode='single' selected={date} onSelect={setDate} />
+						</PopoverContent>
+					</Popover>
 				</div>
 			</div>
 
@@ -225,11 +237,39 @@ export default function DailyServicesList() {
 					<Loader className='w-8 h-8 animate-spin text-muted-foreground' />
 				</div>
 			) : (
-				<DailyServicesTable
-					services={services}
-					onEdit={handleEdit}
-					onRefresh={fetchServices}
-				/>
+				<div className='space-y-8'>
+					<Tabs defaultValue='todays' className='space-y-6'>
+						<TabsList className='bg-primary/20 flex items-center gap-5'>
+							<TabsTrigger value='todays'>Today's Services</TabsTrigger>
+							<TabsTrigger value='weekly'>This Week Services</TabsTrigger>
+							<TabsTrigger value='monthly'>This Month Services</TabsTrigger>
+						</TabsList>
+
+						<TabsContent value='todays' className='space-y-6'>
+							<DailyServicesTable
+								services={services}
+								onEdit={handleEdit}
+								onRefresh={fetchServices}
+							/>
+						</TabsContent>
+
+						<TabsContent value='weekly' className='space-y-6'>
+							<DailyServicesTable
+								services={services}
+								onEdit={handleEdit}
+								onRefresh={fetchServices}
+							/>
+						</TabsContent>
+
+						<TabsContent value='monthly' className='space-y-6'>
+							<DailyServicesTable
+								services={services}
+								onEdit={handleEdit}
+								onRefresh={fetchServices}
+							/>
+						</TabsContent>
+					</Tabs>
+				</div>
 			)}
 
 			<DailyServiceFormDialog

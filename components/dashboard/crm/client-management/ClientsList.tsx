@@ -144,16 +144,14 @@ export default function ClientsList() {
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
+			case 'new':
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
 			case 'active':
 				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-			case 'vip':
-				return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
-			case 'inactive':
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
-			case 'prospect':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-			default:
-				return 'bg-gray-100 text-gray-800';
+			case 'star':
+				return 'bg-golden-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+			case 'follow up':
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
 		}
 	};
 
@@ -194,7 +192,7 @@ export default function ClientsList() {
 						<div className='relative flex-1'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
 							<Input
-								placeholder='Search by name, email, or company...'
+								placeholder='Search by name, phone or email...'
 								value={search}
 								onChange={(e) => setSearch(e.target.value)}
 								className='pl-10'
@@ -206,10 +204,20 @@ export default function ClientsList() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value='all'>All Status</SelectItem>
+								<SelectItem value='new'>New</SelectItem>
+								<SelectItem value='follow up'>Follow Up</SelectItem>
 								<SelectItem value='active'>Active</SelectItem>
-								<SelectItem value='prospect'>Prospect</SelectItem>
-								<SelectItem value='vip'>VIP</SelectItem>
-								<SelectItem value='inactive'>Inactive</SelectItem>
+								<SelectItem value='star'>Star</SelectItem>
+							</SelectContent>
+						</Select>
+						<Select value={'today'} onValueChange={setStatusFilter}>
+							<SelectTrigger className='w-40'>
+								<SelectValue placeholder='Status' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='today'>Todays</SelectItem>
+								<SelectItem value='this_week'>This week</SelectItem>
+								<SelectItem value='this_month'>This Month</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -233,9 +241,10 @@ export default function ClientsList() {
 									<TableHead>Client</TableHead>
 									<TableHead>Contact</TableHead>
 									<TableHead>Status</TableHead>
-									<TableHead className='text-right'>Balance</TableHead>
-									<TableHead className='text-right'>Total Spent</TableHead>
-									<TableHead className='text-right'>Services</TableHead>
+									<TableHead className='text-right'>
+										Service Taken Amount
+									</TableHead>
+									<TableHead className='text-right'>Service Taken</TableHead>
 									<TableHead></TableHead>
 								</TableRow>
 							</TableHeader>
@@ -253,43 +262,32 @@ export default function ClientsList() {
 													<p className='font-medium text-foreground'>
 														{client.name}
 													</p>
-													{client.company && (
-														<p className='text-sm text-muted-foreground'>
-															{client.company}
-														</p>
-													)}
 												</div>
 											</div>
 										</TableCell>
 										<TableCell>
 											<div>
-												<p className='text-sm'>{client.email}</p>
-												<p className='text-sm text-muted-foreground'>
+												<p className='text-sm font-mono font-bold'>
+													{client.email}
+												</p>
+												<p className='text-sm text-muted-foreground font-mono font-bold'>
 													{client.phone}
 												</p>
 											</div>
 										</TableCell>
 										<TableCell>
-											<Badge className={getStatusColor(client.status)}>
+											<Badge
+												className={`${getStatusColor(client.status)} font-mono font-bold text-md`}
+											>
 												{client.status}
 											</Badge>
 										</TableCell>
-										<TableCell className='text-right'>
-											<span
-												className={
-													client.balance > 0
-														? 'text-amber-600'
-														: 'text-green-600'
-												}
-											>
-												{formatCurrency(client.balance)}
-											</span>
-										</TableCell>
+
 										<TableCell className='text-right'>
 											{formatCurrency(client.totalSpent)}
 										</TableCell>
 										<TableCell className='text-right'>
-											{client.totalServices + client.totalPackages}
+											{client.totalServices}
 										</TableCell>
 										<TableCell>
 											<DropdownMenu>
