@@ -15,86 +15,72 @@ export async function GET(request: NextRequest) {
 		const status = searchParams.get('status') || '';
 		const clientPhone = searchParams.get('clientPhone') || '';
 		const employeeId = searchParams.get('employeeId') || '';
+		const date = searchParams.get('date') || '';
 		const page = parseInt(searchParams.get('page') || '1');
 		const limit = parseInt(searchParams.get('limit') || '20');
 		const skip = (page - 1) * limit;
+		const now = new Date();
+		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const startOfTomorrow = new Date(startOfToday);
+		startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+		const startOfWeek = new Date(startOfToday);
+		startOfWeek.setDate(startOfWeek.getDate() - 6);
+		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
 		const query: any = {};
-
-		if (search) {
-			query.$or = [
-				{ serviceId: { $regex: search, $options: 'i' } },
-				{ serviceTitle: { $regex: search, $options: 'i' } },
-			];
+		if (search) query.$or = [
+			{ serviceId: { $regex: search, $options: 'i' } },
+			{ serviceTitle: { $regex: search, $options: 'i' } },
+		];
+		if (status && status !== 'all') query.serviceStatus = status;
+		if (employeeId) query.assignedEmployeeId = employeeId;
+		const groupedQuery = { ...query };
+		if (date) {
+			const selectedDate = new Date(`${date}T00:00:00`);
+			if (Number.isNaN(selectedDate.getTime())) {
+				return NextResponse.json({ success: false, error: 'Invalid date. Use YYYY-MM-DD.' }, { status: 400 });
+			}
+			const nextDate = new Date(selectedDate);
+			nextDate.setDate(nextDate.getDate() + 1);
+			query.createdDate = { $gte: selectedDate, $lt: nextDate };
 		}
 
-		if (status && status !== 'all') {
-			query.serviceStatus = status;
-		}
-
-		if (employeeId) {
-			query.assignedEmployeeId = employeeId;
-		}
-
-		const [services, total] = await Promise.all([
-			DailyService.find(query)
-				.populate('linkedClientId', 'name email phone')
-				.populate('assignedEmployeeId', 'name phone')
-				.populate('serviceRefId', 'title')
-				.populate('createdBy', 'name')
-				.sort({ createdDate: -1 })
-				.skip(skip)
-				.limit(limit),
+		const populateServices = (servicesQuery: any) => servicesQuery
+			.populate('linkedClientId', 'name email phone')
+			.populate('assignedEmployeeId', 'name phone')
+			.populate('serviceRefId', 'title')
+			.populate('createdBy', 'name')
+			.sort({ createdDate: -1 });
+		const [services, total, groupedServices] = await Promise.all([
+			populateServices(DailyService.find(query).skip(skip).limit(limit)),
 			DailyService.countDocuments(query),
+			Promise.all([
+				populateServices(DailyService.find({ ...groupedQuery, createdDate: { $gte: startOfToday, $lt: startOfTomorrow } })),
+				populateServices(DailyService.find({ ...groupedQuery, createdDate: { $gte: startOfWeek, $lt: startOfTomorrow } })),
+				populateServices(DailyService.find({ ...groupedQuery, createdDate: { $gte: startOfMonth, $lt: startOfTomorrow } })),
+			]),
 		]);
 
-		// Get stats
-		const stats = await DailyService.aggregate([
-			{
-				$match: query,
-			},
-			{
-				$group: {
-					_id: null,
-					totalServices: { $sum: 1 },
-					pendingServices: {
-						$sum: { $cond: [{ $eq: ['$serviceStatus', 'pending'] }, 1, 0] },
-					},
-					completedServices: {
-						$sum: { $cond: [{ $eq: ['$serviceStatus', 'completed'] }, 1, 0] },
-					},
-					totalCost: { $sum: '$serviceCost' },
-				},
-			},
-		]);
+		const stats = await DailyService.aggregate([{ $match: query }, { $group: {
+			_id: null,
+			totalServices: { $sum: 1 },
+			pendingServices: { $sum: { $cond: [{ $eq: ['$serviceStatus', 'pending'] }, 1, 0] } },
+			completedServices: { $sum: { $cond: [{ $eq: ['$serviceStatus', 'completed'] }, 1, 0] } },
+			totalCost: { $sum: '$serviceCost' },
+		} }]);
 
 		return NextResponse.json({
 			success: true,
-			data: clientPhone
-				? services?.filter(
-						// @ts-ignore
-						(service) => service?.linkedClientId?.phone.includes(clientPhone),
-					)
-				: services,
-			stats: stats[0] || {
-				totalServices: 0,
-				pendingServices: 0,
-				completedServices: 0,
-				totalCost: 0,
-			},
-			pagination: {
-				page,
-				limit,
-				total,
-				pages: Math.ceil(total / limit),
-			},
+			data: clientPhone ? services.filter((service: any) => service?.linkedClientId?.phone?.includes(clientPhone)) : services,
+			todaysServices: groupedServices[0],
+			thisWeekServices: groupedServices[1],
+			thisMonthServices: groupedServices[2],
+			stats: stats[0] || { totalServices: 0, pendingServices: 0, completedServices: 0, totalCost: 0 },
+			pagination: { page, limit, total, pages: Math.ceil(total / limit) },
 		});
 	} catch (error) {
 		console.error('Error fetching daily services:', error);
-		return NextResponse.json(
-			{ success: false, error: 'Failed to fetch daily services' },
-			{ status: 500 },
-		);
+		return NextResponse.json({ success: false, error: 'Failed to fetch daily services' }, { status: 500 });
 	}
 }
 
