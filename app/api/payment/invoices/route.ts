@@ -78,62 +78,42 @@ export async function GET(request: NextRequest) {
 			allInvoices,
 		};
 
-		// Get stats
-		const stats = await Invoice.aggregate([
-			{
-				$match: query,
-			},
-			{
-				$group: {
-					_id: null,
-					totalInvoices: { $sum: 1 },
-					paidInvoices: {
-						$sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] },
-					},
-					dueInvoices: {
-						$sum: { $cond: [{ $eq: ['$status', 'due'] }, 1, 0] },
-					},
-					partialInvoices: {
-						$sum: { $cond: [{ $eq: ['$status', 'partial'] }, 1, 0] },
-					},
-					totalAmount: { $sum: '$grandTotal' },
-					paidAmount: {
-						$sum: {
-							$cond: [{ $eq: ['$status', 'paid'] }, '$paidAmount', 0],
-						},
-					},
-					dueAmount: {
-						$sum: {
-							$cond: [{ $eq: ['$status', 'due'] }, '$dueAmount', 0],
-						},
-					},
-					partialPaidAmount: {
-						$sum: {
-							$cond: [{ $eq: ['$status', 'partial'] }, '$paidAmount', 0],
-						},
-					},
-
-					partialDueAmount: {
-						$sum: {
-							$cond: [{ $eq: ['$status', 'partial'] }, '$dueAmount', 0],
-						},
+			const invoiceStatsPipeline = (dateFilter?: Record<string, Date>) => [
+				{ $match: dateFilter ? { ...query, createdAt: dateFilter } : query },
+				{
+					$group: {
+						_id: null,
+						totalInvoices: { $sum: 1 },
+						paidInvoices: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
+						dueInvoices: { $sum: { $cond: [{ $eq: ['$status', 'due'] }, 1, 0] } },
+						partialInvoices: { $sum: { $cond: [{ $eq: ['$status', 'partial'] }, 1, 0] } },
+						totalAmount: { $sum: '$grandTotal' },
+						paidAmount: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$paidAmount', 0] } },
+						dueAmount: { $sum: { $cond: [{ $eq: ['$status', 'due'] }, '$dueAmount', 0] } },
+						partialPaidAmount: { $sum: { $cond: [{ $eq: ['$status', 'partial'] }, '$paidAmount', 0] } },
+						partialDueAmount: { $sum: { $cond: [{ $eq: ['$status', 'partial'] }, '$dueAmount', 0] } },
 					},
 				},
-			},
-		]);
+			];
 
-		return NextResponse.json({
-			success: true,
-			...invoiceGroups,
-			data: invoices,
-			stats: stats[0] || {
-				totalInvoices: 0,
-				paidAmount: 0,
-				paidInvoices: 0,
-				dueInvoices: 0,
-				partialInvoices: 0,
-				totalAmount: 0,
-			},
+			const [allInvoiceStats, todaysInvoiceStats, thisWeekInvoiceStats, thisMonthInvoiceStats] =
+				await Promise.all([
+					Invoice.aggregate(invoiceStatsPipeline()),
+					Invoice.aggregate(invoiceStatsPipeline({ $gte: startOfToday, $lte: now })),
+					Invoice.aggregate(invoiceStatsPipeline({ $gte: startOfSevenDaysAgo, $lt: startOfToday })),
+					Invoice.aggregate(invoiceStatsPipeline({ $gte: startOfMonth, $lt: startOfToday })),
+				]);
+
+			return NextResponse.json({
+				success: true,
+				...invoiceGroups,
+				data: invoices,
+				stats: {
+					allStats: allInvoiceStats[0] || { _id: null, totalInvoices: 0, paidInvoices: 0, dueInvoices: 0, partialInvoices: 0, totalAmount: 0, paidAmount: 0, dueAmount: 0, partialPaidAmount: 0, partialDueAmount: 0 },
+					todaysStats: todaysInvoiceStats[0] || { _id: null, totalInvoices: 0, paidInvoices: 0, dueInvoices: 0, partialInvoices: 0, totalAmount: 0, paidAmount: 0, dueAmount: 0, partialPaidAmount: 0, partialDueAmount: 0 },
+					thisWeekStats: thisWeekInvoiceStats[0] || { _id: null, totalInvoices: 0, paidInvoices: 0, dueInvoices: 0, partialInvoices: 0, totalAmount: 0, paidAmount: 0, dueAmount: 0, partialPaidAmount: 0, partialDueAmount: 0 },
+					thisMonthStats: thisMonthInvoiceStats[0] || { _id: null, totalInvoices: 0, paidInvoices: 0, dueInvoices: 0, partialInvoices: 0, totalAmount: 0, paidAmount: 0, dueAmount: 0, partialPaidAmount: 0, partialDueAmount: 0 },
+				},
 			pagination: {
 				page,
 				limit,
