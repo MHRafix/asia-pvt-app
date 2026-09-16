@@ -76,35 +76,38 @@ export async function GET(request: NextRequest) {
 			allTransactions,
 		};
 
-		// Get stats
-		const stats = await ClientTransaction.aggregate([
-			{
-				$match: query,
-			},
+		const transactionStatsPipeline = (dateFilter?: Record<string, Date>) => [
+			{ $match: dateFilter ? { ...query, createdAt: dateFilter } : query },
 			{
 				$group: {
 					_id: null,
 					totalTransactions: { $sum: 1 },
 					totalAmount: { $sum: '$amount' },
-					completedTransactions: {
-						$sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] },
-					},
-					pendingTransactions: {
-						$sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
-					},
+					completedTransactions: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+					pendingTransactions: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
 				},
 			},
-		]);
+		];
+
+		const [allTransactionStats, todaysTransactionStats, thisWeekTransactionStats, thisMonthTransactionStats] =
+			await Promise.all([
+				ClientTransaction.aggregate(transactionStatsPipeline()),
+				ClientTransaction.aggregate(transactionStatsPipeline({ $gte: startOfToday, $lte: now })),
+				ClientTransaction.aggregate(transactionStatsPipeline({ $gte: startOfSevenDaysAgo, $lt: startOfToday })),
+				ClientTransaction.aggregate(transactionStatsPipeline({ $gte: startOfMonth, $lt: startOfToday })),
+			]);
+
+		const emptyStats = { _id: null, totalTransactions: 0, totalAmount: 0, completedTransactions: 0, pendingTransactions: 0 };
 
 		return NextResponse.json({
 			success: true,
 			...transactionGroups,
 			data: transactions,
-			stats: stats[0] || {
-				totalTransactions: 0,
-				totalAmount: 0,
-				completedTransactions: 0,
-				pendingTransactions: 0,
+			stats: {
+				allStats: allTransactionStats[0] || emptyStats,
+				todaysStats: todaysTransactionStats[0] || emptyStats,
+				thisWeekStats: thisWeekTransactionStats[0] || emptyStats,
+				thisMonthStats: thisMonthTransactionStats[0] || emptyStats,
 			},
 			pagination: {
 				page,
