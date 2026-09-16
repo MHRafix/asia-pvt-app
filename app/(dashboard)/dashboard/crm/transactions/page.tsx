@@ -12,6 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils/formatting';
 import { ArrowLeftRight, Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -40,14 +41,28 @@ interface Stats {
 	failedTransactions: number;
 }
 
+interface TransactionsResult {
+	data: Transaction[];
+	todaysTransactions: Transaction[];
+	thisWeekTransactions: Transaction[];
+	thisMonthTransactions: Transaction[];
+}
+
+interface StatsType {
+	allStats: Stats;
+	todaysStats: Stats;
+	thisWeekStats: Stats;
+	thisMonthStats: Stats;
+}
+
 export default function TransactionsPage() {
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [transactions, setTransactions] = useState<TransactionsResult>();
 	const [isLoading, setIsLoading] = useState(true);
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [typeFilter, setTypeFilter] = useState('all');
 	const [page, setPage] = useState(1);
-	const [stats, setStats] = useState<Stats | null>(null);
+	const [stats, setStats] = useState<StatsType | null>(null);
 	const [pagination, setPagination] = useState<any>(null);
 	const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -66,7 +81,7 @@ export default function TransactionsPage() {
 			const result = await response.json();
 
 			if (result.success) {
-				setTransactions(result.data);
+				setTransactions(result);
 				setStats(result.stats);
 				setPagination(result.pagination);
 			} else {
@@ -164,10 +179,9 @@ export default function TransactionsPage() {
 									<p className='text-sm text-gray-500'>Transaction Received</p>
 
 									<p className='truncate text-xl font-semibold text-black'>
-										{formatCurrency(stats?.totalAmount! || 0).replace(
-											'BDT',
-											'৳',
-										)}
+										{formatCurrency(
+											stats?.todaysStats?.totalAmount! || 0,
+										).replace('BDT', '৳')}
 									</p>
 								</div>
 							</div>
@@ -176,12 +190,37 @@ export default function TransactionsPage() {
 				</CardContent>
 			</Card>
 
-			{/* Table */}
-			<TransactionsTable
-				transactions={transactions}
-				onRefresh={fetchTransactions}
-				isLoading={isLoading}
-			/>
+			<Tabs defaultValue='todays' className='space-y-6'>
+				<TabsList className='bg-primary/20 flex items-center gap-5'>
+					<TabsTrigger value='todays'>Today's Transactions</TabsTrigger>
+					<TabsTrigger value='weekly'>This Week Transactions</TabsTrigger>
+					<TabsTrigger value='monthly'>This Month Transactions</TabsTrigger>
+				</TabsList>
+
+				<TabsContent value='todays' className='space-y-6'>
+					<TransactionsTable
+						transactions={transactions?.todaysTransactions!}
+						onRefresh={fetchTransactions}
+						isLoading={isLoading}
+					/>
+				</TabsContent>
+
+				<TabsContent value='weekly' className='space-y-6'>
+					<TransactionsTable
+						transactions={transactions?.thisWeekTransactions!}
+						onRefresh={fetchTransactions}
+						isLoading={isLoading}
+					/>
+				</TabsContent>
+
+				<TabsContent value='monthly' className='space-y-6'>
+					<TransactionsTable
+						transactions={transactions?.thisMonthTransactions!}
+						onRefresh={fetchTransactions}
+						isLoading={isLoading}
+					/>
+				</TabsContent>
+			</Tabs>
 
 			{/* Pagination */}
 			{pagination && pagination.pages > 1 && (

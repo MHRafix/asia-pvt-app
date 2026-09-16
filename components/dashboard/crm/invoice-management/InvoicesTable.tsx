@@ -118,7 +118,7 @@ export default function InvoicesTable({
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{invoices.length === 0 ? (
+						{invoices?.length === 0 ? (
 							<TableRow>
 								<TableCell
 									colSpan={7}
@@ -128,7 +128,7 @@ export default function InvoicesTable({
 								</TableCell>
 							</TableRow>
 						) : (
-							invoices.map((invoice) => (
+							invoices?.map((invoice) => (
 								<TableRow
 									key={invoice._id}
 									className='hover:bg-muted/50 cursor-pointer'

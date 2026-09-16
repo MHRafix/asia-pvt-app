@@ -104,7 +104,7 @@ export default function TransactionsTable({
 									Loading transactions...
 								</TableCell>
 							</TableRow>
-						) : transactions.length === 0 ? (
+						) : transactions?.length === 0 ? (
 							<TableRow>
 								<TableCell
 									colSpan={8}
@@ -114,7 +114,7 @@ export default function TransactionsTable({
 								</TableCell>
 							</TableRow>
 						) : (
-							transactions.map((transaction) => (
+							transactions?.map((transaction) => (
 								<TableRow key={transaction._id} className='hover:bg-muted/50'>
 									<TableCell className='text-sm text-muted-foreground'>
 										{formatDate(new Date(transaction.createdAt))}

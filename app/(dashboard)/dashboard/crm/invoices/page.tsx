@@ -13,6 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils/formatting';
 import {
 	CheckCircle,
@@ -37,13 +38,26 @@ interface Stats {
 	partialDueAmount: number;
 }
 
+interface InvoicesResult {
+	data: Invoice[];
+	todaysInvoices: Invoice[];
+	thisWeekInvoices: Invoice[];
+	thisMonthInvoices: Invoice[];
+}
+
+interface StatsType {
+	allStats: Stats;
+	todaysStats: Stats;
+	thisWeekStats: Stats;
+	thisMonthStats: Stats;
+}
 export default function AdminInvoicesPage() {
-	const [invoices, setInvoices] = useState<Invoice[]>([]);
+	const [invoices, setInvoices] = useState<InvoicesResult>();
 	const [isLoading, setIsLoading] = useState(true);
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [page, setPage] = useState(1);
-	const [stats, setStats] = useState<Stats | null>(null);
+	const [stats, setStats] = useState<StatsType | null>(null);
 	const [pagination, setPagination] = useState<any>(null);
 
 	const fetchInvoices = async () => {
@@ -60,14 +74,13 @@ export default function AdminInvoicesPage() {
 			const result = await response.json();
 
 			if (result.success) {
-				setInvoices(result.data);
+				setInvoices(result);
 				setStats(result.stats);
 				setPagination(result.pagination);
 			} else {
 				toast.error(result.error || 'Failed to fetch invoices');
 			}
 		} catch (error) {
-			console.error('Error fetching invoices:', error);
 			toast.error('Failed to fetch invoices');
 		} finally {
 			setIsLoading(false);
@@ -109,9 +122,14 @@ export default function AdminInvoicesPage() {
 
 						<div className='min-w-0'>
 							<p className='text-sm text-gray-500'>Total Invoices</p>{' '}
-							<p className='text-2xl font-bold mt-2'>{stats.totalInvoices}</p>
+							<p className='text-2xl font-bold mt-2'>
+								{stats?.todaysStats?.totalInvoices}
+							</p>
 							<p className='truncate text-lg font-mono font-semibold text-black'>
-								{formatCurrency(stats?.totalAmount!).replace('BDT', '৳')}
+								{formatCurrency(stats?.todaysStats?.totalAmount!).replace(
+									'BDT',
+									'৳',
+								)}
 							</p>
 						</div>
 					</div>
@@ -127,9 +145,14 @@ export default function AdminInvoicesPage() {
 
 						<div className='min-w-0'>
 							<p className='text-sm text-gray-500'>Paid</p>{' '}
-							<p className='text-2xl font-bold mt-2'>{stats.paidInvoices}</p>
+							<p className='text-2xl font-bold mt-2'>
+								{stats.todaysStats?.paidInvoices}
+							</p>
 							<p className='truncate text-lg font-mono font-semibold text-green-500'>
-								{formatCurrency(stats?.paidAmount! || 0).replace('BDT', '৳')}
+								{formatCurrency(stats?.todaysStats?.paidAmount! || 0).replace(
+									'BDT',
+									'৳',
+								)}
 							</p>
 						</div>
 					</div>
@@ -143,9 +166,14 @@ export default function AdminInvoicesPage() {
 
 						<div className='min-w-0 font-mono font-semibold'>
 							<p className='text-sm text-gray-500'>Due</p>{' '}
-							<p className='text-2xl font-bold mt-2'>{stats.dueInvoices}</p>
+							<p className='text-2xl font-bold mt-2'>
+								{stats?.todaysStats?.dueInvoices}
+							</p>
 							<p className='truncate text-lg c text-red-500'>
-								{formatCurrency(stats?.dueAmount! || 0).replace('BDT', '৳')}
+								{formatCurrency(stats?.todaysStats?.dueAmount! || 0).replace(
+									'BDT',
+									'৳',
+								)}
 							</p>
 						</div>
 					</div>
@@ -159,20 +187,20 @@ export default function AdminInvoicesPage() {
 
 						<div className='min-w-0 font-mono font-semibold'>
 							<p className='text-sm text-gray-500'>Partial</p>{' '}
-							<p className='text-2xl font-bold mt-2'>{stats.partialInvoices}</p>
+							<p className='text-2xl font-bold mt-2'>
+								{stats.todaysStats?.partialInvoices}
+							</p>
 							<p className='truncate text-lg font-semibold text-orange-500'>
 								<span className='text-green-500'>
 									{' '}
-									{formatCurrency(stats?.partialPaidAmount! || 0).replace(
-										'BDT',
-										'৳',
-									)}
+									{formatCurrency(
+										stats?.todaysStats?.partialPaidAmount! || 0,
+									).replace('BDT', '৳')}
 								</span>{' '}
 								-{' '}
-								{formatCurrency(stats?.partialDueAmount! || 0).replace(
-									'BDT',
-									'৳',
-								)}
+								{formatCurrency(
+									stats?.todaysStats?.partialDueAmount! || 0,
+								).replace('BDT', '৳')}
 							</p>
 						</div>
 					</div>
@@ -216,8 +244,34 @@ export default function AdminInvoicesPage() {
 				</CardContent>
 			</Card>
 
-			{/* Table */}
-			<InvoicesTable invoices={invoices} onRefresh={fetchInvoices} />
+			<Tabs defaultValue='todays' className='space-y-6'>
+				<TabsList className='bg-primary/20 flex items-center gap-5'>
+					<TabsTrigger value='todays'>Today's Invoices</TabsTrigger>
+					<TabsTrigger value='weekly'>This Week Invoices</TabsTrigger>
+					<TabsTrigger value='monthly'>This Month Invoices</TabsTrigger>
+				</TabsList>
+
+				<TabsContent value='todays' className='space-y-6'>
+					<InvoicesTable
+						invoices={invoices?.todaysInvoices!}
+						onRefresh={fetchInvoices}
+					/>
+				</TabsContent>
+
+				<TabsContent value='weekly' className='space-y-6'>
+					<InvoicesTable
+						invoices={invoices?.thisWeekInvoices!}
+						onRefresh={fetchInvoices}
+					/>
+				</TabsContent>
+
+				<TabsContent value='monthly' className='space-y-6'>
+					<InvoicesTable
+						invoices={invoices?.thisMonthInvoices!}
+						onRefresh={fetchInvoices}
+					/>
+				</TabsContent>
+			</Tabs>
 
 			{/* Pagination */}
 			{pagination && pagination.pages > 1 && (
