@@ -38,15 +38,43 @@ export async function GET(request: NextRequest) {
 			query.clientId = clientId;
 		}
 
-		const [transactions, total] = await Promise.all([
-			ClientTransaction.find(query)
+		const now = new Date();
+		const startOfToday = new Date(now);
+		startOfToday.setHours(0, 0, 0, 0);
+		const startOfSevenDaysAgo = new Date(startOfToday);
+		startOfSevenDaysAgo.setDate(startOfSevenDaysAgo.getDate() - 7);
+		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+		const withTransactionRelations = (
+			transactionQuery: ReturnType<typeof ClientTransaction.find>,
+		) =>
+			transactionQuery
 				.populate('invoiceId', 'invoiceNumber')
 				.populate('clientId', 'name email phone')
-				.sort({ createdAt: -1 })
-				.skip(skip)
-				.limit(limit),
-			ClientTransaction.countDocuments(query),
-		]);
+				.sort({ createdAt: -1 });
+
+		const [transactions, total, todaysTransactions, thisWeekTransactions, thisMonthTransactions, allTransactions] =
+			await Promise.all([
+				withTransactionRelations(ClientTransaction.find(query)).skip(skip).limit(limit),
+				ClientTransaction.countDocuments(query),
+				withTransactionRelations(
+					ClientTransaction.find({ ...query, createdAt: { $gte: startOfToday, $lte: now } }),
+				),
+				withTransactionRelations(
+					ClientTransaction.find({ ...query, createdAt: { $gte: startOfSevenDaysAgo, $lt: startOfToday } }),
+				),
+				withTransactionRelations(
+					ClientTransaction.find({ ...query, createdAt: { $gte: startOfMonth, $lt: startOfToday } }),
+				),
+				withTransactionRelations(ClientTransaction.find(query)),
+			]);
+
+		const transactionGroups = {
+			todaysTransactions,
+			thisWeekTransactions,
+			thisMonthTransactions,
+			allTransactions,
+		};
 
 		// Get stats
 		const stats = await ClientTransaction.aggregate([
@@ -70,6 +98,7 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
+			...transactionGroups,
 			data: transactions,
 			stats: stats[0] || {
 				totalTransactions: 0,

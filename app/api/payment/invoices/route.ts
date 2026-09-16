@@ -40,15 +40,43 @@ export async function GET(request: NextRequest) {
 			query.linkedServiceId = serviceId;
 		}
 
-		const [invoices, total] = await Promise.all([
-			Invoice.find(query)
+		const now = new Date();
+		const startOfToday = new Date(now);
+		startOfToday.setHours(0, 0, 0, 0);
+		const startOfYesterday = new Date(startOfToday);
+		startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+		const startOfSevenDaysAgo = new Date(startOfToday);
+		startOfSevenDaysAgo.setDate(startOfSevenDaysAgo.getDate() - 7);
+		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+		const withInvoiceRelations = (invoiceQuery: ReturnType<typeof Invoice.find>) =>
+			invoiceQuery
 				.populate('clientId', 'name email phone company')
 				.populate('linkedServiceId', 'serviceTitle serviceCost serviceStatus')
-				.sort({ createdAt: -1 })
-				.skip(skip)
-				.limit(limit),
-			Invoice.countDocuments(query),
-		]);
+				.sort({ createdAt: -1 });
+
+		const [invoices, total, todaysInvoices, thisWeekInvoices, thisMonthInvoices, allInvoices] =
+			await Promise.all([
+				withInvoiceRelations(Invoice.find(query)).skip(skip).limit(limit),
+				Invoice.countDocuments(query),
+				withInvoiceRelations(
+					Invoice.find({ ...query, createdAt: { $gte: startOfToday, $lte: now } }),
+				),
+				withInvoiceRelations(
+					Invoice.find({ ...query, createdAt: { $gte: startOfSevenDaysAgo, $lt: startOfToday } }),
+				),
+				withInvoiceRelations(
+					Invoice.find({ ...query, createdAt: { $gte: startOfMonth, $lt: startOfToday } }),
+				),
+				withInvoiceRelations(Invoice.find(query)),
+			]);
+
+		const invoiceGroups = {
+			todaysInvoices,
+			thisWeekInvoices,
+			thisMonthInvoices,
+			allInvoices,
+		};
 
 		// Get stats
 		const stats = await Invoice.aggregate([
@@ -96,6 +124,7 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
+			...invoiceGroups,
 			data: invoices,
 			stats: stats[0] || {
 				totalInvoices: 0,
