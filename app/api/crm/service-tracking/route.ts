@@ -1,7 +1,7 @@
 import { connectDB } from '@/lib/db/connection';
 import { Client } from '@/lib/models/Client';
 import { DailyService } from '@/lib/models/DailyService';
-import { Employee } from '@/lib/models/Employee';
+import { User } from '@/lib/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		const employee = await Employee.findById(dailyService?.assignedEmployeeId);
+		const createdBy = await User.findById(dailyService?.createdBy);
 		const client = await Client.findById(dailyService?.linkedClientId);
 
 		return NextResponse.json(
@@ -47,9 +47,9 @@ export async function GET(request: NextRequest) {
 						serviceCost: dailyService?.serviceCost,
 						serviceStatus: dailyService?.serviceStatus,
 						createdDate: '2026-07-28T18:08:06.225Z',
-						assignedEmployeeId: {
-							name: employee?.name,
-							phone: employee?.phone,
+						createdBy: {
+							name: createdBy?.name,
+							phone: createdBy?.phone,
 						},
 						linkedClientId: {
 							name: client?.name,

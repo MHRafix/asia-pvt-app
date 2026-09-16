@@ -30,7 +30,7 @@ interface ServiceData {
 			phone: string;
 			company?: string;
 		};
-		assignedEmployeeId?: {
+		createdBy?: {
 			_id: string;
 			name: string;
 			phone: string;
@@ -230,16 +230,16 @@ export default function ServiceTracking() {
 								)}
 
 								{/* Assigned Employee */}
-								{result.service.assignedEmployeeId && (
+								{result?.service?.createdBy && (
 									<Card className='p-6'>
 										<h3 className='text-lg font-semibold'>Assigned To</h3>
 										<div className='flex items-center gap-4'>
 											<div>
 												<p className='font-semibold'>
-													{result.service.assignedEmployeeId.name}
+													{result?.service?.createdBy?.name}
 												</p>
 												<p className='text-sm text-muted-foreground'>
-													{result.service.assignedEmployeeId.phone}
+													{result?.service?.createdBy?.phone}
 												</p>
 											</div>
 										</div>
