@@ -71,7 +71,7 @@ const ClientSchema = new Schema<IClient>(
 );
 
 // Index for search
-ClientSchema.index({ name: 'text', phone: 'text' });
+ClientSchema.index({ name: 'text', phone: 'text', email: 'text' });
 
 export const Client: Model<IClient> =
 	mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema);
