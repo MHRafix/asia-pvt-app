@@ -2,7 +2,7 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IClient extends Document {
 	name: string;
-	email: string;
+	email?: string;
 	phone: string;
 	profession?: string;
 	notes?: string;
@@ -24,7 +24,7 @@ const ClientSchema = new Schema<IClient>(
 		},
 		email: {
 			type: String,
-			unique: true,
+			trim: true,
 			lowercase: true,
 			match: [
 				/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
