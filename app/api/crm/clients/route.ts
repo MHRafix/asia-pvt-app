@@ -131,7 +131,13 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const client = await Client.create(validationResult.data);
+
+const email = validationResult?.data?.email?.trim();
+
+const client = await Client.create({
+  ...validationResult.data,
+  email: email || undefined,
+});
 
 		return NextResponse.json({ success: true, data: client }, { status: 201 });
 	} catch (error: any) {
